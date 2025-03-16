@@ -1,0 +1,5 @@
+{
+  "require-dev": {
+    "asana/asana": "v1.0.6"
+  }
+}
