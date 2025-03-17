@@ -1,5 +1,6 @@
 {
-  "require-dev": {
-    "asana/asana": "v1.0.6"
+  "require": {
+    "league/oauth2-client": "2.8.1",
+    "guzzlehttp/guzzle": "7.9.2"
   }
 }
