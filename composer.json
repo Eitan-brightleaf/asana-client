@@ -2,5 +2,10 @@
   "require": {
     "league/oauth2-client": "2.8.1",
     "guzzlehttp/guzzle": "7.9.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "BrightleafDigital\\": "src/"
+    }
   }
 }
