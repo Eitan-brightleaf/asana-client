@@ -5,6 +5,14 @@ require '../vendor/autoload.php';
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use Dotenv\Dotenv;
 
+$tokenFilePath = __DIR__ . '/token.json';
+
+if (file_exists($tokenFilePath)) {
+    // Token file not found, redirect to OAuth flow (index.php)
+    header('Location: tasks.php');
+    exit;
+}
+
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
