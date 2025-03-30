@@ -13,7 +13,7 @@ $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $tokenData = json_decode(file_get_contents(__DIR__ . '/token.json'), true);
 
 // $pat = $_ENV['PAT'];
-// $asanaClient = AsanaClient::withPersonalAccessToken($pat);
+// $asanaClient = AsanaClient::withPAT($pat);
 
 $asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenData );
 
