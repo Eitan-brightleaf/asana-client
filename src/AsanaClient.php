@@ -16,23 +16,26 @@ class AsanaClient
     private ?AccessToken $accessToken = null;
     private string $tokenStoragePath;
 
-    /**
-     * Initialize the Asana client
-     *
-     * @param string $clientId OAuth client ID
-     * @param string $clientSecret OAuth client secret
-     * @param string $redirectUri OAuth redirect URI
-     * @param string|null $tokenStoragePath Path to store the token file
-     */
-    public function __construct(
-        string $clientId,
-        string $clientSecret,
-        string $redirectUri,
-        string $tokenStoragePath = null
-    ) {
-        $this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
-        $this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
-    }
+	/**
+	 * Initialize Asana client
+	 *
+	 * @param string|null $clientId OAuth client ID (not needed for PAT)
+	 * @param string|null $clientSecret OAuth client secret (not needed for PAT)
+	 * @param string|null $redirectUri OAuth redirect URI (not needed for PAT)
+	 * @param string|null $tokenStoragePath Path to store the token file (optional)
+	 */
+	public function __construct(
+		?string $clientId = null,
+		?string $clientSecret = null,
+		?string $redirectUri = null,
+		string $tokenStoragePath = null
+	) {
+		if ($clientId && $clientSecret && $redirectUri) {
+			$this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
+		}
+
+		$this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
+	}
 
 	/**
 	 * Initialize the Asana client with an access token
@@ -53,6 +56,20 @@ class AsanaClient
 			'' // No redirect URI required when preloading a token
 		);
 		$instance->accessToken = new AccessToken($token);
+		return $instance;
+	}
+
+	/**
+	 * Initialize the Asana client with a Personal Access Token (PAT)
+	 *
+	 * @param string $personalAccessToken The user's PAT from Asana
+	 * @return self
+	 */
+	public static function withPersonalAccessToken(
+		string $personalAccessToken
+	): self {
+		$instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
+		$instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
 		return $instance;
 	}
 
@@ -93,30 +110,36 @@ class AsanaClient
     {
 	    return $this->accessToken !== null;
     }
-    
-    /**
-     * Check if access token needs refresh and handle it
-     *
-     * @return bool True if token is valid (either didn't need refresh or was refreshed successfully)
-     */
-    public function ensureValidToken(): bool
-    {
-        if (!$this->hasToken()) {
-            return false;
-        }
-        
-        if ($this->accessToken->hasExpired()) {
-            try {
-                $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
-                return true;
-            } catch (Exception $e) {
-                $this->accessToken = null;
-                return false;
-            }
-        }
-        
-        return true;
-    }
+
+	/**
+	 * Check if access token is valid (PATs are always valid unless null).
+	 *
+	 * @return bool True if token is valid (either a valid OAuth token or PAT)
+	 */
+	public function ensureValidToken(): bool
+	{
+		if (!$this->hasToken()) {
+			return false;
+		}
+
+		// If token has no expiration (e.g., PAT), it is considered valid
+		if (!$this->accessToken->getExpires()) {
+			return true;
+		}
+
+		// Handle OAuth tokens that may need refreshing
+		if ($this->accessToken->hasExpired()) {
+			try {
+				$this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+				return true;
+			} catch (Exception $e) {
+				$this->accessToken = null;
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	public function refreshToken(): ?AccessToken
 	{
