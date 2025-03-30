@@ -65,7 +65,7 @@ class AsanaClient
 	 * @param string $personalAccessToken The user's PAT from Asana
 	 * @return self
 	 */
-	public static function withPersonalAccessToken(
+	public static function withPAT(
 		string $personalAccessToken
 	): self {
 		$instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
