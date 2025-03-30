@@ -12,10 +12,10 @@ $clientId     = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $tokenData = json_decode(file_get_contents(__DIR__ . '/token.json'), true);
 
-$pat = $_ENV['PAT'];
-$asanaClient = AsanaClient::withPersonalAccessToken($pat);
+// $pat = $_ENV['PAT'];
+// $asanaClient = AsanaClient::withPersonalAccessToken($pat);
 
-// $asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenData );
+$asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenData );
 
 try {
     $projectGid = $_ENV['PROJECT_GID'];
