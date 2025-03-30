@@ -32,11 +32,30 @@ class AsanaClient
     ) {
         $this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
         $this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
-        
-        // Try to load existing token
-        $this->loadToken();
     }
-    
+
+	/**
+	 * Initialize the Asana client with an access token
+	 *
+	 * @param string $clientId OAuth client ID
+	 * @param string $clientSecret OAuth client secret
+	 * @param array $token The user's preexisting access token
+	 * @return self
+	 */
+	public static function withAccessToken(
+		string $clientId,
+		string $clientSecret,
+		array $token
+	): self {
+		$instance = new self(
+			$clientId,
+			$clientSecret,
+			'' // No redirect URI required when preloading a token
+		);
+		$instance->accessToken = new AccessToken($token);
+		return $instance;
+	}
+
     /**
      * Get the authorization URL for OAuth flow
      *
@@ -51,16 +70,17 @@ class AsanaClient
      * Handle authorization callback and get access token
      *
      * @param string $authorizationCode The code from callback
-     * @return bool True if authentication was successful
+     *
+     * @return array True if authentication was successful
      */
-    public function handleCallback(string $authorizationCode): bool
+    public function handleCallback(string $authorizationCode ): ?array
     {
         try {
             $this->accessToken = $this->authHandler->getAccessToken($authorizationCode);
-            $this->saveToken();
-            return true;
+	        // Return the token's data as an associative array
+	        return $this->accessToken->jsonSerialize();
         } catch (Exception $e) {
-            return false;
+            return null;
         }
     }
     
@@ -69,9 +89,9 @@ class AsanaClient
      *
      * @return bool
      */
-    public function isAuthenticated(): bool
+    public function hasToken(): bool
     {
-        return $this->accessToken !== null;
+	    return $this->accessToken !== null;
     }
     
     /**
@@ -81,14 +101,13 @@ class AsanaClient
      */
     public function ensureValidToken(): bool
     {
-        if (!$this->isAuthenticated()) {
+        if (!$this->hasToken()) {
             return false;
         }
         
         if ($this->accessToken->hasExpired()) {
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
-                $this->saveToken();
                 return true;
             } catch (Exception $e) {
                 $this->accessToken = null;
@@ -98,6 +117,15 @@ class AsanaClient
         
         return true;
     }
+
+	public function refreshToken(): ?AccessToken
+	{
+		if ($this->accessToken && $this->accessToken->hasExpired()) {
+			$this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+			return $this->accessToken;
+		}
+		return null;
+	}
     
     /**
      * Get task API service
@@ -143,7 +171,7 @@ class AsanaClient
     /**
      * Load token from storage
      */
-    private function loadToken(): void
+    public function loadToken(): void
     {
         if (file_exists($this->tokenStoragePath)) {
             try {
@@ -158,7 +186,7 @@ class AsanaClient
     /**
      * Save token to storage
      */
-    private function saveToken(): void
+    public function saveToken(): void
     {
         if ($this->accessToken) {
             file_put_contents(

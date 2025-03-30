@@ -11,7 +11,10 @@ $dotenv->load();
 $clientId     = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $redirectUri  = $_ENV['ASANA_REDIRECT_URI'];
-$asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri);
+
+$tokenData = json_decode(file_get_contents(__DIR__ . '/token.json'), true);
+
+$asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenData );
 
 try {
     $projectGid = $_ENV['PROJECT_GID'];
