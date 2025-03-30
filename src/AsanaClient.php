@@ -30,7 +30,7 @@ class AsanaClient
 		?string $redirectUri = null,
 		string $tokenStoragePath = null
 	) {
-		if ($clientId && $clientSecret && $redirectUri) {
+		if ($clientId && $clientSecret) {
 			$this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
 		}
 
