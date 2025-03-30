@@ -82,24 +82,37 @@ class AsanaClient
     {
         return $this->authHandler->getAuthorizationUrl();
     }
-    
+
     /**
-     * Handle authorization callback and get access token
+     * Get authorization URL, state, and PKCE verifier
      *
-     * @param string $authorizationCode The code from callback
-     *
-     * @return array True if authentication was successful
+     * @param bool $enableState
+     * @param bool $enablePKCE
+     * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
      */
-    public function handleCallback(string $authorizationCode ): ?array
+    public function getSecureAuthorizationUrl(bool $enableState = true, bool $enablePKCE = true): array
+    {
+        return $this->authHandler->getSecureAuthorizationUrl($enableState, $enablePKCE);
+    }
+
+
+    /**
+     * Handle callback and retrieve an access token
+     *
+     * @param string $authorizationCode
+     * @param string|null $codeVerifier
+     * @return array|null Access Token data as array or null on failure
+     */
+    public function handleCallback(string $authorizationCode, ?string $codeVerifier = null): ?array
     {
         try {
-            $this->accessToken = $this->authHandler->getAccessToken($authorizationCode);
-	        // Return the token's data as an associative array
-	        return $this->accessToken->jsonSerialize();
+            $this->accessToken = $this->authHandler->handleCallback($authorizationCode, $codeVerifier);
+            return $this->accessToken->jsonSerialize();
         } catch (Exception $e) {
             return null;
         }
     }
+
     
     /**
      * Check if the client is authenticated

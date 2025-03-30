@@ -10,7 +10,8 @@ $dotenv->load();
 
 $clientId     = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
-$tokenData = json_decode(file_get_contents(__DIR__ . '/token.json'), true);
+$tokenPath = __DIR__ . '/token.json';
+$tokenData = json_decode(file_get_contents($tokenPath), true);
 
 // $pat = $_ENV['PAT'];
 // $asanaClient = AsanaClient::withPAT($pat);
