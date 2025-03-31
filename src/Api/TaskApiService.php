@@ -34,7 +34,7 @@ class TaskApiService
      *                      - limit (int): Maximum number of tasks to return. Default is 20
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
-     *                      - opt_fields (array): Fields to include in response (does not filter results)
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns prettier formatting in responses
      *
      * @return array List of tasks matching the filters. Each task contains:
@@ -75,7 +75,7 @@ class TaskApiService
      *                    - parent (string|null): GID of parent task for subtasks
      *                    Example: ["name" => "New task", "workspace" => "12345"]
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields: List of fields to return in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
      *
@@ -109,7 +109,7 @@ class TaskApiService
      *                        can be found in the task URL or returned from task-related API endpoints.
      *                        Example: "12345"
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (array): List of task fields to return in response.
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                        Common fields include: name, notes, assignee, completed, due_on,
      *                        projects, tags, workspace
      *                      - opt_pretty (bool): Returns formatted JSON if true
@@ -133,7 +133,7 @@ class TaskApiService
      *
      * Updates the properties of a task. Tasks can be updated to change things like their name,
      * assignee, completion state, due date, and other properties. Some of the properties that can be updated
-     * are documented in the parameters section. For a complete list visit the official documentation.
+     * are documented in the parameters section. For a complete list visit the official documentation. Any unspecified fields remain unchanged.
      *
      * API Documentation: https://developers.asana.com/docs/update-a-task
      *
@@ -149,7 +149,7 @@ class TaskApiService
      *                    - notes (string): Task description/notes
      *                    Example: ["name" => "Update Task", "completed" => true]
      * @param array $options Optional parameters for the request:
-     *                      - opt_fields: List of fields to return in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
      *
@@ -209,14 +209,15 @@ class TaskApiService
      *                    - include: (string) Comma-separated list of fields to duplicate: assignee,attachments,
      *                              dates,dependencies,followers,notes,parent,projects,subtasks,tags
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields: List of fields to return in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *
-     * @return array The created duplicate task data including:
-     *               - gid: Unique identifier of the duplicated task
-     *               - resource_type: Always "task"
-     *               - name: Name of the duplicated task
-     *               Additional fields as specified in opt_fields
+     * @return array Data about the duplication job in progress:
+     *               - gid: Unique identifier of the job
+     *               - resource_type: Always "job"
+     *               - resource_subtype: Type of job
+     *               - status: Current job status (e.g. "not_started", "in_progress", "succeeded")
+     *               - new_task: Contains the duplicated task data once job is complete
      *
      * @throws RequestException For invalid task GIDs, malformed data,
      *                         insufficient permissions, or network issues
@@ -240,7 +241,7 @@ class TaskApiService
      *                          Example: "12345"
      * @param array $options Optional query parameters to customize the request:
      *                      - completed_since (string): Only return tasks that are either incomplete or that have been completed since this time. Accepts a date-time string or the keyword "now".
-     *                      - opt_fields (array): List of task fields to include in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -270,7 +271,7 @@ class TaskApiService
      *                          Found in the URL or API responses for a section.
      *                          Example: "12345"
      * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (array): List of task fields to include in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -300,7 +301,7 @@ class TaskApiService
      *                       Found in the URL or API responses for a tag.
      *                       Example: "12345"
      * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (array): List of task fields to include in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -333,8 +334,7 @@ class TaskApiService
      *                                Example: "12345"
      * @param array $options Optional parameters to customize the request:
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - opt_fields (array): Defines fields to return in response. Common fields:
-     *                                           name, completed, due_on, notes, assignee
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - limit (int): Number of items to return per page (1-100)
      *                      - offset (string): Offset token for pagination
      *
@@ -366,7 +366,7 @@ class TaskApiService
      *                        This identifier can be found in the task URL or returned from
      *                        task-related API endpoints.
      * @param array $options Optional query parameters to customize the request. Supported parameters include:
-     *                      - opt_fields: Comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
@@ -408,7 +408,7 @@ class TaskApiService
      *                    - completed: Boolean for completion status
      *                    Example: ["name" => "My Subtask"]
      * @param array $options Optional parameters to include with the request:
-     *                      - opt_fields: List of fields to return in response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *
      * @return array The created subtask data including:
@@ -445,7 +445,7 @@ class TaskApiService
      *                            ["parent" => "67890", "insert_before" => "12345"] or
      *                            ["parent" => null, "insert_after" => "12345"]
      * @param array $options Additional request parameters:
-     *                      - opt_fields: List of response fields to include
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Returns formatted JSON if true
      *
      * @return array Task data including:
@@ -474,7 +474,7 @@ class TaskApiService
      *                        This identifier can be found in the task URL or returned from
      *                        task-related API endpoints.
      * @param array $options Optional query parameters to customize the request. Supported parameters include:
-     *                      - opt_fields: Comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
@@ -573,7 +573,7 @@ class TaskApiService
      *                        This identifier can be found in the task URL or returned from
      *                        task-related API endpoints.
      * @param array $options Optional query parameters to customize the request. Supported parameters include:
-     *                      - opt_fields: Comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
@@ -766,8 +766,8 @@ class TaskApiService
 	 *                        Each GID should be a string that uniquely identifies a user in Asana.
 	 *                        Example: ['12345', '67890']
 	 * @param array $options Optional query parameters to customize the request. Supported parameters include:
-	 *                      - opt_fields: Comma-separated list of fields to include in the response
-	 *                      - opt_pretty: Whether to return prettified JSON
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
+     *                      - opt_pretty: Whether to return prettified JSON
 	 *
 	 * @return array The updated task data including information about the new followers
 	 * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
@@ -791,8 +791,8 @@ class TaskApiService
 	 *                        Each GID should be a string that uniquely identifies a user in Asana.
 	 *                        Example: ['12345', '67890']
 	 * @param array $options Optional query parameters to customize the request. Supported parameters include:
-	 *                      - opt_fields: Comma-separated list of fields to include in the response
-	 *                      - opt_pretty: Whether to return prettified JSON
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
+     *                      - opt_pretty: Whether to return prettified JSON
 	 *
 	 * @return array The updated task data including information about the remaining followers
 	 * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
