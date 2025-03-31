@@ -82,6 +82,8 @@ class AsanaClient
 			$this->tasks = new TaskApiService($this->getApiClient());
 		}
 
+		$this->ensureValidToken();
+
 		return $this->tasks;
 	}
 
@@ -90,6 +92,8 @@ class AsanaClient
 		if ($this->projects === null) {
 			$this->projects = new ProjectApiService($this->getApiClient());
 		}
+
+		$this->ensureValidToken();
 
 		return $this->projects;
 	}
