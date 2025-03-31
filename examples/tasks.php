@@ -20,7 +20,10 @@ $asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenDat
 
 try {
     $projectGid = $_ENV['PROJECT_GID'];
-    $tasks = $asanaClient->tasks()->getTasksByProject($projectGid);
+    $tasks = $asanaClient->tasks()->getTasksByProject($projectGid, [
+		    'opt_fields' => 'name,due_date,completed,assignee,notes'
+	    ]
+    );
     echo '<pre>';
     print_r($tasks);
     echo '</pre>';
