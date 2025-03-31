@@ -153,7 +153,28 @@ class TaskApiService
 
 	/**
 	 * Set dependents for a task
-	 * https://developers.asana.com/docs/set-dependents-for-a-task
+	 *
+	 * Marks the specified tasks as dependents of a task. A task's dependents have their schedule
+	 * determined by the dependencies task, giving the dependent tasks a start date based on the date
+	 * their dependencies are completed. todo is this real description????
+	 *
+	 * API Documentation: https://developers.asana.com/docs/set-dependents-for-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task for which to set dependents.
+	 *                        This identifier can be found in the task URL or returned from
+	 *                        task-related API endpoints.
+	 * @param array $data An array containing dependent tasks to add. Must include:
+	 *                    - dependents (array): Array of task GIDs to set as dependents.
+	 *                      Each GID must be a string representing a valid task.
+	 *                      Example: ['1234', '5678']
+	 *
+	 * @return array The updated task data with the list of current dependent tasks
+	 * @throws RequestException If the API request fails due to:
+	 *                         - Invalid task GID
+	 *                         - Invalid dependent task GIDs
+	 *                         - Insufficient permissions
+	 *                         - Network connectivity issues
+	 *                         - Circular dependencies
 	 */
 	public function setDependentsForTask(string $taskGid, array $data): array {
 		return $this->client->request('POST', "tasks/$taskGid/addDependents", ['json' => $data]);
@@ -161,7 +182,27 @@ class TaskApiService
 
 	/**
 	 * Unlink dependents from a task
-	 * https://developers.asana.com/docs/unlink-dependents-from-a-task
+	 *
+	 * Removes the specified dependent tasks from a task. This endpoint removes the link between
+	 * the tasks but does not delete the tasks themselves. Dependent tasks have their schedule
+	 * determined by their parent tasks.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/unlink-dependents-from-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task from which to remove dependents.
+	 *                        This identifier can be found in the task URL or returned from
+	 *                        task-related API endpoints.
+	 * @param array $data An array containing dependent tasks to remove. Must include:
+	 *                    - dependents (array): Array of task GIDs to remove as dependents.
+	 *                      Each GID must be a string representing a valid task.
+	 *                      Example: ['1234', '5678']
+	 *
+	 * @return array The updated task data with current list of dependent tasks after removal
+	 * @throws RequestException If the API request fails due to:
+	 *                         - Invalid task GID
+	 *                         - Invalid dependent task GIDs
+	 *                         - Insufficient permissions
+	 *                         - Network connectivity issues
 	 */
 	public function unlinkDependentsFromTask(string $taskGid, array $data): array {
 		return $this->client->request('POST', "tasks/$taskGid/removeDependents", ['json' => $data]);
@@ -169,7 +210,26 @@ class TaskApiService
 
 	/**
 	 * Add a project to a task
-	 * https://developers.asana.com/docs/add-a-project-to-a-task
+	 *
+	 * Associates a task with a project. Tasks can be members of multiple projects at once, and
+	 * adding a task to a project will automatically add its parent project to the task.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/add-a-project-to-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task that will be added to the project.
+	 *                        This identifier can be found in the task URL or returned from
+	 *                        task-related API endpoints.
+	 * @param string $projectGid The unique global ID of the project that the task will be added to.
+	 *                          This identifier can be found in the project URL or returned from
+	 *                          project-related API endpoints.
+	 * @param array $data Optional data array containing additional parameters:
+	 *                    - insert_before (string): A task gid within the project to insert the task before or null to insert at the beginning of the list
+	 *                    - insert_after (string): A task gid within the project to insert the task after or null to insert at the end of the list
+	 *                    - section (string): A section gid in the project to add the task to
+	 *
+	 * @return array The updated task data showing current project associations
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function addProjectToTask(string $taskGid, string $projectGid, array $data = []): array {
 		$data['project'] = $projectGid;
@@ -178,7 +238,20 @@ class TaskApiService
 
 	/**
 	 * Remove a project from a task
-	 * https://developers.asana.com/docs/remove-a-project-from-a-task
+	 *
+	 * Removes the specified project from a task. The task will no longer be associated with
+	 * the project, but will remain accessible in other projects and in the user's task list.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/remove-a-project-from-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task from which to remove the project. This identifier
+	 *                        can be found in the task URL or returned from task-related API endpoints.
+	 * @param string $projectGid The unique global ID of the project to remove from the task. This identifier
+	 *                          can be found in the project URL or returned from project-related API endpoints.
+	 *
+	 * @return array The updated task data showing current project associations after removal
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function removeProjectFromTask(string $taskGid, string $projectGid): array {
 		return $this->client->request('POST', "tasks/$taskGid/removeProject", ['json' => ['project' => $projectGid]]);
@@ -186,7 +259,22 @@ class TaskApiService
 
 	/**
 	 * Add a tag to a task
-	 * https://developers.asana.com/docs/add-a-tag-to-a-task
+	 *
+	 * Associates a tag with a task. Tags provide a way to organize tasks and make them more searchable.
+	 * A task can have multiple tags, and adding a tag that is already on the task will not create a duplicate.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/add-a-tag-to-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task to which the tag will be added.
+	 *                        This identifier can be found in the task URL or returned from
+	 *                        task-related API endpoints.
+	 * @param string $tagGid The unique global ID of the tag to add to the task.
+	 *                       This identifier can be found in the tag URL or returned from
+	 *                       tag-related API endpoints.
+	 *
+	 * @return array The updated task data with the current tags after addition
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function addTagToTask(string $taskGid, string $tagGid): array {
 		return $this->client->request('POST', "tasks/$taskGid/addTag", ['json' => ['tag' => $tagGid]]);
@@ -194,7 +282,22 @@ class TaskApiService
 
 	/**
 	 * Remove a tag from a task
-	 * https://developers.asana.com/docs/remove-a-tag-from-a-task
+	 *
+	 * Removes a tag from a task. The task will no longer be associated with the specified tag.
+	 * Tags provide a way to organize tasks and make them more searchable.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/remove-a-tag-from-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task from which to remove the tag.
+	 *                        This identifier can be found in the task URL or returned from
+	 *                        task-related API endpoints.
+	 * @param string $tagGid The unique global ID of the tag to remove from the task.
+	 *                       This identifier can be found in the tag URL or returned from
+	 *                       tag-related API endpoints.
+	 *
+	 * @return array The updated task data with the current tags after removal
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function removeTagFromTask(string $taskGid, string $tagGid): array {
 		return $this->client->request('POST', "tasks/$taskGid/removeTag", ['json' => ['tag' => $tagGid]]);
@@ -202,7 +305,24 @@ class TaskApiService
 
 	/**
 	 * Add followers to a task
-	 * https://developers.asana.com/docs/add-followers-to-a-task
+	 *
+	 * Adds one or more followers to a task. A follower in Asana is a user that will receive notifications
+	 * about any changes or comments made to the task.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/add-followers-to-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task to which followers will be added. This identifier
+	 *                        can be found in the task URL or returned from task-related API endpoints.
+	 * @param array $followers An array of user GIDs representing the followers to add to the task.
+	 *                        Each GID should be a string that uniquely identifies a user in Asana.
+	 *                        Example: ['12345', '67890']
+	 * @param array $options Optional query parameters to customize the request. Supported parameters include:
+	 *                      - opt_fields: Comma-separated list of fields to include in the response
+	 *                      - opt_pretty: Whether to return prettified JSON
+	 *
+	 * @return array The updated task data including information about the new followers
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function addFollowersToTask(string $taskGid, array $followers, array $options = []): array {
 		return $this->client->request('POST', "tasks/$taskGid/addFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
@@ -210,7 +330,24 @@ class TaskApiService
 
 	/**
 	 * Remove followers from a task.
-	 * https://developers.asana.com/docs/remove-followers-from-a-task
+	 *
+	 * Removes one or more followers from a task. A follower in Asana is a user that will receive notifications
+	 * about any changes or comments made to the task.
+	 *
+	 * API Documentation: https://developers.asana.com/docs/remove-followers-from-a-task
+	 *
+	 * @param string $taskGid The unique global ID of the task from which to remove followers. This identifier
+	 *                        can be found in the task URL or returned from task-related API endpoints.
+	 * @param array $followers An array of user GIDs representing the followers to remove from the task.
+	 *                        Each GID should be a string that uniquely identifies a user in Asana.
+	 *                        Example: ['12345', '67890']
+	 * @param array $options Optional query parameters to customize the request. Supported parameters include:
+	 *                      - opt_fields: Comma-separated list of fields to include in the response
+	 *                      - opt_pretty: Whether to return prettified JSON
+	 *
+	 * @return array The updated task data including information about the remaining followers
+	 * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
+	 *                         insufficient permissions, or network issues
 	 */
 	public function removeFollowersFromTask(string $taskGid, array $followers, array $options = []): array {
 		return $this->client->request('POST', "tasks/$taskGid/removeFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
