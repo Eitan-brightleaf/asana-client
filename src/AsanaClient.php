@@ -16,8 +16,8 @@ class AsanaClient
     private ?AccessToken $accessToken = null;
     private string $tokenStoragePath;
 
-	public TaskApiService $tasks;
-	public ProjectApiService $projects;
+	private ?TaskApiService $tasks = null;
+	private ?ProjectApiService $projects = null;
 
 	/**
 	 * Initialize Asana client
@@ -38,9 +38,6 @@ class AsanaClient
 		}
 
 		$this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
-
-		$this->tasks    = new TaskApiService($this->getApiClient());
-		$this->projects = new ProjectApiService($this->getApiClient());
 	}
 
 	/**
@@ -77,6 +74,24 @@ class AsanaClient
 		$instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
 		$instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
 		return $instance;
+	}
+
+	public function tasks(): TaskApiService
+	{
+		if ($this->tasks === null) {
+			$this->tasks = new TaskApiService($this->getApiClient());
+		}
+
+		return $this->tasks;
+	}
+
+	public function projects(): ProjectApiService
+	{
+		if ($this->projects === null) {
+			$this->projects = new ProjectApiService($this->getApiClient());
+		}
+
+		return $this->projects;
 	}
 
     /**
