@@ -16,6 +16,9 @@ class AsanaClient
     private ?AccessToken $accessToken = null;
     private string $tokenStoragePath;
 
+	public TaskApiService $tasks;
+	public ProjectApiService $projects;
+
 	/**
 	 * Initialize Asana client
 	 *
@@ -35,6 +38,9 @@ class AsanaClient
 		}
 
 		$this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
+
+		$this->tasks    = new TaskApiService($this->getApiClient());
+		$this->projects = new ProjectApiService($this->getApiClient());
 	}
 
 	/**
@@ -162,28 +168,6 @@ class AsanaClient
 		}
 		return null;
 	}
-    
-    /**
-     * Get task API service
-     *
-     * @return TaskApiService
-     * @throws Exception If not authenticated
-     */
-    public function tasks(): TaskApiService
-    {
-        return new TaskApiService($this->getApiClient());
-    }
-    
-    /**
-     * Get project API service
-     *
-     * @return ProjectApiService
-     * @throws Exception If not authenticated
-     */
-    public function projects(): ProjectApiService
-    {
-        return new ProjectApiService($this->getApiClient());
-    }
     
     /**
      * Get API client with valid token
