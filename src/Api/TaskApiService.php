@@ -3,6 +3,7 @@
 namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Http\AsanaApiClient;
+use GuzzleHttp\Exception\RequestException;
 
 class TaskApiService
 {
@@ -13,159 +14,344 @@ class TaskApiService
 		$this->client = $client;
 	}
 
+
 	/**
-	 * Get tasks for a specific project
-	 *
-	 * @param string $projectId The project ID
-	 * @param array $options Optional parameters (opt_fields, limit, offset)
-	 * @return array
+	 * Get multiple tasks
+	 * https://developers.asana.com/docs/get-multiple-tasks
 	 */
-	public function getTasksByProject(string $projectId, array $options = []): array {
-		return $this->client->request('GET', "projects/$projectId/tasks", [
-			'query' => $options
-		]);
+	public function getTasks(array $options): array {
+		return $this->client->request('GET', 'tasks', ['query' => $options]);
 	}
 
 	/**
-	 * Get a specific task by ID
-	 *
-	 * @param string $taskId The task ID
-	 * @param array $options Optional parameters (opt_fields)
-	 * @return array
-	 */
-	public function getTask(string $taskId, array $options = []): array {
-		return $this->client->request('GET', "tasks/$taskId", [
-			'query' => $options
-		]);
-	}
-
-	/**
-	 * Create a new task
-	 *
-	 * @param array $data Task data
-	 * @param array $options Optional parameters (opt_fields)
-	 * @return array
+	 * Create a task
+	 * https://developers.asana.com/docs/create-a-task
 	 */
 	public function createTask(array $data, array $options = []): array {
-		return $this->client->request('POST', 'tasks', [
-			'json' => $data,
-			'query' => $options
-		]);
+		return $this->client->request('POST', 'tasks', ['json' => $data, 'query' => $options]);
 	}
 
 	/**
-	 * Update an existing task
-	 *
-	 * @param string $taskId The task ID
-	 * @param array $data The data to update
-	 * @param array $options Optional parameters (opt_fields)
-	 * @return array
+	 * Get a task
+	 * https://developers.asana.com/docs/get-a-task
 	 */
-	public function updateTask(string $taskId, array $data, array $options = []): array {
-		return $this->client->request('PUT', "tasks/$taskId", [
-			'json' => $data,
-			'query' => $options
-		]);
+	public function getTask(string $taskGid, array $options = []): array {
+		return $this->client->request('GET', "tasks/$taskGid", ['query' => $options]);
+	}
+
+	/**
+	 * Update a task
+	 * https://developers.asana.com/docs/update-a-task
+	 */
+	public function updateTask(string $taskGid, array $data, array $options = []): array {
+		return $this->client->request('PUT', "tasks/$taskGid", ['json' => $data, 'query' => $options]);
 	}
 
 	/**
 	 * Delete a task
-	 *
-	 * @param string $taskId The task ID
-	 * @return array
+	 * https://developers.asana.com/docs/delete-a-task
 	 */
-	public function deleteTask(string $taskId): array {
-		return $this->client->request('DELETE', "tasks/$taskId");
+	public function deleteTask(string $taskGid): array {
+		return $this->client->request('DELETE', "tasks/$taskGid");
 	}
 
 	/**
-	 * Get subtasks for a specific task
-	 *
-	 * @param string $taskId The parent task ID
-	 * @param array $options Optional parameters (opt_fields, limit, offset)
-	 * @return array
+	 * Duplicate a task
+	 * https://developers.asana.com/docs/duplicate-a-task
 	 */
-	public function getSubtasks(string $taskId, array $options = []): array {
-		return $this->client->request('GET', "tasks/$taskId/subtasks", [
-			'query' => $options
-		]);
+	public function duplicateTask(string $taskGid, array $data, array $options = []): array {
+		return $this->client->request('POST', "tasks/$taskGid/duplicate", ['json' => $data, 'query' => $options]);
 	}
 
 	/**
-	 * Add a task to a project
-	 *
-	 * @param string $taskId The task ID
-	 * @param string $projectId The project ID
-	 * @param array $data Additional parameters (section, insert_before, insert_after)
-	 * @return array
+	 * Get tasks from a project
+	 * https://developers.asana.com/docs/get-tasks-from-a-project
 	 */
-	public function addProjectToTask(string $taskId, string $projectId, array $data = []): array {
-		$data['project'] = $projectId;
-		return $this->client->request('POST', "tasks/$taskId/addProject", [
-			'json' => $data
-		]);
+	public function getTasksByProject(string $projectGid, array $options = []): array {
+		return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options]);
 	}
 
 	/**
-	 * Remove a task from a project
-	 *
-	 * @param string $taskId The task ID
-	 * @param string $projectId The project ID
-	 * @return array
+	 * Get tasks from a section
+	 * https://developers.asana.com/docs/get-tasks-from-a-section
 	 */
-	public function removeProjectFromTask(string $taskId, string $projectId): array {
-		return $this->client->request('POST', "tasks/$taskId/removeProject", [
-			'json' => [
-				'project' => $projectId
-			]
-		]);
+	public function getTasksBySection(string $sectionGid, array $options = []): array {
+		return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options]);
+	}
+
+	/**
+	 * Get tasks from a tag
+	 * https://developers.asana.com/docs/get-tasks-from-a-tag
+	 */
+	public function getTasksByTag(string $tagGid, array $options = []): array {
+		return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options]);
+	}
+
+	/**
+	 * Get tasks from a user task list
+	 * https://developers.asana.com/docs/get-tasks-from-a-user-task-list
+	 */
+	public function getTasksByUserTaskList(string $userTaskListGid, array $options = []): array {
+		return $this->client->request('GET', "user_task_lists/$userTaskListGid/tasks", ['query' => $options]);
+	}
+
+	/**
+	 * Get subtasks from a task
+	 * https://developers.asana.com/docs/get-subtasks-from-a-task
+	 */
+	public function getSubtasksFromTask(string $taskGid, array $options = []): array {
+		return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options]);
+	}
+
+	/**
+	 * Create a subtask
+	 * https://developers.asana.com/docs/create-a-subtask
+	 */
+	public function createSubtaskForTask(string $taskGid, array $data, array $options = []): array {
+		return $this->client->request('POST', "tasks/$taskGid/subtasks", ['json' => $data, 'query' => $options]);
 	}
 
 	/**
 	 * Set the parent of a task
-	 *
-	 * @param string $taskId The task ID
-	 * @param string $parentId The parent task ID
-	 * @param array $options Optional parameters (opt_fields)
-	 * @return array
+	 * https://developers.asana.com/docs/set-the-parent-of-a-task
 	 */
-	public function setParentForTask(string $taskId, string $parentId, array $options = []): array {
-		return $this->client->request('POST', "tasks/$taskId/setParent", [
-			'json' => [
-				'parent' => $parentId
-			],
-			'query' => $options
-		]);
+	public function setParentForTask(string $taskGid, array $data, array $options = []): array {
+		return $this->client->request('POST', "tasks/$taskGid/setParent", ['json' => $data, 'query' => $options]);
 	}
 
 	/**
-	 * Get stories for a task (comments, system activities)
-	 *
-	 * @param string $taskId The task ID
-	 * @param array $options Optional parameters (opt_fields, limit, offset)
-	 * @return array
+	 * Get dependencies from a task
+	 * https://developers.asana.com/docs/get-dependencies-from-a-task
 	 */
-	public function getTaskStories(string $taskId, array $options = []): array {
-		return $this->client->request('GET', "tasks/$taskId/stories", [
-			'query' => $options
-		]);
+	public function getDependenciesFromTask(string $taskGid, array $options = []): array {
+		return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options]);
+	}
+
+	/**
+	 * Set dependencies for a task
+	 * https://developers.asana.com/docs/set-dependencies-for-a-task
+	 */
+	public function setDependenciesForTask(string $taskGid, array $data): array {
+		return $this->client->request('POST', "tasks/$taskGid/addDependencies", ['json' => $data]);
+	}
+
+	/**
+	 * Unlink dependencies from a task
+	 * https://developers.asana.com/docs/unlink-dependencies-from-a-task
+	 */
+	public function unlinkDependenciesFromTask(string $taskGid, array $data): array {
+		return $this->client->request('POST', "tasks/$taskGid/removeDependencies", ['json' => $data]);
+	}
+
+	/**
+	 * Get dependents from a task
+	 * https://developers.asana.com/docs/get-dependents-from-a-task
+	 */
+	public function getDependentsFromTask(string $taskGid, array $options = []): array {
+		return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options]);
+	}
+
+	/**
+	 * Set dependents for a task
+	 * https://developers.asana.com/docs/set-dependents-for-a-task
+	 */
+	public function setDependentsForTask(string $taskGid, array $data): array {
+		return $this->client->request('POST', "tasks/$taskGid/addDependents", ['json' => $data]);
+	}
+
+	/**
+	 * Unlink dependents from a task
+	 * https://developers.asana.com/docs/unlink-dependents-from-a-task
+	 */
+	public function unlinkDependentsFromTask(string $taskGid, array $data): array {
+		return $this->client->request('POST', "tasks/$taskGid/removeDependents", ['json' => $data]);
+	}
+
+	/**
+	 * Add a project to a task
+	 * https://developers.asana.com/docs/add-a-project-to-a-task
+	 */
+	public function addProjectToTask(string $taskGid, string $projectGid, array $data = []): array {
+		$data['project'] = $projectGid;
+		return $this->client->request('POST', "tasks/$taskGid/addProject", ['json' => $data]);
+	}
+
+	/**
+	 * Remove a project from a task
+	 * https://developers.asana.com/docs/remove-a-project-from-a-task
+	 */
+	public function removeProjectFromTask(string $taskGid, string $projectGid): array {
+		return $this->client->request('POST', "tasks/$taskGid/removeProject", ['json' => ['project' => $projectGid]]);
+	}
+
+	/**
+	 * Add a tag to a task
+	 * https://developers.asana.com/docs/add-a-tag-to-a-task
+	 */
+	public function addTagToTask(string $taskGid, string $tagGid): array {
+		return $this->client->request('POST', "tasks/$taskGid/addTag", ['json' => ['tag' => $tagGid]]);
+	}
+
+	/**
+	 * Remove a tag from a task
+	 * https://developers.asana.com/docs/remove-a-tag-from-a-task
+	 */
+	public function removeTagFromTask(string $taskGid, string $tagGid): array {
+		return $this->client->request('POST', "tasks/$taskGid/removeTag", ['json' => ['tag' => $tagGid]]);
 	}
 
 	/**
 	 * Add followers to a task
-	 *
-	 * @param string $taskId The task ID
-	 * @param array $followerIds Array of user IDs to add as followers
-	 * @param array $options Optional parameters (opt_fields)
-	 * @return array
+	 * https://developers.asana.com/docs/add-followers-to-a-task
 	 */
-	public function addFollowers(string $taskId, array $followerIds, array $options = [])
-	{
-		return $this->client->request('POST', "tasks/$taskId/addFollowers", [
-			'json' => [
-				'followers' => $followerIds
-			],
-			'query' => $options
-		]);
+	public function addFollowersToTask(string $taskGid, array $followers, array $options = []): array {
+		return $this->client->request('POST', "tasks/$taskGid/addFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
+	}
+
+	/**
+	 * Remove followers from a task.
+	 * https://developers.asana.com/docs/remove-followers-from-a-task
+	 */
+	public function removeFollowersFromTask(string $taskGid, array $followers, array $options = []): array {
+		return $this->client->request('POST', "tasks/$taskGid/removeFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
+	}
+
+	/**
+	 * Get a task by a given custom ID.
+	 *
+	 * Fetches a task from a specific workspace using its custom task ID.
+	 * The `custom_task_id` must be unique within the workspace. If no task matches
+	 * the provided custom ID, an error will be returned.
+	 *
+	 * API Documentation: https://developers.asana.com/reference/gettaskforcustomid
+	 *
+	 * @param string $workspaceGid The unique global ID of the workspace where the task is searched.
+	 * @param string $customId The custom task ID to retrieve.
+	 *
+	 * @return array An associative array representing the task.
+	 *
+	 * @throws RequestException If the API request fails or no task with the provided custom ID is found.
+	 */
+	public function getTaskByCustomId(string $workspaceGid, string $customId): array {
+		return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId");
+	}
+
+	/**
+	 * Search tasks in a workspace.
+	 *
+	 * Executes a search query to retrieve tasks from a specific workspace using
+	 * the Asana API. This method allows filtering tasks based on a variety of
+	 * search options, such as assignee, completion status, and due dates.
+	 * For details about available filters, refer to the Asana API documentation.
+	 *
+	 * API Documentation: https://developers.asana.com/reference/searchtasksforworkspace
+	 *
+	 * @param string $workspaceGid The unique global ID of the workspace where the tasks should be searched.
+	 * @param array $options Optional query parameters to refine the search. Supported keys include:
+	 *   - `text` (string): A full-text search string (e.g., portions of the task name or description).
+	 *   - `resource_subtype` (string): Filter by task type. Common values are `default_task`, `milestone`, `section`.
+	 *   - `completed` (bool): Filter by task completion status (`true` for completed, `false` for incomplete tasks).
+	 *   - `completed_on.after` (string, ISO 8601): Include tasks completed after the given timestamp.
+	 *   - `completed_on.before` (string, ISO 8601): Include tasks completed before the given timestamp.
+	 *   - `created_on.after` (string, ISO 8601): Include tasks created after the given timestamp.
+	 *   - `created_on.before` (string, ISO 8601): Include tasks created before the given timestamp.
+	 *   - `modified_on.after` (string, ISO 8601): Include tasks modified after the given timestamp.
+	 *   - `modified_on.before` (string, ISO 8601): Include tasks modified before the given timestamp.
+	 *   - `due_on.after` (string, ISO 8601): Include tasks with a due date after the given timestamp.
+	 *   - `due_on.before` (string, ISO 8601): Include tasks with a due date before the given timestamp.
+	 *   - `due_on` (string, ISO 8601): Include tasks with a specific due date.
+	 *   - `assignee.any` (array): A list of user GIDs; retrieves tasks assigned to any of the specified users.
+	 *   - `assignee.not` (array): A list of user GIDs; excludes tasks assigned to any of the specified users.
+	 *   - `projects.any` (array): A list of project GIDs; retrieves tasks in any of the specified projects.
+	 *   - `projects.not` (array): A list of project GIDs; excludes tasks in any of the specified projects.
+	 *   - `tags.any` (array): A list of tag GIDs; retrieves tasks tagged with any of the specified tags.
+	 *   - `tags.not` (array): A list of tag GIDs; excludes tasks tagged with any of the specified tags.
+	 *   - `opt_fields` (string): A comma-separated list of fields to include in the results.
+	 *
+	 * Example Usage:
+	 * ```
+	 * $workspaceGid = '123456789'; // Replace with your workspace GID
+	 * $options = [
+	 *     'completed' => false, // Retrieve only incomplete tasks
+	 *     'assignee.any' => ['7891011'], // Filter tasks assigned to specific users
+	 *     'due_on.before' => '2023-12-31T23:59:59Z', // Tasks due before the end of 2023
+	 *     'opt_fields' => 'name,due_on,assignee.name', // Include additional task details in the result
+	 * ];
+	 *
+	 * $tasks = $apiService->searchTasks($workspaceGid, $options);
+	 *
+	 * foreach ($tasks as $task) {
+	 *     echo $task['name'] . " is due on " . $task['due_on'] . "\n";
+	 * }
+	 * ```
+	 *
+	 * @return array An array of tasks matching the search criteria. Each task entry
+	 * includes fields specified in `opt_fields` or the default set by the Asana API.
+	 *
+	 * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
+	 */
+	public function searchTasks(string $workspaceGid, array $options = []): array {
+		return $this->client->request('GET', "workspaces/$workspaceGid/tasks/search", ['query' => $options]);
+	}
+
+	/**
+	 * Mark a task as complete.
+	 *
+	 * Updates the status of a task to mark it as completed.
+	 *
+	 * @param string $taskGid The unique global ID of the task to be marked as complete.
+	 *
+	 * @return array The updated task details returned from the Asana API.
+	 * @throws RequestException If the API request fails.
+	 */
+	public function markTaskComplete(string $taskGid): array {
+		return $this->updateTask($taskGid, ['completed' => true]);
+	}
+
+	/**
+	 * Reassign a task to a different user.
+	 *
+	 * Changes the assignee of a task to a specified user.
+	 *
+	 * @param string $taskGid The unique global ID of the task to be reassigned.
+	 * @param string $assigneeGid The unique global ID of the user to whom the task should be reassigned.
+	 *
+	 * @return array The updated task details returned from the Asana API.
+	 * @throws RequestException If the API request fails.
+	 */
+	public function reassignTask(string $taskGid, string $assigneeGid): array {
+		return $this->updateTask($taskGid, ['assignee' => $assigneeGid]);
+	}
+
+	/**
+	 * Get overdue tasks in a workspace.
+	 *
+	 * Retrieves tasks that are past their due date (`due_on.before`) and are not completed.
+	 * This is useful for identifying tasks that have missed their deadlines.
+	 *
+	 * API Documentation: https://developers.asana.com/reference/searchtasksforworkspace
+	 *
+	 * @param string $workspaceGid The unique global ID of the workspace to search in.
+	 * @param array|null $assigneeGids Optionally filter tasks by a specific assignee's GID.
+	 * @param array $options Additional query parameters to refine the search. Supported keys include:
+	 *   - `projects.any` (array): Filter tasks that belong to specific project(s) (optional).
+	 *   - `tags.any` (array): Filter tasks that have specific tag(s) (optional).
+	 *   - `opt_fields` (string): A comma-separated list of fields to include in the result (e.g., `name,due_on`).
+	 *
+	 * @return array A list of overdue tasks matching the specified criteria. Each task entry includes fields specified in `opt_fields` or defaults to Asana's standard fields.
+	 *
+	 * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
+	 */
+	public function getOverdueTasks(string $workspaceGid, ?array $assigneeGids = null, array $options = []): array {
+		$options['due_on.before'] = date('c'); // Include tasks with a due date before now (ISO 8601 format)
+		$options['completed'] = false; // Exclude completed tasks
+
+		// If an assignee is provided, filter tasks only for that user
+		if ($assigneeGids) {
+			$options['assignee.any'] = $assigneeGids; // Asana supports `assignee.any` for multiple users
+		}
+
+		// Ensure any other search filters are properly merged into the options array
+		return $this->searchTasks($workspaceGid, $options);
 	}
 }
