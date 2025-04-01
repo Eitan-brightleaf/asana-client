@@ -16,27 +16,81 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class AsanaClient
 {
+    /**
+     * OAuth handler for authentication with Asana API
+     * @var AsanaOAuthHandler
+     */
     private AsanaOAuthHandler $authHandler;
+
+    /**
+     * HTTP client for making API requests to Asana
+     * @var AsanaApiClient|null
+     */
     private ?AsanaApiClient $apiClient = null;
+
+    /**
+     * Current access token for authentication
+     * @var AccessToken|null
+     */
     private ?AccessToken $accessToken = null;
+
+    /**
+     * File path for token storage
+     * @var string
+     */
     private string $tokenStoragePath;
 
-	private ?TaskApiService $tasks = null;
-	private ?ProjectApiService $projects = null;
+    /**
+     * Tasks API service instance
+     * @var TaskApiService|null
+     */
+    private ?TaskApiService $tasks = null;
+
+    /**
+     * Projects API service instance
+     * @var ProjectApiService|null
+     */
+    private ?ProjectApiService $projects = null;
+
+    /**
+     * Users API service instance
+     * @var UserApiService|null
+     */
     private ?UserApiService $users = null;
+
+    /**
+     * Tags API service instance
+     * @var TagsApiService|null
+     */
     private ?TagsApiService $tags = null;
+
+    /**
+     * Sections API service instance
+     * @var SectionApiService|null
+     */
     private ?SectionApiService $sections = null;
+
+    /**
+     * Memberships API service instance
+     * @var MembershipApiService|null
+     */
     private ?MembershipApiService $memberships = null;
+
+    /**
+     * Attachments API service instance
+     * @var AttachmentApiService|null
+     */
     private ?AttachmentApiService $attachments = null;
 
-	/**
-	 * Initialize Asana client
-	 *
-	 * @param string|null $clientId OAuth client ID (not needed for PAT)
-	 * @param string|null $clientSecret OAuth client secret (not needed for PAT)
-	 * @param string|null $redirectUri OAuth redirect URI (not needed for PAT)
-	 * @param string|null $tokenStoragePath Path to store the token file (optional)
-	 */
+    /**
+     * Constructor method for initializing the AsanaOAuthHandler and setting the token storage path.
+     *
+     * @param string|null $clientId Optional client ID for authentication.
+     * @param string|null $clientSecret Optional client secret for authentication.
+     * @param string|null $redirectUri Optional redirect URI for OAuth flow.
+     * @param string|null $tokenStoragePath Path to token storage file, defaults to a token.json file in the current directory.
+     *
+     */
 	public function __construct(
 		?string $clientId = null,
 		?string $clientSecret = null,
@@ -86,7 +140,15 @@ class AsanaClient
 		return $instance;
 	}
 
-	public function tasks(): TaskApiService
+    /**
+     * Retrieve the Task API service instance.
+     *
+     * Initializes the Task API service if it is not already set, ensuring
+     * the API client is configured, and validates the current token.
+     *
+     * @return TaskApiService The instance of TaskApiService.
+     */
+    public function tasks(): TaskApiService
 	{
 		if ($this->tasks === null) {
 			$this->tasks = new TaskApiService($this->getApiClient());
@@ -98,7 +160,13 @@ class AsanaClient
 		return $this->tasks;
 	}
 
-	public function projects(): ProjectApiService
+    /**
+     * Retrieve the ProjectApiService instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return ProjectApiService The initialized ProjectApiService instance.
+     */
+    public function projects(): ProjectApiService
 	{
 		if ($this->projects === null) {
 			$this->projects = new ProjectApiService($this->getApiClient());
@@ -110,6 +178,12 @@ class AsanaClient
 		return $this->projects;
 	}
 
+    /**
+     * Retrieve the UserApiService instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return UserApiService The initialized UserApiService instance.
+     */
     public function users(): UserApiService
     {
         if ($this->users === null) {
@@ -122,6 +196,12 @@ class AsanaClient
         return $this->users;
     }
 
+    /**
+     * Retrieve the TagsApiService instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return TagsApiService The initialized TagsApiService instance.
+     */
     public function tags(): TagsApiService
     {
         if ($this->tags === null) {
@@ -134,6 +214,12 @@ class AsanaClient
         return $this->tags;
     }
 
+    /**
+     * Retrieve the SectionApiService instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return SectionApiService The initialized SectionApiService instance.
+     */
     public function sections(): SectionApiService
     {
         if ($this->sections === null) {
@@ -146,6 +232,12 @@ class AsanaClient
         return $this->sections;
     }
 
+    /**
+     * Retrieve the Membership API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return MembershipApiService The initialized MembershipApiService instance.
+     */
     public function memberships(): MembershipApiService
     {
         if ($this->memberships === null) {
@@ -158,6 +250,12 @@ class AsanaClient
         return $this->memberships;
     }
 
+    /**
+     * Retrieve the AttachmentApiService instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return AttachmentApiService The initialized AttachmentApiService instance.
+     */
     public function attachments(): AttachmentApiService
     {
         if ($this->attachments === null) {
@@ -251,7 +349,12 @@ class AsanaClient
 		return true;
 	}
 
-	public function refreshToken(): ?AccessToken
+    /**
+     * Refreshes the expired access token.
+     *
+     * @return AccessToken|null Returns the refreshed access token if it was expired, otherwise null.
+     */
+    public function refreshToken(): ?AccessToken
 	{
 		if ($this->accessToken && $this->accessToken->hasExpired()) {
 			$this->accessToken = $this->authHandler->refreshToken($this->accessToken);

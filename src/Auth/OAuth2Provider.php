@@ -9,26 +9,56 @@ use Psr\Http\Message\ResponseInterface;
 
 class OAuth2Provider extends AbstractProvider
 {
+    /**
+     * Retrieves the base authorization URL for the OAuth process.
+     *
+     * @return string The base authorization URL.
+     */
     public function getBaseAuthorizationUrl(): string
     {
         return 'https://app.asana.com/-/oauth_authorize';
     }
 
+    /**
+     * Returns the base URL for retrieving the access token.
+     *
+     * @param array $params An array of parameters for constructing the URL.
+     * @return string The base access token URL.
+     */
     public function getBaseAccessTokenUrl(array $params): string
     {
         return 'https://app.asana.com/-/oauth_token';
     }
 
+    /**
+     * Returns the URL to fetch resource owner details.
+     *
+     * @param AccessToken $token The access token used for authentication.
+     * @return string The URL to retrieve resource owner details.
+     */
     public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
         return 'https://app.asana.com/api/1.0/users/me';
     }
 
+    /**
+     * Retrieves a list of default scopes for authorization.
+     *
+     * @return array List of default scopes.
+     */
     protected function getDefaultScopes(): array
     {
         return ['default'];
     }
 
+    /**
+     * Checks the response for errors and throws an exception if an error is found.
+     *
+     * @param ResponseInterface $response The HTTP response object.
+     * @param mixed $data The response data to be checked for errors.
+     * @return void
+     * @throws \RuntimeException if an error is found in the response data.
+     */
     protected function checkResponse(ResponseInterface $response, $data)
     {
         if (isset($data['error'])) {
@@ -36,7 +66,14 @@ class OAuth2Provider extends AbstractProvider
         }
     }
 
-    protected function createResourceOwner(array $response, AccessToken $token)
+    /**
+     * Creates and returns the resource owner using the given response and access token.
+     *
+     * @param array $response The response data retrieved from the resource server.
+     * @param AccessToken $token The access token associated with the resource owner.
+     * @return array The processed resource owner data.
+     */
+    protected function createResourceOwner(array $response, AccessToken $token): array
     {
         return $response;
     }

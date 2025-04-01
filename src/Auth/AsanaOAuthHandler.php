@@ -6,9 +6,20 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class AsanaOAuthHandler
 {
+    /**
+     * @property OAuth2Provider $provider The OAuth2 provider instance for Asana authentication
+     */
     private OAuth2Provider $provider;
 
-    public function __construct($clientId, $clientSecret, $redirectUri)
+    /**
+     * Initializes the OAuth2 provider with the given client configuration.
+     *
+     * @param string $clientId The client identifier issued by the authorization server.
+     * @param string $clientSecret The client secret associated with the client ID.
+     * @param string $redirectUri The URI the authorization server redirects to after authorization.
+     * @return void
+     */
+    public function __construct(string $clientId, string $clientSecret, string $redirectUri)
     {
         $this->provider = new OAuth2Provider([
             'clientId'     => $clientId,
@@ -48,19 +59,36 @@ class AsanaOAuthHandler
 
     }
 
+    /**
+     * Retrieves the authorization URL for initiating the authentication process.
+     *
+     * @return string The authorization URL.
+     */
     public function getAuthorizationUrl(): string
     {
         return $this->provider->getAuthorizationUrl();
     }
 
-    public function getAccessToken($authorizationCode)
+    /**
+     * Retrieves an access token using the provided authorization code.
+     *
+     * @param string $authorizationCode The authorization code received from the authorization server.
+     * @return mixed The access token details, typically including token type, expiry, and other relevant information.
+     */
+    public function getAccessToken(string $authorizationCode)
     {
         return $this->provider->getAccessToken('authorization_code', [
             'code' => $authorizationCode,
         ]);
     }
 
-    public function refreshToken(AccessToken $token)
+    /**
+     * Refreshes the access token using the provided token's refresh token.
+     *
+     * @param AccessToken $token The current access token that contains the refresh token needed for renewal.
+     * @return AccessToken The newly refreshed access token.
+     */
+    public function refreshToken(AccessToken $token): AccessToken
     {
         return $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $token->getRefreshToken(),
