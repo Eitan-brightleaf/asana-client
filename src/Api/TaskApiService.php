@@ -7,9 +7,25 @@ use GuzzleHttp\Exception\RequestException;
 
 class TaskApiService
 {
-	private AsanaApiClient $client;
+    /**
+     * An HTTP client instance configured to interact with the Asana API.
+     *
+     * This property stores an instance of AsanaApiClient which handles all HTTP communication
+     * with the Asana API endpoints. It provides authenticated access to API resources and
+     * manages request/response handling.
+     */
+    private AsanaApiClient $client;
 
-	public function __construct(AsanaApiClient $client)
+    /**
+     * Constructor for initializing the service with an Asana API client.
+     *
+     * Sets up the service instance using the provided Asana API client.
+     *
+     * @param AsanaApiClient $client The Asana API client instance used to interact with the Asana API.
+     *
+     * @return void
+     */
+    public function __construct(AsanaApiClient $client)
 	{
 		$this->client = $client;
 	}
