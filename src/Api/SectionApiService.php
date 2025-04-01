@@ -2,8 +2,8 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
 
 class SectionApiService
 {
@@ -44,19 +44,29 @@ class SectionApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array Section record containing at minimum:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body with section data
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns section data containing at minimum:
      *               - gid: Section's unique identifier
      *               - name: Section name
      *               - resource_type: Always "section"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid section GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid section GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getSection(string $sectionGid, array $options = []): array
+    public function getSection(string $sectionGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "sections/$sectionGid", ['query' => $options]);
+        return $this->client->request('GET', "sections/$sectionGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -76,19 +86,38 @@ class SectionApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array The updated section data including:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body with updated section data
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns updated section data including:
      *               - gid: Section's unique identifier
      *               - name: Updated section name
      *               - resource_type: Always "section"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid section GID provided, malformed data,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid section GID provided, malformed data,
+     *                          insufficient permissions, or network issues occur
      */
-    public function updateSection(string $sectionGid, array $data, array $options = []): array
-    {
-        return $this->client->request('PUT', "sections/$sectionGid", ['json' => $data, 'query' => $options]);
+    public function updateSection(
+        string $sectionGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'PUT',
+            "sections/$sectionGid",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -104,20 +133,30 @@ class SectionApiService
      * @param string $sectionGid The unique global ID of the section to delete.
      *                           This identifier can be found in the section URL or
      *                           returned from section-related API endpoints.
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns empty data object containing:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid section GID
-     *                         - Section is in a project type that doesn't support section deletion
-     *                         - Insufficient permissions to delete the section
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid section GID
+     *                          - Section is in a project type that doesn't support section deletion
+     *                          - Insufficient permissions to delete the section
+     *                          - Network connectivity issues
+     *                          - Rate limiting
      */
-    public function deleteSection(string $sectionGid): array
+    public function deleteSection(string $sectionGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "sections/$sectionGid");
+        return $this->client->request('DELETE', "sections/$sectionGid", [], $fullResponse);
     }
 
     /**
@@ -136,19 +175,29 @@ class SectionApiService
      *                      - offset (string): Pagination offset token
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array List of sections in the project containing at minimum:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body with sections list
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns list of sections containing at minimum:
      *               - gid: Section's unique identifier
      *               - name: Section name
      *               - resource_type: Always "section"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getSectionsForProject(string $projectGid, array $options = []): array
+    public function getSectionsForProject(string $projectGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "projects/$projectGid/sections", ['query' => $options]);
+        return $this->client->request('GET', "projects/$projectGid/sections", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -172,19 +221,38 @@ class SectionApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array The created section data including:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body with created section data
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns created section data including:
      *               - gid: Section's unique identifier
      *               - name: Section name
      *               - resource_type: Always "section"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, project doesn't support sections,
-     *                         malformed data, insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, project doesn't support sections,
+     *                          malformed data, insufficient permissions, or network issues occur
      */
-    public function createSectionForProject(string $projectGid, array $data, array $options = []): array
-    {
-        return $this->client->request('POST', "projects/$projectGid/sections", ['json' => $data, 'query' => $options]);
+    public function createSectionForProject(
+        string $projectGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/sections",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -203,16 +271,26 @@ class SectionApiService
      *                    Optional:
      *                    - insert_before (string): Insert the task before this task GID within the section
      *                    - insert_after (string): Insert the task after this task GID within the section
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array Empty data object indicating success:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns empty data object indicating success:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the task doesn't exist, section doesn't exist, insufficient permissions,
+     * @throws AsanaApiException If the task doesn't exist, section doesn't exist, insufficient permissions,
      *                          task already in section, or network issues occur
      */
-    public function addTaskToSection(string $sectionGid, array $data): array
+    public function addTaskToSection(string $sectionGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "sections/$sectionGid/addTask", ['json' => $data]);
+        return $this->client->request('POST', "sections/$sectionGid/addTask", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -231,15 +309,25 @@ class SectionApiService
      *                    Optional (one of the following is required):
      *                    - before_section (string): Insert this section before the specified section GID
      *                    - after_section (string): Insert this section after the specified section GID
+     * @param bool $fullResponse If true, returns the complete response data including headers,
+     *                          status code, and raw response body. If false, returns just the
+     *                          response data.
      *
-     * @return array Empty data object indicating success:
+     * @return array When $fullResponse is true, returns complete response array containing:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request data
+     *               When $fullResponse is false, returns empty data object indicating success:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the project doesn't exist, sections don't exist, invalid positioning,
+     * @throws AsanaApiException If the project doesn't exist, sections don't exist, invalid positioning,
      *                          insufficient permissions, or network issues occur
      */
-    public function insertSectionForProject(string $projectGid, array $data): array
+    public function insertSectionForProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/sections/insert", ['json' => $data]);
+        return $this->client->request('POST', "projects/$projectGid/sections/insert", ['json' => $data], $fullResponse);
     }
 }
