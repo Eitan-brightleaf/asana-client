@@ -2,6 +2,7 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
 use GuzzleHttp\Exception\RequestException;
 
@@ -53,22 +54,31 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns prettier formatting in responses
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array List of tasks matching the filters. Each task contains:
+     * @return array If $fullResponse is false:
+     *               List of tasks matching the filters. Each task contains:
      *               - gid: Task's unique identifier
      *               - name: Task name/title
      *               - resource_type: Always "task"
      *               Additional fields if specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid parameter values
      *                         - Insufficient permissions
      *                         - Rate limiting
      *                         - Network connectivity issues
      */
-    public function getTasks(array $options): array
+    public function getTasks(array $options, bool $fullResponse = false): array
     {
-        return $this->client->request('GET', 'tasks', ['query' => $options]);
+        return $this->client->request('GET', 'tasks', ['query' => $options], $fullResponse);
     }
 
     /**
@@ -116,9 +126,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function createTask(array $data, array $options = []): array
+    public function createTask(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'tasks', ['json' => $data, 'query' => $options]);
+        return $this->client->request('POST', 'tasks', ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -150,9 +160,9 @@ class TaskApiService
      * @throws RequestException If invalid task GID provided, insufficient permissions,
      *                         network issues, or rate limiting occurs
      */
-    public function getTask(string $taskGid, array $options = []): array
+    public function getTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tasks/$taskGid", ['query' => $options]);
+        return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -199,9 +209,9 @@ class TaskApiService
      * @throws RequestException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
      */
-    public function updateTask(string $taskGid, array $data, array $options = []): array
+    public function updateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('PUT', "tasks/$taskGid", ['json' => $data, 'query' => $options]);
+        return $this->client->request('PUT', "tasks/$taskGid", ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -227,9 +237,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function deleteTask(string $taskGid): array
+    public function deleteTask(string $taskGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "tasks/$taskGid");
+        return $this->client->request('DELETE', "tasks/$taskGid", [], $fullResponse);
     }
 
     /**
@@ -262,9 +272,14 @@ class TaskApiService
      * @throws RequestException For invalid task GIDs, malformed data,
      *                         insufficient permissions, or network issues
      */
-    public function duplicateTask(string $taskGid, array $data, array $options = []): array
+    public function duplicateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/duplicate", ['json' => $data, 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/duplicate",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -288,19 +303,29 @@ class TaskApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full API response details including headers and request info,
+     *                          or just the response body (default false - returns only body)
      *
-     * @return array List of tasks in the project containing at minimum:
+     * @return array List of tasks in the project containing:
+     *               If $fullResponse is false:
      *               - gid: Task identifier
      *               - name: Task name
      *               - resource_type: Always "task"
      *               Additional fields if specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If invalid project GID provided, permission errors,
+     * @throws AsanaApiException If invalid project GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksByProject(string $projectGid, array $options = []): array
+    public function getTasksByProject(string $projectGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options]);
+        return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -330,9 +355,9 @@ class TaskApiService
      * @throws RequestException If invalid section GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksBySection(string $sectionGid, array $options = []): array
+    public function getTasksBySection(string $sectionGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options]);
+        return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -362,9 +387,9 @@ class TaskApiService
      * @throws RequestException If invalid tag GID is provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksByTag(string $tagGid, array $options = []): array
+    public function getTasksByTag(string $tagGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options]);
+        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -399,9 +424,17 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getTasksByUserTaskList(string $userTaskListGid, array $options = []): array
-    {
-        return $this->client->request('GET', "user_task_lists/$userTaskListGid/tasks", ['query' => $options]);
+    public function getTasksByUserTaskList(
+        string $userTaskListGid,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'GET',
+            "user_task_lists/$userTaskListGid/tasks",
+            ['query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -434,9 +467,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getSubtasksFromTask(string $taskGid, array $options = []): array
+    public function getSubtasksFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options]);
+        return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -473,9 +506,18 @@ class TaskApiService
      * @throws RequestException For invalid parent task GIDs, malformed data,
      *                         insufficient permissions, or network issues
      */
-    public function createSubtaskForTask(string $taskGid, array $data, array $options = []): array
-    {
-        return $this->client->request('POST', "tasks/$taskGid/subtasks", ['json' => $data, 'query' => $options]);
+    public function createSubtaskForTask(
+        string $taskGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/subtasks",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -512,9 +554,18 @@ class TaskApiService
      * @throws RequestException For invalid task IDs, permission errors, network issues,
      *                         or if attempting to create circular dependencies
      */
-    public function setParentForTask(string $taskGid, array $data, array $options = []): array
-    {
-        return $this->client->request('POST', "tasks/$taskGid/setParent", ['json' => $data, 'query' => $options]);
+    public function setParentForTask(
+        string $taskGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/setParent",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -548,9 +599,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependenciesFromTask(string $taskGid, array $options = []): array
+    public function getDependenciesFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options]);
+        return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -581,9 +632,9 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependenciesForTask(string $taskGid, array $data): array
+    public function setDependenciesForTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addDependencies", ['json' => $data]);
+        return $this->client->request('POST', "tasks/$taskGid/addDependencies", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -611,9 +662,9 @@ class TaskApiService
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependenciesFromTask(string $taskGid, array $data): array
+    public function unlinkDependenciesFromTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeDependencies", ['json' => $data]);
+        return $this->client->request('POST', "tasks/$taskGid/removeDependencies", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -648,9 +699,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependentsFromTask(string $taskGid, array $options = []): array
+    public function getDependentsFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options]);
+        return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -682,9 +733,9 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependentsForTask(string $taskGid, array $data): array
+    public function setDependentsForTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addDependents", ['json' => $data]);
+        return $this->client->request('POST', "tasks/$taskGid/addDependents", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -712,9 +763,9 @@ class TaskApiService
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependentsFromTask(string $taskGid, array $data): array
+    public function unlinkDependentsFromTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeDependents", ['json' => $data]);
+        return $this->client->request('POST', "tasks/$taskGid/removeDependents", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -742,10 +793,14 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
-    public function addProjectToTask(string $taskGid, string $projectGid, array $data = []): array
-    {
+    public function addProjectToTask(
+        string $taskGid,
+        string $projectGid,
+        array $data = [],
+        bool $fullResponse = false
+    ): array {
         $data['project'] = $projectGid;
-        return $this->client->request('POST', "tasks/$taskGid/addProject", ['json' => $data]);
+        return $this->client->request('POST', "tasks/$taskGid/addProject", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -765,9 +820,14 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
-    public function removeProjectFromTask(string $taskGid, string $projectGid): array
+    public function removeProjectFromTask(string $taskGid, string $projectGid, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeProject", ['json' => ['project' => $projectGid]]);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/removeProject",
+            ['json' => ['project' => $projectGid]],
+            $fullResponse
+        );
     }
 
     /**
@@ -789,9 +849,9 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
      *                         insufficient permissions, or network issues
      */
-    public function addTagToTask(string $taskGid, string $tagGid): array
+    public function addTagToTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addTag", ['json' => ['tag' => $tagGid]]);
+        return $this->client->request('POST', "tasks/$taskGid/addTag", ['json' => ['tag' => $tagGid]], $fullResponse);
     }
 
     /**
@@ -813,9 +873,14 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
      *                         insufficient permissions, or network issues
      */
-    public function removeTagFromTask(string $taskGid, string $tagGid): array
+    public function removeTagFromTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeTag", ['json' => ['tag' => $tagGid]]);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/removeTag",
+            ['json' => ['tag' => $tagGid]],
+            $fullResponse
+        );
     }
 
     /**
@@ -840,10 +905,19 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
      *                         insufficient permissions, or network issues
      */
-    public function addFollowersToTask(string $taskGid, array $followers, array $options = []): array
-    {
+    public function addFollowersToTask(
+        string $taskGid,
+        array $followers,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         $data = ['followers' => $followers];
-        return $this->client->request('POST', "tasks/$taskGid/addFollowers", ['json' => $data, 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/addFollowers",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -868,10 +942,19 @@ class TaskApiService
      * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
      *                         insufficient permissions, or network issues
      */
-    public function removeFollowersFromTask(string $taskGid, array $followers, array $options = []): array
-    {
+    public function removeFollowersFromTask(
+        string $taskGid,
+        array $followers,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         $data = ['followers' => $followers];
-        return $this->client->request('POST', "tasks/$taskGid/removeFollowers", ['json' => $data, 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/removeFollowers",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -890,9 +973,9 @@ class TaskApiService
      *
      * @throws RequestException If the API request fails or no task with the provided custom ID is found.
      */
-    public function getTaskByCustomId(string $workspaceGid, string $customId): array
+    public function getTaskByCustomId(string $workspaceGid, string $customId, bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId");
+        return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId", [], $fullResponse);
     }
 
     /**
@@ -949,9 +1032,14 @@ class TaskApiService
      *
      * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
      */
-    public function searchTasks(string $workspaceGid, array $options = []): array
+    public function searchTasks(string $workspaceGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/tasks/search", ['query' => $options]);
+        return $this->client->request(
+            'GET',
+            "workspaces/$workspaceGid/tasks/search",
+            ['query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -964,9 +1052,9 @@ class TaskApiService
      * @return array The updated task details returned from the Asana API.
      * @throws RequestException If the API request fails.
      */
-    public function markTaskComplete(string $taskGid): array
+    public function markTaskComplete(string $taskGid, bool $fullResponse = false): array
     {
-        return $this->updateTask($taskGid, ['completed' => true]);
+        return $this->updateTask($taskGid, ['completed' => true], [], $fullResponse);
     }
 
     /**
@@ -980,9 +1068,9 @@ class TaskApiService
      * @return array The updated task details returned from the Asana API.
      * @throws RequestException If the API request fails.
      */
-    public function reassignTask(string $taskGid, string $assigneeGid): array
+    public function reassignTask(string $taskGid, string $assigneeGid, bool $fullResponse = false): array
     {
-        return $this->updateTask($taskGid, ['assignee' => $assigneeGid]);
+        return $this->updateTask($taskGid, ['assignee' => $assigneeGid], [], $fullResponse);
     }
 
     /**
@@ -1005,8 +1093,12 @@ class TaskApiService
      *
      * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
      */
-    public function getOverdueTasks(string $workspaceGid, ?array $assigneeGids = null, array $options = []): array
-    {
+    public function getOverdueTasks(
+        string $workspaceGid,
+        ?array $assigneeGids = null,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         $options['due_on.before'] = date('c'); // Include tasks with a due date before now (ISO 8601 format)
         $options['completed'] = false; // Exclude completed tasks
 
@@ -1016,6 +1108,6 @@ class TaskApiService
         }
 
         // Ensure any other search filters are properly merged into the options array
-        return $this->searchTasks($workspaceGid, $options);
+        return $this->searchTasks($workspaceGid, $options, $fullResponse);
     }
 }
