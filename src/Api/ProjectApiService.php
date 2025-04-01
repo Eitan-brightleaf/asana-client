@@ -82,11 +82,11 @@ class ProjectApiService
      *
      * @param array $data Data for creating the project. Supported fields include (but are not limited to):
      *                    Required:
-     *                    - name (string): Name of the project
      *                    - workspace (string): GID of workspace to create project in
-     *                      OR
+     *                      AND/OR
      *                    - team (string): GID of team to create project in
      *                    Optional:
+     *                    - name (string): Name of the project
      *                    - notes (string): Project description/notes
      *                    - color (string): Color of the project (e.g., "light-green")
      *                    - due_date (string): Due date in YYYY-MM-DD format
@@ -95,7 +95,7 @@ class ProjectApiService
      *                    Example: ["name" => "New project", "workspace" => "12345", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,color"]
      *
@@ -327,14 +327,14 @@ class ProjectApiService
      * Creates a project and adds it to the specified team. This endpoint creates a project from
      * scratch, setting its workspace to be the same workspace containing the team.
      *
-     * API Documentation: https://developers.asana.com/reference/createproject
+     * API Documentation: https://developers.asana.com/reference/createprojectforteam
      *
      * @param string $teamGid The unique global ID of the team in which to create the project.
      *                      This identifier can be found in the team URL or returned from
      *                      team-related API endpoints.
-     * @param array $data Data for creating the project. Must include:
-     *                    - name (string): Name of the project
+     * @param array $data Data for creating the project.
      *                    Optional:
+     *                    - name (string): Name of the project
      *                    - notes (string): Project description/notes
      *                    - color (string): Color of the project (e.g., "light-green")
      *                    - due_date (string): Due date in YYYY-MM-DD format
@@ -343,7 +343,7 @@ class ProjectApiService
      *                    Example: ["name" => "New team project", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
      *                      - opt_pretty: Return formatted JSON
      *
      * @return array Project data including at minimum:
@@ -403,8 +403,8 @@ class ProjectApiService
      *                           This identifier can be found in the workspace URL or returned from
      *                           workspace-related API endpoints.
      * @param array $data Data for creating the project. Must include:
-     *                    - name (string): Name of the project
      *                    Optional:
+     *                    - name (string): Name of the project
      *                    - notes (string): Project description/notes
      *                    - color (string): Color of the project (e.g., "light-green")
      *                    - due_date (string): Due date in YYYY-MM-DD format
@@ -413,7 +413,7 @@ class ProjectApiService
      *                    Example: ["name" => "New workspace project", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
      *                      - opt_pretty: Return formatted JSON
      *
      * @return array Project data including at minimum:
@@ -554,7 +554,7 @@ class ProjectApiService
      * immediately able to collaborate on the project, get notifications, and
      * gain access to the project based on their role.
      *
-     * API Documentation: https://developers.asana.com/reference/addmemberstoproject
+     * API Documentation: https://developers.asana.com/reference/addmembersforproject
      *
      * @param string $projectGid The unique global ID of the project to add members to.
      *                        This identifier can be found in the project URL or returned from
@@ -584,7 +584,7 @@ class ProjectApiService
      * immediately lose access to the project and will no longer receive notifications
      * unless they remain added as followers.
      *
-     * API Documentation: https://developers.asana.com/reference/removemembersfromproject
+     * API Documentation: https://developers.asana.com/reference/removemembersforproject
      *
      * @param string $projectGid The unique global ID of the project from which to remove members.
      *                        This identifier can be found in the project URL or returned from
@@ -613,7 +613,7 @@ class ProjectApiService
      * Adds the specified list of users as followers of the project. Followers receive notifications
      * when the project is changed, but do not necessarily have permissions to modify the project.
      *
-     * API Documentation: https://developers.asana.com/reference/addfollowerstoproject
+     * API Documentation: https://developers.asana.com/reference/addfollowersforproject
      *
      * @param string $projectGid The unique global ID of the project to add followers to.
      *                        This identifier can be found in the project URL or returned from
@@ -642,7 +642,7 @@ class ProjectApiService
      * Removes the specified list of users from following the project. Followers receive notifications
      * when the project is changed, and removing them will stop these notifications.
      *
-     * API Documentation: https://developers.asana.com/reference/removefollowersfromproject
+     * API Documentation: https://developers.asana.com/reference/removefollowersforproject
      *
      * @param string $projectGid The unique global ID of the project from which to remove followers.
      *                        This identifier can be found in the project URL or returned from
@@ -672,7 +672,7 @@ class ProjectApiService
      * workspace as the given project. Properties such as task names, descriptions, notes,
      * assignees, dependencies, and custom fields are preserved in the template.
      *
-     * API Documentation: https://developers.asana.com/reference/createprojecttemplatefromproject
+     * API Documentation: https://developers.asana.com/reference/projectsaveastemplate
      *
      * @param string $projectGid The unique global ID of the project to use as a basis for creating a template.
      *                        This identifier can be found in the project URL or returned from
