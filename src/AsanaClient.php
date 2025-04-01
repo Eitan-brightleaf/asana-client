@@ -2,7 +2,10 @@
 
 namespace BrightleafDigital;
 
+use BrightleafDigital\Api\AttachmentApiService;
+use BrightleafDigital\Api\MembershipApiService;
 use BrightleafDigital\Api\ProjectApiService;
+use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
@@ -22,6 +25,9 @@ class AsanaClient
 	private ?ProjectApiService $projects = null;
     private ?UserApiService $users = null;
     private ?TagsApiService $tags = null;
+    private ?SectionApiService $sections = null;
+    private ?MembershipApiService $memberships = null;
+    private ?AttachmentApiService $attachments = null;
 
 	/**
 	 * Initialize Asana client
@@ -84,6 +90,7 @@ class AsanaClient
 	{
 		if ($this->tasks === null) {
 			$this->tasks = new TaskApiService($this->getApiClient());
+            return $this->tasks;
 		}
 
 		$this->ensureValidToken();
@@ -95,6 +102,7 @@ class AsanaClient
 	{
 		if ($this->projects === null) {
 			$this->projects = new ProjectApiService($this->getApiClient());
+            return $this->projects;
 		}
 
 		$this->ensureValidToken();
@@ -106,6 +114,7 @@ class AsanaClient
     {
         if ($this->users === null) {
             $this->users = new UserApiService($this->getApiClient());
+            return $this->users;
         }
 
         $this->ensureValidToken();
@@ -117,11 +126,48 @@ class AsanaClient
     {
         if ($this->tags === null) {
             $this->tags = new TagsApiService($this->getApiClient());
+            return $this->tags;
         }
 
         $this->ensureValidToken();
 
         return $this->tags;
+    }
+
+    public function sections(): SectionApiService
+    {
+        if ($this->sections === null) {
+            $this->sections = new SectionApiService($this->getApiClient());
+            return $this->sections;
+        }
+
+        $this->ensureValidToken();
+
+        return $this->sections;
+    }
+
+    public function memberships(): MembershipApiService
+    {
+        if ($this->memberships === null) {
+            $this->memberships = new MembershipApiService($this->getApiClient());
+            return $this->memberships;
+        }
+
+        $this->ensureValidToken();
+
+        return $this->memberships;
+    }
+
+    public function attachments(): AttachmentApiService
+    {
+        if ($this->attachments === null) {
+            $this->attachments = new AttachmentApiService($this->getApiClient());
+            return $this->attachments;
+        }
+
+        $this->ensureValidToken();
+
+        return $this->attachments;
     }
 
     /**
