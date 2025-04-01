@@ -2,8 +2,9 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
+use RuntimeException;
 
 class AttachmentApiService
 {
@@ -44,8 +45,16 @@ class AttachmentApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array Attachment record containing at minimum:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just the attachment record containing:
      *               - gid: Attachment's unique identifier
      *               - resource_type: Always "attachment"
      *               - name: Attachment filename
@@ -55,12 +64,12 @@ class AttachmentApiService
      *               - parent: The parent object the attachment is attached to
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid attachment GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to invalid attachment GID,
+     *                          insufficient permissions, network issues, or rate limiting
      */
-    public function getAttachment(string $attachmentGid, array $options = []): array
+    public function getAttachment(string $attachmentGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "attachments/$attachmentGid", ['query' => $options]);
+        return $this->client->request('GET', "attachments/$attachmentGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -74,19 +83,27 @@ class AttachmentApiService
      * @param string $attachmentGid The unique global ID of the attachment to delete.
      *                              This identifier can be found in the attachment URL or
      *                              returned from attachment-related API endpoints.
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns empty data object containing:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid attachment GID
-     *                         - Insufficient permissions to delete the attachment
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid attachment GID
+     *                          - Insufficient permissions to delete the attachment
+     *                          - Network connectivity issues
+     *                          - Rate limiting
      */
-    public function deleteAttachment(string $attachmentGid): array
+    public function deleteAttachment(string $attachmentGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "attachments/$attachmentGid");
+        return $this->client->request('DELETE', "attachments/$attachmentGid", [], $fullResponse);
     }
 
     /**
@@ -103,20 +120,28 @@ class AttachmentApiService
      *                      - offset (string): Offset token for pagination
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array List of attachments for the specified parent object containing at minimum:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns list of attachments containing at minimum:
      *               - gid: Attachment's unique identifier
      *               - resource_type: Always "attachment"
      *               - name: Attachment filename
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid parent GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid parent GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getAttachmentsForObject(string $parentGid, array $options = []): array
+    public function getAttachmentsForObject(string $parentGid, array $options = [], bool $fullResponse = false): array
     {
         $queryParams = array_merge(['parent' => $parentGid], $options);
-        return $this->client->request('GET', 'attachments', ['query' => $queryParams]);
+        return $this->client->request('GET', 'attachments', ['query' => $queryParams], $fullResponse);
     }
 
     /**
@@ -132,8 +157,16 @@ class AttachmentApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array The created attachment data including:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns the created attachment data including:
      *               - gid: Attachment's unique identifier
      *               - resource_type: Always "attachment"
      *               - name: Attachment filename
@@ -143,14 +176,19 @@ class AttachmentApiService
      *               - parent: The parent object the attachment is attached to
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If the file doesn't exist, is too large, invalid parent GID,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If the file doesn't exist, is too large, invalid parent GID,
+     *                          insufficient permissions, or network issues occur
+     * @throws RuntimeException If the file does not exist or is not readable
      */
-    public function uploadAttachment(string $parentGid, string $filePath, array $options = []): array
-    {
+    public function uploadAttachment(
+        string $parentGid,
+        string $filePath,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         // Check if file exists and is readable before attempting to open
         if (!is_readable($filePath)) {
-            throw new \RuntimeException("File at '$filePath' does not exist or is not readable");
+            throw new RuntimeException("File at '$filePath' does not exist or is not readable");
         }
 
         // Create multipart form data options for the request
@@ -173,7 +211,7 @@ class AttachmentApiService
             $multipartOptions['query'] = $options;
         }
 
-        return $this->client->request('POST', 'attachments', $multipartOptions);
+        return $this->client->request('POST', 'attachments', $multipartOptions, $fullResponse);
     }
     /**
      * Upload an attachment from file contents
@@ -189,17 +227,27 @@ class AttachmentApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array The created attachment data (see uploadAttachment for details on return structure)
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns the created attachment data
+     *               (see uploadAttachment for details on return structure)
      *
-     * @throws RequestException If the file is too large, invalid parent GID,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If the file is too large, invalid parent GID,
+     *                          insufficient permissions, or network issues occur
      */
     public function uploadAttachmentFromContents(
         string $parentGid,
         string $fileContents,
         string $fileName,
-        array $options = []
+        array $options = [],
+        bool $fullResponse = false
     ): array {
         // Create a temporary stream with the file contents
         $stream = fopen('php://temp', 'r+');
@@ -227,7 +275,7 @@ class AttachmentApiService
         }
 
         try {
-            return $this->client->request('POST', 'attachments', $multipartOptions);
+            return $this->client->request('POST', 'attachments', $multipartOptions, $fullResponse);
         } finally {
             // Always close the stream
             fclose($stream);
