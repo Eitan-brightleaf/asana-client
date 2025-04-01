@@ -1,11 +1,11 @@
 <?php
 
-
 namespace BrightleafDigital\Auth;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class OAuth2Provider extends AbstractProvider
 {
@@ -57,12 +57,12 @@ class OAuth2Provider extends AbstractProvider
      * @param ResponseInterface $response The HTTP response object.
      * @param mixed $data The response data to be checked for errors.
      * @return void
-     * @throws \RuntimeException if an error is found in the response data.
+     * @throws RuntimeException if an error is found in the response data.
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
         if (isset($data['error'])) {
-            throw new \RuntimeException($data['error']);
+            throw new RuntimeException($data['error']);
         }
     }
 

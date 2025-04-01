@@ -16,15 +16,14 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 // $pat = $_ENV['PAT'];
 // $asanaClient = AsanaClient::withPAT($pat);
 
-$asanaClient = AsanaClient::withAccessToken( $clientId, $clientSecret, $tokenData );
+$asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
     $projectGid = $_ENV['PROJECT_GID'];
     $tasks = $asanaClient->tasks()->getTasksByProject($projectGid, [
-		    'opt_fields' => 'name,due_at,due_on,
+            'opt_fields' => 'name,due_at,due_on,
 		    completed,assignee.name,notes'
-	    ]
-    );
+        ]);
     echo '<pre>';
     print_r($tasks);
     echo '</pre>';

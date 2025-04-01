@@ -88,57 +88,57 @@ class AsanaClient
      * @param string|null $clientId Optional client ID for authentication.
      * @param string|null $clientSecret Optional client secret for authentication.
      * @param string|null $redirectUri Optional redirect URI for OAuth flow.
-     * @param string|null $tokenStoragePath Path to token storage file, defaults to a token.json file in the current directory.
+     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current directory.
      *
      */
-	public function __construct(
-		?string $clientId = null,
-		?string $clientSecret = null,
-		?string $redirectUri = null,
-		string $tokenStoragePath = null
-	) {
-		if ($clientId && $clientSecret) {
-			$this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
-		}
+    public function __construct(
+        ?string $clientId = null,
+        ?string $clientSecret = null,
+        ?string $redirectUri = null,
+        string $tokenStoragePath = null
+    ) {
+        if ($clientId && $clientSecret) {
+            $this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
+        }
 
-		$this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
-	}
+        $this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
+    }
 
-	/**
-	 * Initialize the Asana client with an access token
-	 *
-	 * @param string $clientId OAuth client ID
-	 * @param string $clientSecret OAuth client secret
-	 * @param array $token The user's preexisting access token
-	 * @return self
-	 */
-	public static function withAccessToken(
-		string $clientId,
-		string $clientSecret,
-		array $token
-	): self {
-		$instance = new self(
-			$clientId,
-			$clientSecret,
-			'' // No redirect URI required when preloading a token
-		);
-		$instance->accessToken = new AccessToken($token);
-		return $instance;
-	}
+    /**
+     * Initialize the Asana client with an access token
+     *
+     * @param string $clientId OAuth client ID
+     * @param string $clientSecret OAuth client secret
+     * @param array $token The user's preexisting access token
+     * @return self
+     */
+    public static function withAccessToken(
+        string $clientId,
+        string $clientSecret,
+        array $token
+    ): self {
+        $instance = new self(
+            $clientId,
+            $clientSecret,
+            '' // No redirect URI required when preloading a token
+        );
+        $instance->accessToken = new AccessToken($token);
+        return $instance;
+    }
 
-	/**
-	 * Initialize the Asana client with a Personal Access Token (PAT)
-	 *
-	 * @param string $personalAccessToken The user's PAT from Asana
-	 * @return self
-	 */
-	public static function withPAT(
-		string $personalAccessToken
-	): self {
-		$instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
-		$instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
-		return $instance;
-	}
+    /**
+     * Initialize the Asana client with a Personal Access Token (PAT)
+     *
+     * @param string $personalAccessToken The user's PAT from Asana
+     * @return self
+     */
+    public static function withPAT(
+        string $personalAccessToken
+    ): self {
+        $instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
+        $instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
+        return $instance;
+    }
 
     /**
      * Retrieve the Task API service instance.
@@ -149,16 +149,16 @@ class AsanaClient
      * @return TaskApiService The instance of TaskApiService.
      */
     public function tasks(): TaskApiService
-	{
-		if ($this->tasks === null) {
-			$this->tasks = new TaskApiService($this->getApiClient());
+    {
+        if ($this->tasks === null) {
+            $this->tasks = new TaskApiService($this->getApiClient());
             return $this->tasks;
-		}
+        }
 
-		$this->ensureValidToken();
+        $this->ensureValidToken();
 
-		return $this->tasks;
-	}
+        return $this->tasks;
+    }
 
     /**
      * Retrieve the ProjectApiService instance. If it does not exist, it creates and initializes it.
@@ -167,16 +167,16 @@ class AsanaClient
      * @return ProjectApiService The initialized ProjectApiService instance.
      */
     public function projects(): ProjectApiService
-	{
-		if ($this->projects === null) {
-			$this->projects = new ProjectApiService($this->getApiClient());
+    {
+        if ($this->projects === null) {
+            $this->projects = new ProjectApiService($this->getApiClient());
             return $this->projects;
-		}
+        }
 
-		$this->ensureValidToken();
+        $this->ensureValidToken();
 
-		return $this->projects;
-	}
+        return $this->projects;
+    }
 
     /**
      * Retrieve the UserApiService instance. If it does not exist, it creates and initializes it.
@@ -308,7 +308,7 @@ class AsanaClient
         }
     }
 
-    
+
     /**
      * Check if the client is authenticated
      *
@@ -316,38 +316,38 @@ class AsanaClient
      */
     public function hasToken(): bool
     {
-	    return $this->accessToken !== null;
+        return $this->accessToken !== null;
     }
 
-	/**
-	 * Check if access token is valid (PATs are always valid unless null).
-	 *
-	 * @return bool True if token is valid (either a valid OAuth token or PAT)
-	 */
-	public function ensureValidToken(): bool
-	{
-		if (!$this->hasToken()) {
-			return false;
-		}
+    /**
+     * Check if access token is valid (PATs are always valid unless null).
+     *
+     * @return bool True if token is valid (either a valid OAuth token or PAT)
+     */
+    public function ensureValidToken(): bool
+    {
+        if (!$this->hasToken()) {
+            return false;
+        }
 
-		// If token has no expiration (e.g., PAT), it is considered valid
-		if (!$this->accessToken->getExpires()) {
-			return true;
-		}
+        // If token has no expiration (e.g., PAT), it is considered valid
+        if (!$this->accessToken->getExpires()) {
+            return true;
+        }
 
-		// Handle OAuth tokens that may need refreshing
-		if ($this->accessToken->hasExpired()) {
-			try {
-				$this->accessToken = $this->authHandler->refreshToken($this->accessToken);
-				return true;
-			} catch (Exception $e) {
-				$this->accessToken = null;
-				return false;
-			}
-		}
+        // Handle OAuth tokens that may need refreshing
+        if ($this->accessToken->hasExpired()) {
+            try {
+                $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+                return true;
+            } catch (Exception $e) {
+                $this->accessToken = null;
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * Refreshes the expired access token.
@@ -355,14 +355,14 @@ class AsanaClient
      * @return AccessToken|null Returns the refreshed access token if it was expired, otherwise null.
      */
     public function refreshToken(): ?AccessToken
-	{
-		if ($this->accessToken && $this->accessToken->hasExpired()) {
-			$this->accessToken = $this->authHandler->refreshToken($this->accessToken);
-			return $this->accessToken;
-		}
-		return null;
-	}
-    
+    {
+        if ($this->accessToken && $this->accessToken->hasExpired()) {
+            $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+            return $this->accessToken;
+        }
+        return null;
+    }
+
     /**
      * Get API client with valid token
      *
@@ -374,14 +374,14 @@ class AsanaClient
         if (!$this->ensureValidToken()) {
             throw new Exception('Not authenticated or token expired');
         }
-        
+
         if ($this->apiClient === null) {
             $this->apiClient = new AsanaApiClient($this->accessToken->getToken());
         }
-        
+
         return $this->apiClient;
     }
-    
+
     /**
      * Load token from storage
      */
@@ -396,7 +396,7 @@ class AsanaClient
             }
         }
     }
-    
+
     /**
      * Save token to storage
      */
@@ -409,7 +409,7 @@ class AsanaClient
             );
         }
     }
-    
+
     /**
      * Clear stored token (logout)
      */
@@ -417,7 +417,7 @@ class AsanaClient
     {
         $this->accessToken = null;
         $this->apiClient = null;
-        
+
         if (file_exists($this->tokenStoragePath)) {
             unlink($this->tokenStoragePath);
         }

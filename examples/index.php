@@ -29,5 +29,3 @@ $_SESSION['oauth2code_verifier'] = $authUrl['codeVerifier'];
 
 header('Location: ' . $authUrl['url']);
 exit;
-
-

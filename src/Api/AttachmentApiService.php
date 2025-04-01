@@ -153,7 +153,7 @@ class AttachmentApiService
             throw new \RuntimeException("File at '$filePath' does not exist or is not readable");
         }
 
-        // Create multipart form data options for the request 
+        // Create multipart form data options for the request
         $multipartOptions = [
             'multipart' => [
                 [

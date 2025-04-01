@@ -51,8 +51,9 @@ class ProjectApiService
      *                      - limit (int): Maximum number of projects to return. Default is 20
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns prettier formatting in responses
      *
      * @return array List of projects matching the filters. Each project contains:
@@ -94,8 +95,9 @@ class ProjectApiService
      *                    - default_view (string): Default view for the project ("list", "board", "calendar", etc.)
      *                    Example: ["name" => "New project", "workspace" => "12345", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,color"]
      *
@@ -130,8 +132,9 @@ class ProjectApiService
      *                        can be found in the project URL or returned from project-related API endpoints.
      *                        Example: "12345"
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                        Common fields include: name, notes, owner, workspace, team, members, followers,
      *                        created_at, modified_at, due_date, current_status
      *                      - opt_pretty (bool): Returns formatted JSON if true
@@ -172,8 +175,9 @@ class ProjectApiService
      *                    - archived (boolean): Whether the project is archived
      *                    Example: ["name" => "Updated Project", "notes" => "New description"]
      * @param array $options Optional parameters for the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,owner"]
      *
@@ -228,13 +232,13 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/duplicateproject
      *
      * @param string $projectGid The unique global ID of the project to duplicate.
-     *                        This identifier can be found in the project URL or returned from project-related API endpoints.
+     *                        The GID can be found in the project URL or returned from project-related API endpoints.
      *                        Example: "12345"
      * @param array $data Data for the duplicated project. Must include:
      *                    - name (string): Name of the new duplicated project
      *                    Optional:
      *                    - team (string): GID of the team to put the new project in
-     *                    - include (array): Additional things to include in the duplicate (e.g., "notes", "assignee", "subtasks")
+     *                    - include (array): Additional fields to include in the duplicate
      *                    - schedule_dates (object): Schedule dates to use in the duplicated project with:
      *                      - should_skip_weekends (boolean): Whether to skip weekends during scheduling
      *                      - due_on (string): The due date for the duplicated project
@@ -267,8 +271,9 @@ class ProjectApiService
      *                       This identifier can be found in the task URL or returned from
      *                       task-related API endpoints.
      * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -301,8 +306,9 @@ class ProjectApiService
      *                      team-related API endpoints.
      * @param array $options Optional parameters for customizing the request:
      *                      - archived (boolean): Only return projects whose archived field matches this value
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -342,8 +348,9 @@ class ProjectApiService
      *                    - default_view (string): Default view for the project ("list", "board", "calendar", etc.)
      *                    Example: ["name" => "New team project", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *
      * @return array Project data including at minimum:
@@ -372,8 +379,9 @@ class ProjectApiService
      *                           workspace-related API endpoints.
      * @param array $options Optional parameters for customizing the request:
      *                      - archived (boolean): Only return projects whose archived field matches this value
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -412,8 +420,9 @@ class ProjectApiService
      *                    - default_view (string): Default view for the project ("list", "board", "calendar", etc.)
      *                    Example: ["name" => "New workspace project", "notes" => "Project details"]
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    * Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *
      * @return array Project data including at minimum:
@@ -427,7 +436,11 @@ class ProjectApiService
      */
     public function createProjectInWorkspace(string $workspaceGid, array $data, array $options = []): array
     {
-        return $this->client->request('POST', "workspaces/$workspaceGid/projects", ['json' => $data, 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "workspaces/$workspaceGid/projects",
+            ['json' => $data, 'query' => $options]
+        );
     }
 
     /**
@@ -496,8 +509,9 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
@@ -530,8 +544,9 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $options Optional parameters for the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array Task count data with:
@@ -563,8 +578,9 @@ class ProjectApiService
      *                       Each GID should be a string that uniquely identifies a user in Asana.
      *                       Example: ['12345', '67890']
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array The updated project data with the new members added
@@ -574,7 +590,11 @@ class ProjectApiService
      */
     public function addMembersToProject(string $projectGid, array $members, array $options = []): array
     {
-        return $this->client->request('POST', "projects/$projectGid/addMembers", ['json' => ['members' => $members], 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/addMembers",
+            ['json' => ['members' => $members], 'query' => $options]
+        );
     }
 
     /**
@@ -593,8 +613,9 @@ class ProjectApiService
      *                       Each GID should be a string that uniquely identifies a user in Asana.
      *                       Example: ['12345', '67890']
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array The updated project data with the members removed
@@ -604,7 +625,11 @@ class ProjectApiService
      */
     public function removeMembersFromProject(string $projectGid, array $members, array $options = []): array
     {
-        return $this->client->request('POST', "projects/$projectGid/removeMembers", ['json' => ['members' => $members], 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/removeMembers",
+            ['json' => ['members' => $members], 'query' => $options]
+        );
     }
 
     /**
@@ -622,8 +647,9 @@ class ProjectApiService
      *                       Each GID should be a string that uniquely identifies a user in Asana.
      *                       Example: ['12345', '67890']
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                       (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array The updated project data with the new followers added
@@ -633,7 +659,11 @@ class ProjectApiService
      */
     public function addFollowersToProject(string $projectGid, array $followers, array $options = []): array
     {
-        return $this->client->request('POST', "projects/$projectGid/addFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/addFollowers",
+            ['json' => ['followers' => $followers], 'query' => $options]
+        );
     }
 
     /**
@@ -651,8 +681,9 @@ class ProjectApiService
      *                       Each GID should be a string that uniquely identifies a user in Asana.
      *                       Example: ['12345', '67890']
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                       (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array The updated project data with the followers removed
@@ -662,7 +693,11 @@ class ProjectApiService
      */
     public function removeFollowersFromProject(string $projectGid, array $followers, array $options = []): array
     {
-        return $this->client->request('POST', "projects/$projectGid/removeFollowers", ['json' => ['followers' => $followers], 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/removeFollowers",
+            ['json' => ['followers' => $followers], 'query' => $options]
+        );
     }
 
     /**
@@ -683,8 +718,9 @@ class ProjectApiService
      *                    - public (boolean): Whether the template is public to the team
      *                    Example: ["name" => "Marketing Campaign Template"]
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,owner.name,custom_field_settings")
-    Example: ['opt_fields' => 'name,owner.name,custom_field_settings'] A comma-separated list of fields to include in the response
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,owner.name,custom_field_settings")
+     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array Data about the created template:
@@ -698,6 +734,10 @@ class ProjectApiService
      */
     public function createProjectTemplateFromProject(string $projectGid, array $data, array $options = []): array
     {
-        return $this->client->request('POST', "projects/$projectGid/saveAsTemplate", ['json' => $data, 'query' => $options]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/saveAsTemplate",
+            ['json' => $data, 'query' => $options]
+        );
     }
 }

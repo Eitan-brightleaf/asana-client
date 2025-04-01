@@ -45,7 +45,7 @@ class UserApiService
      *                      - limit (int): Maximum number of users to return. Default is 20
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,email,photo")
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
      *
      * @return array List of users matching the filters. Each user contains:
@@ -77,7 +77,7 @@ class UserApiService
      *                        can be found in the user URL or returned from user-related API endpoints.
      *                        Example: "12345" or "me" for the current user
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,email,photo")
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array User record containing at minimum:
@@ -108,7 +108,8 @@ class UserApiService
      *                        Example: "12345" or "me"
      * @param array $options Optional parameters to customize the request:
      *                      - workspace (string): The workspace in which to get favorites
-     *                      - resource_type (string): The resource type of favorites to retrieve. Possible values: project, task, tag, user, portfolio, goal
+     *                      - resource_type (string): The resource type of favorites to retrieve.
+     *                        Possible values: project, task, tag, user, portfolio, goal
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
@@ -142,7 +143,7 @@ class UserApiService
      * @param array $options Optional parameters to customize the request:
      *                      - offset (string): Pagination offset token
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,email,photo")
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array List of users in the team containing at minimum:
@@ -175,7 +176,7 @@ class UserApiService
      * @param array $options Optional parameters to customize the request:
      *                      - offset (string): Pagination offset token
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,email,photo")
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array List of users in the workspace containing at minimum:
@@ -201,7 +202,7 @@ class UserApiService
      * API Documentation: https://developers.asana.com/reference/getuser
      *
      * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,email,photo")
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *
      * @return array User record containing at minimum:
@@ -227,7 +228,8 @@ class UserApiService
      *
      * @param array $options Optional parameters to customize the request:
      *                      - workspace (string): The workspace in which to get favorites
-     *                      - resource_type (string): The resource type of favorites to retrieve. Possible values: project, task, tag, user, portfolio, goal
+     *                      - resource_type (string): The resource type of favorites to retrieve.
+     *                        Possible values: project, task, tag, user, portfolio, goal
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true

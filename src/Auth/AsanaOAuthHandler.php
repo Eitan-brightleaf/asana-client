@@ -3,6 +3,7 @@
 namespace BrightleafDigital\Auth;
 
 use League\OAuth2\Client\Token\AccessToken;
+use RuntimeException;
 
 class AsanaOAuthHandler
 {
@@ -48,7 +49,7 @@ class AsanaOAuthHandler
      * @param string|null $codeVerifier The PKCE code verifier (optional)
      * @return AccessToken
      *
-     * @throws \RuntimeException If state validation fails
+     * @throws RuntimeException If state validation fails
      */
     public function handleCallback(string $authorizationCode, ?string $codeVerifier = null): AccessToken
     {
@@ -56,7 +57,6 @@ class AsanaOAuthHandler
             'code' => $authorizationCode,
             'code_verifier' => $codeVerifier, // Optional for PKCE
         ]);
-
     }
 
     /**

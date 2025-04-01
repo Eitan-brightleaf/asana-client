@@ -34,14 +34,15 @@ class MembershipApiService
      * Get multiple memberships
      *
      * Returns the compact membership records for the memberships matching the given filters.
-     * Memberships represent connections between non-project objects and relevant users, 
+     * Memberships represent connections between non-project objects and relevant users,
      * indicating a user's access and permissions in relation to that object.
      *
      * API Documentation: https://developers.asana.com/reference/getmemberships
      *
      * @param array $options Query parameters to filter and format results:
      *                      Required filtering parameters (at least one of):
-     *                      - parent (string): A resource ID to filter memberships by parent (project, goal, portfolio, or custom_field)
+     *                      - parent (string): A resource ID to filter memberships by parent
+     *                        (project, goal, portfolio, or custom_field)
      *                      - portfolio (string): A portfolio ID to filter memberships by portfolio
      *                      Optional filtering parameters:
      *                      - member (string): A team or user ID to filter memberships by member
@@ -82,9 +83,11 @@ class MembershipApiService
      *                    - parent (string): The parent id of the membership (goal, project, portfolio, or custom_field)
      *                    - member (string): The gid of the user or team being added as a member
      *                    Optional:
-     *                    - access_level (string): Sets the access level for the member. Goals can have access levels 'editor' or 'commenter'. Projects can have
-     *                      access levels 'admin', 'editor' or 'commenter'. Portfolios can have access levels 'admin', 'editor' or 'viewer'. Custom Fields can
-     *                      have access levels 'admin', 'editor' or 'user'.
+     *                    - access_level (string): Sets the access level for the member.
+     *                         Goals can have access levels 'editor' or 'commenter'. Projects can have
+     *                         access levels 'admin', 'editor' or 'commenter'. Portfolios can have access
+     *                         levels 'admin', 'editor' or 'viewer'. Custom Fields can
+        *                      have access levels 'admin', 'editor' or 'user'.
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
