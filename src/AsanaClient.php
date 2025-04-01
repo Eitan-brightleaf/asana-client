@@ -4,6 +4,7 @@ namespace BrightleafDigital;
 
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\TaskApiService;
+use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Http\AsanaApiClient;
 use Exception;
@@ -18,6 +19,7 @@ class AsanaClient
 
 	private ?TaskApiService $tasks = null;
 	private ?ProjectApiService $projects = null;
+    private ?UserApiService $users = null;
 
 	/**
 	 * Initialize Asana client
@@ -97,6 +99,17 @@ class AsanaClient
 
 		return $this->projects;
 	}
+
+    public function users(): UserApiService
+    {
+        if ($this->users === null) {
+            $this->users = new UserApiService($this->getApiClient());
+        }
+
+        $this->ensureValidToken();
+
+        return $this->users;
+    }
 
     /**
      * Get the authorization URL for OAuth flow
