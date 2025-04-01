@@ -1,6 +1,7 @@
 <?php
 
 use BrightleafDigital\AsanaClient;
+use BrightleafDigital\Exceptions\AsanaApiException;
 use Dotenv\Dotenv;
 
 require '../vendor/autoload.php';
@@ -27,6 +28,6 @@ try {
     echo '<pre>';
     print_r($tasks);
     echo '</pre>';
-} catch (Exception $e) {
+} catch (AsanaApiException $e) {
     echo 'Error: ' . $e->getMessage();
 }
