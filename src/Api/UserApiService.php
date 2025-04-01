@@ -2,8 +2,9 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
+use InvalidArgumentException;
 
 class UserApiService
 {
@@ -49,23 +50,28 @@ class UserApiService
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array List of users matching the filters. Each user contains:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns the list of users matching
+     *               the filters. Each user contains:
      *               - gid: User's unique identifier
      *               - name: User's full name
      *               - resource_type: Always "user"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid parameter values
-     *                         - Insufficient permissions
-     *                         - Rate limiting
-     *                         - Network connectivity issues
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
+     * @throws InvalidArgumentException If neither workspace nor team is provided
      */
-    public function getUsers(?string $workspace = null, ?string $team = null, array $options = []): array
-    {
+    public function getUsers(
+        ?string $workspace = null,
+        ?string $team = null,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         if (!$workspace && !$team) {
-            throw new \InvalidArgumentException('You must provide either a "workspace" or "team".');
+            throw new InvalidArgumentException('You must provide either a "workspace" or "team".');
         }
 
         if ($workspace) {
@@ -75,7 +81,7 @@ class UserApiService
             $options['team'] = $team;
         }
 
-        return $this->client->request('GET', 'users', ['query' => $options]);
+        return $this->client->request('GET', 'users', ['query' => $options], $fullResponse);
     }
 
     /**
@@ -92,19 +98,21 @@ class UserApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array User record containing at minimum:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns the user record containing:
      *               - gid: Unique user identifier
      *               - resource_type: Always "user"
      *               - name: User's full name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid user GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getUser(string $userGid, array $options = []): array
+    public function getUser(string $userGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "users/$userGid", ['query' => $options]);
+        return $this->client->request('GET', "users/$userGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -128,19 +136,22 @@ class UserApiService
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array List of favorite resources containing at minimum:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns just the list of
+     *               favorite resources from the response body containing at minimum:
      *               - gid: Resource identifier
      *               - resource_type: Type of resource ("task", "project", etc.)
      *               - name: Resource name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid user GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getUserFavorites(string $userGid, array $options = []): array
+    public function getUserFavorites(string $userGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "users/$userGid/favorites", ['query' => $options]);
+        return $this->client->request('GET', "users/$userGid/favorites", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -160,19 +171,22 @@ class UserApiService
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array List of users in the team containing at minimum:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns the list of users
+     *               in the team containing at minimum:
      *               - gid: User's unique identifier
      *               - name: User's full name
      *               - resource_type: Always "user"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid team GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getUsersForTeam(string $teamGid, array $options = []): array
+    public function getUsersForTeam(string $teamGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "teams/$teamGid/users", ['query' => $options]);
+        return $this->client->request('GET', "teams/$teamGid/users", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -193,19 +207,22 @@ class UserApiService
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array List of users in the workspace containing at minimum:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns the list of users
+     *               in the workspace containing at minimum:
      *               - gid: User's unique identifier
      *               - name: User's full name
      *               - resource_type: Always "user"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid workspace GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getUsersForWorkspace(string $workspaceGid, array $options = []): array
+    public function getUsersForWorkspace(string $workspaceGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/users", ['query' => $options]);
+        return $this->client->request('GET', "workspaces/$workspaceGid/users", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -219,18 +236,21 @@ class UserApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array User record containing at minimum:
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns the user record containing:
      *               - gid: Unique user identifier
      *               - resource_type: Always "user"
      *               - name: User's full name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If authentication fails or network issues occur
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getCurrentUser(array $options = []): array
+    public function getCurrentUser(array $options = [], bool $fullResponse = false): array
     {
-        return $this->getUser('me', $options);
+        return $this->getUser('me', $options, $fullResponse);
     }
 
     /**
@@ -248,13 +268,17 @@ class UserApiService
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the response data
      *
-     * @return array List of favorite resources
+     * @return array If $fullResponse is true, returns an array containing 'status', 'reason', 'headers',
+     *               'body', 'raw_body' and 'request' details. Otherwise, returns just the list of
+     *               favorite resources from the response body.
      *
-     * @throws RequestException If authentication fails or network issues occur
+     * @throws AsanaApiException If the API request fails due to authentication, validation,
+     *                          network issues, or other API-related errors
      */
-    public function getCurrentUserFavorites(array $options = []): array
+    public function getCurrentUserFavorites(array $options = [], bool $fullResponse = false): array
     {
-        return $this->getUserFavorites('me', $options);
+        return $this->getUserFavorites('me', $options, $fullResponse);
     }
 }
