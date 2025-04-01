@@ -38,10 +38,12 @@ class UserApiService
      *
      * API Documentation: https://developers.asana.com/reference/getusers
      *
+     * @param string|null $workspace The unique global ID of the workspace to get users from.
+     *                    Either this or $team must have a value.
+     * @param string|null $team The unique global ID of the team to get users from.
+     *                     Either this or $workspace must have a value.
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - workspace (string): Filter users by workspace. Can be workspace ID
-     *                      - team (string): Filter users by team. Can be team ID
      *                      - limit (int): Maximum number of users to return. Default is 20
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
@@ -60,8 +62,19 @@ class UserApiService
      *                         - Rate limiting
      *                         - Network connectivity issues
      */
-    public function getUsers(array $options = []): array
+    public function getUsers(?string $workspace = null, ?string $team = null, array $options = []): array
     {
+        if (!$workspace && !$team) {
+            throw new \InvalidArgumentException('You must provide either a "workspace" or "team".');
+        }
+
+        if ($workspace) {
+            $options['workspace'] = $workspace;
+        }
+        if ($team) {
+            $options['team'] = $team;
+        }
+
         return $this->client->request('GET', 'users', ['query' => $options]);
     }
 
@@ -100,16 +113,18 @@ class UserApiService
      * Returns all of a user's favorites in the order they appear in Asana's sidebar.
      * Results are paginated and include projects, tasks, tags, users, portfolios, and goals.
      *
-     * API Documentation: https://developers.asana.com/reference/getfavorites
+     * API Documentation: https://developers.asana.com/reference/getfavoritesforuser
      *
      * @param string $userGid The unique global ID of the user to retrieve favorites for.
      *                        This identifier can be found in the user URL or returned from user-related API endpoints.
      *                        Use "me" to refer to the current user.
      *                        Example: "12345" or "me"
-     * @param array $options Optional parameters to customize the request:
+     * @param array $options Parameters to customize the request:
+     *                      Required:
      *                      - workspace (string): The workspace in which to get favorites
      *                      - resource_type (string): The resource type of favorites to retrieve.
-     *                        Possible values: project, task, tag, user, portfolio, goal
+     *                        Possible values: project, task, tag, user, portfolio, project_template
+     *                      Optional:
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true

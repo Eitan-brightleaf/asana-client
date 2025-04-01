@@ -38,9 +38,9 @@ class TagsApiService
      *
      * API Documentation: https://developers.asana.com/reference/gettags
      *
+     * @param string $workspace The unique identifier (GID) of the workspace to get tags from
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - workspace (string): The workspace to filter tags on. Must be a valid workspace GID
      *                      - limit (int): Maximum number of tags to return. Default is 20
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
@@ -59,8 +59,11 @@ class TagsApiService
      *                         - Rate limiting
      *                         - Network connectivity issues
      */
-    public function getTags(array $options = []): array
+    public function getTags(string $workspace, array $options = []): array
     {
+        // Include workspace in options
+        $options['workspace'] = $workspace;
+
         return $this->client->request('GET', 'tags', ['query' => $options]);
     }
 

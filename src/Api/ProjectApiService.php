@@ -43,10 +43,12 @@ class ProjectApiService
      *
      * API Documentation: https://developers.asana.com/reference/getprojects
      *
+     * @param string|null $workspace Filter projects by workspace. Can be workspace ID or null.
+     *                    This or $team must have a value.
+     * @param string|null $team Filter projects by team. Can be team ID or null
+     *                     This or $workspace must have a value.
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - workspace (string): Filter projects by workspace. Can be workspace ID or null
-     *                      - team (string): Filter projects by team. Can be team ID or null
      *                      - archived (boolean): Only return projects whose archived field takes this value
      *                      - limit (int): Maximum number of projects to return. Default is 20
      *                      - offset (string): Offset token for pagination
@@ -68,8 +70,21 @@ class ProjectApiService
      *                         - Rate limiting
      *                         - Network connectivity issues
      */
-    public function getProjects(array $options = []): array
+    public function getProjects(?string $workspace = null, ?string $team = null, array $options = []): array
     {
+        // Ensure one of workspace or team is provided
+        if (!$workspace && !$team) {
+            throw new \InvalidArgumentException('You must provide either a "workspace" or "team" parameter.');
+        }
+
+        // Add the provided identifier to options
+        if ($workspace) {
+            $options['workspace'] = $workspace;
+        }
+        if ($team) {
+            $options['team'] = $team;
+        }
+
         return $this->client->request('GET', 'projects', ['query' => $options]);
     }
 
