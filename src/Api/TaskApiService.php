@@ -4,7 +4,6 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
 
 class TaskApiService
 {
@@ -112,14 +111,23 @@ class TaskApiService
      *                       (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array Task data including at minimum:
+     * @return array If $fullResponse is false:
+     *               Task data including at minimum:
      *               - gid: Unique task identifier
      *               - resource_type: Always "task"
      *               - name: Task name/title
      *               Additional fields as specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Missing required fields
      *                         - Invalid field values
      *                         - Insufficient permissions
@@ -150,15 +158,24 @@ class TaskApiService
      *                        projects, tags, workspace
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      Example: ["opt_fields" => "name,assignee,completed"]
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array Task record containing at minimum:
+     * @return array If $fullResponse is false:
+     *               Task record containing at minimum:
      *               - gid: Unique task identifier
      *               - resource_type: Always "task"
      *               - name: Task name/title
      *               Additional fields as specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If invalid task GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
     public function getTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
@@ -199,14 +216,23 @@ class TaskApiService
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data including:
+     * @return array If $fullResponse is false:
+     *               The updated task data including:
      *               - gid: Unique task identifier
      *               - resource_type: Always "task"
      *               - name: Updated task name
      *               Additional fields as specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If invalid task GID provided, malformed data,
+     * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
      */
     public function updateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
@@ -227,11 +253,20 @@ class TaskApiService
      *                        This identifier can be found in the task URL
      *                        or returned from task-related API endpoints.
      *                        Example: "12345"
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array If $fullResponse is false:
+     *               Empty data object containing only the HTTP status indicator:
      *               - data: An empty JSON object {}
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Insufficient permissions to delete/trash the task
      *                         - Network connectivity issues
@@ -261,16 +296,25 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                         (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array Data about the duplication job in progress:
+     * @return array If $fullResponse is false:
+     *               Data about the duplication job in progress:
      *               - gid: Unique identifier of the job
      *               - resource_type: Always "job"
      *               - resource_subtype: Type of job
      *               - status: Current job status (e.g. "not_started", "in_progress", "succeeded")
      *               - new_task: Contains the duplicated task data once job is complete
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing job data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException For invalid task GIDs, malformed data,
-     *                         insufficient permissions, or network issues
+     * @throws AsanaApiException For invalid task GIDs, malformed data,
+     *                          insufficient permissions, or network issues
      */
     public function duplicateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
     {
@@ -345,14 +389,23 @@ class TaskApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array List of tasks containing at minimum:
+     * @return array If $fullResponse is false:
+     *               List of tasks containing at minimum:
      *               - gid: Task identifier
      *               - name: Task name
      *               - resource_type: Always "task"
      *               Additional fields if specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If invalid section GID provided, permission errors,
+     * @throws AsanaApiException If invalid section GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
     public function getTasksBySection(string $sectionGid, array $options = [], bool $fullResponse = false): array
@@ -377,15 +430,24 @@ class TaskApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array List of tasks containing at minimum:
+     * @return array If $fullResponse is false:
+     *               List of tasks containing at minimum:
      *               - gid: Task identifier
      *               - name: Task name
      *               - resource_type: Always "task"
      *               Additional fields if specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If invalid tag GID is provided, permission errors,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid tag GID is provided, permission errors,
+     *                          network issues, or rate limiting occurs
      */
     public function getTasksByTag(string $tagGid, array $options = [], bool $fullResponse = false): array
     {
@@ -411,14 +473,23 @@ class TaskApiService
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - limit (int): Number of items to return per page (1-100)
      *                      - offset (string): Offset token for pagination
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array A list of tasks in the user's My Tasks list. Each task contains:
+     * @return array If $fullResponse is false:
+     *               A list of tasks in the user's My Tasks list. Each task contains:
      *               - gid: Unique identifier of the task
      *               - name: Name/title of the task
      *               - resource_type: Always "task"
      *               Additional fields as specified via opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException When the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid user task list GID
      *                         - Insufficient permissions
      *                         - Network connectivity issues
@@ -454,14 +525,23 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array A list of subtasks belonging to the specified parent task. Each subtask entry contains:
+     * @return array If $fullResponse is false:
+     *               A list of subtasks belonging to the specified parent task. Each subtask entry contains:
      *               - gid: Unique identifier of the subtask
      *               - name: Name of the subtask
      *               - resource_type: Will be "task"
      *               Additional fields as specified via opt_fields parameter
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Insufficient permissions to access the task
      *                         - Network connectivity issues
@@ -496,15 +576,24 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The created subtask data including:
+     * @return array If $fullResponse is false:
+     *               The created subtask data including:
      *               - gid: Unique identifier of created subtask
      *               - resource_type: Always "task"
      *               - name: Name of the subtask
      *               - Additional fields as specified in opt_fields
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing subtask data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException For invalid parent task GIDs, malformed data,
-     *                         insufficient permissions, or network issues
+     * @throws AsanaApiException If the API request fails due to invalid task GID, malformed data,
+     *                          insufficient permissions, or network issues
      */
     public function createSubtaskForTask(
         string $taskGid,
@@ -544,15 +633,24 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array Task data including:
+     * @return array If $fullResponse is false:
+     *               Task data including:
      *               - gid: Task identifier
      *               - resource_type: Always "task"
      *               - name: Task name
      *               - parent: Parent task info if set
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException For invalid task IDs, permission errors, network issues,
-     *                         or if attempting to create circular dependencies
+     * @throws AsanaApiException If invalid task GIDs provided, insufficient permissions,
+     *                          network issues, or if attempting to create circular dependencies
      */
     public function setParentForTask(
         string $taskGid,
@@ -586,14 +684,23 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array A list of tasks that the specified task depends on. Each task entry contains:
+     * @return array If $fullResponse is false:
+     *               A list of tasks that the specified task depends on. Each task entry contains:
      *               - gid: Unique identifier of the dependency task
      *               - name: Name of the dependency task
      *               - resource_type: Will be "task"
      *               Additional fields can be requested via opt_fields parameter
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Insufficient permissions to access the task
      *                         - Network connectivity issues
@@ -622,9 +729,18 @@ class TaskApiService
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
      *                    Note: There is a limit of 30 total dependencies and dependents combined per task.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with the list of current dependencies
-     * @throws RequestException If the API request fails due to:
+     * @return array If $fullResponse is false:
+     *               The updated task data with the list of current dependencies
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
      *                         - Insufficient permissions
@@ -654,9 +770,18 @@ class TaskApiService
      *                    - dependencies (array): Array of task GIDs to remove as dependencies.
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with the list of current dependencies after removal
-     * @throws RequestException If the API request fails due to:
+     * @return array If $fullResponse is false:
+     *               The updated task data with the list of current dependencies after removal
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
      *                         - Insufficient permissions
@@ -686,14 +811,23 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array A list of tasks that depend on the specified task. Each task entry contains:
+     * @return array If $fullResponse is false:
+     *               A list of tasks that depend on the specified task. Each task entry contains:
      *               - gid: Unique identifier of the dependent task
      *               - name: Name of the dependent task
      *               - resource_type: Will be "task"
      *               Additional fields can be requested via opt_fields parameter
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Insufficient permissions to access the task
      *                         - Network connectivity issues
@@ -723,9 +857,18 @@ class TaskApiService
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
      *                    Note: There is a limit of 30 total dependencies and dependents combined per task.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with the list of current dependent tasks
-     * @throws RequestException If the API request fails due to:
+     * @return array If $fullResponse is false:
+     *               The updated task data with the list of current dependent tasks
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependent task GIDs
      *                         - Insufficient permissions
@@ -755,9 +898,19 @@ class TaskApiService
      *                    - dependents (array): Array of task GIDs to remove as dependents.
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with current list of dependent tasks after removal
-     * @throws RequestException If the API request fails due to:
+     * @return array If $fullResponse is false:
+     *               The updated task data with current list of dependent tasks after removal
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependent task GIDs
      *                         - Insufficient permissions
@@ -788,10 +941,19 @@ class TaskApiService
      *                    - insert_after (string): A task gid within the project to
      *                      insert the task after or null to insert at the end of the list
      *                    - section (string): A section gid in the project to add the task to
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data showing current project associations
-     * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
-     *                         insufficient permissions, or network issues
+     * @return array If $fullResponse is false:
+     *               The updated task data showing current project associations
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
+     *                          insufficient permissions, or network issues
      */
     public function addProjectToTask(
         string $taskGid,
@@ -815,9 +977,18 @@ class TaskApiService
      *                        can be found in the task URL or returned from task-related API endpoints.
      * @param string $projectGid The unique global ID of the project to remove from the task. This identifier
      *                          can be found in the project URL or returned from project-related API endpoints.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data showing current project associations after removal
-     * @throws RequestException If the API request fails due to invalid task GID, invalid project GID,
+     * @return array If $fullResponse is false:
+     *               The updated task data showing current project associations after removal
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
     public function removeProjectFromTask(string $taskGid, string $projectGid, bool $fullResponse = false): array
@@ -844,10 +1015,19 @@ class TaskApiService
      * @param string $tagGid The unique global ID of the tag to add to the task.
      *                       This identifier can be found in the tag URL or returned from
      *                       tag-related API endpoints.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with the current tags after addition
-     * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
-     *                         insufficient permissions, or network issues
+     * @return array If $fullResponse is false:
+     *               The updated task data with the current tags after addition
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
+     *                          insufficient permissions, or network issues
      */
     public function addTagToTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
     {
@@ -868,10 +1048,20 @@ class TaskApiService
      * @param string $tagGid The unique global ID of the tag to remove from the task.
      *                       This identifier can be found in the tag URL or returned from
      *                       tag-related API endpoints.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data with the current tags after removal
-     * @throws RequestException If the API request fails due to invalid task GID, invalid tag GID,
-     *                         insufficient permissions, or network issues
+     * @return array If $fullResponse is false:
+     *               The updated task data with the current tags after removal
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
+     *                          insufficient permissions, or network issues
      */
     public function removeTagFromTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
     {
@@ -900,10 +1090,19 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data including information about the new followers
-     * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
-     *                         insufficient permissions, or network issues
+     * @return array If $fullResponse is false:
+     *               The updated task data including information about the new followers
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
+     *                          insufficient permissions, or network issues
      */
     public function addFollowersToTask(
         string $taskGid,
@@ -937,10 +1136,19 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task data including information about the remaining followers
-     * @throws RequestException If the API request fails due to invalid task GID, invalid user GIDs,
-     *                         insufficient permissions, or network issues
+     * @return array If $fullResponse is false:
+     *               The updated task data including information about the remaining followers
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
+     *                          insufficient permissions, or network issues
      */
     public function removeFollowersFromTask(
         string $taskGid,
@@ -968,10 +1176,19 @@ class TaskApiService
      *
      * @param string $workspaceGid The unique global ID of the workspace where the task is searched.
      * @param string $customId The custom task ID to retrieve.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array An associative array representing the task.
+     * @return array If $fullResponse is false:
+     *               An associative array representing the task.
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails or no task with the provided custom ID is found.
+     * @throws AsanaApiException If the API request fails or no task with the provided custom ID is found.
      */
     public function getTaskByCustomId(string $workspaceGid, string $customId, bool $fullResponse = false): array
     {
@@ -1027,10 +1244,19 @@ class TaskApiService
      * }
      * ```
      *
-     * @return array An array of tasks matching the search criteria. Each task entry
-     * includes fields specified in `opt_fields` or the default set by the Asana API.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @return array If $fullResponse is false:
+     *               An array of tasks matching the search criteria. Each task entry
+     *               includes fields specified in `opt_fields` or the default set by the Asana API.
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
+     * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
     public function searchTasks(string $workspaceGid, array $options = [], bool $fullResponse = false): array
     {
@@ -1048,9 +1274,18 @@ class TaskApiService
      * Updates the status of a task to mark it as completed.
      *
      * @param string $taskGid The unique global ID of the task to be marked as complete.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task details returned from the Asana API.
-     * @throws RequestException If the API request fails.
+     * @return array If $fullResponse is false:
+     *               The updated task details returned from the Asana API.
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails.
      */
     public function markTaskComplete(string $taskGid, bool $fullResponse = false): array
     {
@@ -1064,9 +1299,18 @@ class TaskApiService
      *
      * @param string $taskGid The unique global ID of the task to be reassigned.
      * @param string $assigneeGid The unique global ID of the user to whom the task should be reassigned.
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
      *
-     * @return array The updated task details returned from the Asana API.
-     * @throws RequestException If the API request fails.
+     * @return array If $fullResponse is false:
+     *               The updated task details returned from the Asana API.
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     * @throws AsanaApiException If the API request fails.
      */
     public function reassignTask(string $taskGid, string $assigneeGid, bool $fullResponse = false): array
     {
@@ -1088,10 +1332,19 @@ class TaskApiService
      *   - `tags.any` (array): Filter tasks that have specific tag(s) (optional).
      *   - `opt_fields` (string): A comma-separated list of fields to include in the result (e.g., `name,due_on`).
      *
-     * @return array A list of overdue tasks matching the specified criteria. Each task entry includes fields
+     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @return array If $fullResponse is false:
+     *               A list of overdue tasks matching the specified criteria. Each task entry includes fields
      *               specified in `opt_fields` or defaults to Asana's standard fields.
+     *               If $fullResponse is true:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task list
+     *               - raw_body: Raw response body
+     *               - request: Original request details
      *
-     * @throws RequestException If the API request fails due to connectivity issues or invalid query parameters.
+     * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
     public function getOverdueTasks(
         string $workspaceGid,
