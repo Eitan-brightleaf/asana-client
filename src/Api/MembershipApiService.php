@@ -2,8 +2,8 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
 
 class MembershipApiService
 {
@@ -51,22 +51,28 @@ class MembershipApiService
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
+     * @param bool $fullResponse Whether to return the full response details including headers and request info
      *
-     * @return array List of memberships matching the filters. Each membership contains:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - headers: Response headers
+     *               - body: Parsed response body with list of memberships
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just the list of memberships containing:
      *               - gid: Membership's unique identifier
      *               - resource_type: Always "membership"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Missing required parameters
-     *                         - Invalid parameter values
-     *                         - Insufficient permissions
-     *                         - Rate limiting
-     *                         - Network connectivity issues
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Missing required parameters
+     *                          - Invalid parameter values
+     *                          - Insufficient permissions
+     *                          - Rate limiting
+     *                          - Network connectivity issues
      */
-    public function getMemberships(array $options = []): array
+    public function getMemberships(array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', 'memberships', ['query' => $options]);
+        return $this->client->request('GET', 'memberships', ['query' => $options], $fullResponse);
     }
 
     /**
@@ -91,22 +97,28 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details including headers and request info
      *
-     * @return array The created membership data including at minimum:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - headers: Response headers
+     *               - body: Parsed response body with created membership data
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just the created membership data including:
      *               - gid: Membership's unique identifier
      *               - resource_type: Always "membership"
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Missing required fields
-     *                         - Invalid field values
-     *                         - Insufficient permissions
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Missing required fields
+     *                          - Invalid field values
+     *                          - Insufficient permissions
+     *                          - Network connectivity issues
+     *                          - Rate limiting
      */
-    public function createMembership(array $data, array $options = []): array
+    public function createMembership(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'memberships', ['json' => $data, 'query' => $options]);
+        return $this->client->request('POST', 'memberships', ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -122,8 +134,14 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details including headers and request info
      *
-     * @return array Membership record containing at minimum:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - headers: Response headers
+     *               - body: Parsed response body with membership data
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just the membership record containing:
      *               - gid: Membership's unique identifier
      *               - resource_type: Always "membership"
      *               - parent: The parent object (portfolio, project, goal, or custom_field) of this membership
@@ -131,12 +149,12 @@ class MembershipApiService
      *               - access_level: The access level of the membership (admin, editor, commenter, viewer, etc.)
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid membership GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid membership GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getMembership(string $membershipGid, array $options = []): array
+    public function getMembership(string $membershipGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options]);
+        return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -160,8 +178,14 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details including headers and request info
      *
-     * @return array The updated membership data including:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - headers: Response headers
+     *               - body: Parsed response body with updated membership data
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just the updated membership data including:
      *               - gid: Membership's unique identifier
      *               - resource_type: Always "membership"
      *               - parent: The parent object (portfolio, project, goal, or custom_field) of this membership
@@ -169,12 +193,21 @@ class MembershipApiService
      *               - access_level: The updated access level of the membership
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid membership GID provided, malformed data,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid membership GID provided, malformed data,
+     *                          insufficient permissions, or network issues occur
      */
-    public function updateMembership(string $membershipGid, array $data, array $options = []): array
-    {
-        return $this->client->request('PUT', "memberships/$membershipGid", ['json' => $data, 'query' => $options]);
+    public function updateMembership(
+        string $membershipGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'PUT',
+            "memberships/$membershipGid",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -188,18 +221,24 @@ class MembershipApiService
      * @param string $membershipGid The unique global ID of the membership to delete.
      *                              This identifier can be found in the membership URL or
      *                              returned from membership-related API endpoints.
+     * @param bool $fullResponse Whether to return the full response details including headers and request info
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array If $fullResponse is true, returns complete response array including:
+     *               - status: HTTP status code
+     *               - headers: Response headers
+     *               - body: Empty data object
+     *               - request: Original request details
+     *               If $fullResponse is false, returns just an empty data object:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid membership GID
-     *                         - Insufficient permissions to delete the membership
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid membership GID
+     *                          - Insufficient permissions to delete the membership
+     *                          - Network connectivity issues
+     *                          - Rate limiting
      */
-    public function deleteMembership(string $membershipGid): array
+    public function deleteMembership(string $membershipGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "memberships/$membershipGid");
+        return $this->client->request('DELETE', "memberships/$membershipGid", [], $fullResponse);
     }
 }
