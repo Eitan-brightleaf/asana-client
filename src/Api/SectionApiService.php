@@ -261,7 +261,7 @@ class SectionApiService
      * Adds a task to a specific section. This will remove the task from other sections
      * of the project.
      *
-     * API Documentation: https://developers.asana.com/reference/addtasktosection
+     * API Documentation: https://developers.asana.com/reference/addtaskforsection
      *
      * @param string $sectionGid The unique global ID of the section to add the task to.
      *                           This identifier can be found in the section URL or

@@ -317,7 +317,7 @@ class TagsApiService
      * Creates a new tag in a workspace. This is a shortcut for creating a tag in a specific workspace
      * rather than specifying the workspace in the data.
      *
-     * API Documentation: https://developers.asana.com/reference/createtaginworkspace
+     * API Documentation: https://developers.asana.com/reference/createtagforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to create the tag in.
      *                             This identifier can be found in the workspace URL or returned from

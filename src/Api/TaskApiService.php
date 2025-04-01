@@ -37,7 +37,7 @@ class TaskApiService
      * Returns a list of tasks filtered by the specified criteria. This endpoint provides a way to get
      * multiple tasks in a single request according to your search parameters.
      *
-     * API Documentation: https://developers.asana.com/docs/get-multiple-tasks
+     * API Documentation: https://developers.asana.com/reference/gettasks
      *
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
@@ -86,7 +86,7 @@ class TaskApiService
      * Creates a new task in an Asana workspace or project. The task can be assigned to a specific user,
      * given a due date and notes, and added to projects and tags.
      *
-     * API Documentation: https://developers.asana.com/docs/create-a-task
+     * API Documentation: https://developers.asana.com/reference/createtask
      *
      * @param array $data Data for creating the task. Supported fields include (but are not limited to):
      *                    Required:
@@ -146,7 +146,7 @@ class TaskApiService
      * basic metadata (name, notes, completion status, etc.) along with any custom
      * fields, followers, assignee and more (or less) as requested via opt_fields.
      *
-     * API Documentation: https://developers.asana.com/docs/get-a-task
+     * API Documentation: https://developers.asana.com/reference/gettask
      *
      * @param string $taskGid The unique global ID of the task to retrieve. This identifier
      *                        can be found in the task URL or returned from task-related API endpoints.
@@ -190,7 +190,7 @@ class TaskApiService
      * are documented in the parameters section. For a complete list visit the official documentation.
      * Any unspecified fields remain unchanged.
      *
-     * API Documentation: https://developers.asana.com/docs/update-a-task
+     * API Documentation: https://developers.asana.com/reference/updatetask
      *
      * @param string $taskGid The unique global ID of the task to update. This identifier can
      *                        be found in the task URL or returned from task-related API endpoints.
@@ -247,7 +247,7 @@ class TaskApiService
      * Tasks can be recovered from the trash within 30 days. After 30 days, deleted tasks
      * are permanently removed from the system and cannot be recovered.
      *
-     * API Documentation: https://developers.asana.com/docs/delete-a-task
+     * API Documentation: https://developers.asana.com/reference/deletetask
      *
      * @param string $taskGid The unique global ID of the task to delete/trash.
      *                        This identifier can be found in the task URL
@@ -283,7 +283,7 @@ class TaskApiService
      * Creates and returns a job that will duplicate a task, copying its properties and memberships
      * to a new task. Fields like assignee, name, notes, projects, etc. can be overridden in the duplicated task.
      *
-     * API Documentation: https://developers.asana.com/docs/duplicate-a-task
+     * API Documentation: https://developers.asana.com/reference/duplicatetask
      *
      * @param string $taskGid The unique global ID of the task to duplicate.
      *                        This identifier can be found in the task URL or returned from task-related API endpoints.
@@ -333,7 +333,7 @@ class TaskApiService
      * in multiple projects at once. By default, tasks included are not sorted and basic task fields
      * are returned. Tasks may be filtered by specifying the query options.
      *
-     * API Documentation: https://developers.asana.com/docs/get-tasks-from-a-project
+     * API Documentation: https://developers.asana.com/reference/gettasksforproject
      *
      * @param string $projectGid The unique global ID of the project to get tasks from.
      *                          This identifier can be found in the project URL or
@@ -378,7 +378,7 @@ class TaskApiService
      * Returns a list of tasks in a section. Tasks can be placed into a section within a project.
      * This endpoint allows retrieving all tasks that are currently in a specific section.
      *
-     * API Documentation: https://developers.asana.com/docs/get-tasks-from-a-section
+     * API Documentation: https://developers.asana.com/reference/gettasksforsection
      *
      * @param string $sectionGid The unique global ID of the section to query tasks from.
      *                          Found in the URL or API responses for a section.
@@ -419,7 +419,7 @@ class TaskApiService
      * Returns a list of all tasks with the specified tag. Tasks can have multiple tags
      * and this endpoint allows retrieving all tasks associated with a particular tag.
      *
-     * API Documentation: https://developers.asana.com/docs/get-tasks-from-a-tag
+     * API Documentation: https://developers.asana.com/reference/gettasksfortag
      *
      * @param string $tagGid The global identifier for the tag to query tasks from.
      *                       Found in the URL or API responses for a tag.
@@ -461,7 +461,7 @@ class TaskApiService
      * represents the tasks assigned to a user that also appear in their My Tasks list.
      * Users can reorder their My Tasks list and specify custom sections to group tasks.
      *
-     * API Documentation: https://developers.asana.com/docs/get-tasks-from-a-user-task-list
+     * API Documentation: https://developers.asana.com/reference/gettasksforusertasklist
      *
      * @param string $userTaskListGid The globally unique identifier for the user task list.
      *                                This can be found in the URL of a user's My Tasks list
@@ -514,7 +514,7 @@ class TaskApiService
      * Retrieves a compact list of all subtasks associated with the given task. A subtask is a task that
      * represents a breakdown of a larger task and maintains a parent-child relationship with its parent task.
      *
-     * API Documentation: https://developers.asana.com/docs/get-subtasks-from-a-task
+     * API Documentation: https://developers.asana.com/reference/getsubtasksfortask
      *
      * @param string $taskGid The unique global ID of the parent task for which to retrieve subtasks.
      *                        This identifier can be found in the task URL or returned from
@@ -559,7 +559,7 @@ class TaskApiService
      * providing the parent task's GID and basic details for the subtask like its name. The subtask
      * will be added to any projects the parent task is in.
      *
-     * API Documentation: https://developers.asana.com/docs/create-a-subtask
+     * API Documentation: https://developers.asana.com/reference/createsubtaskfortask
      *
      * @param string $taskGid The unique global ID of the parent task under which to create the subtask.
      *                        This identifier can be found in the task URL or via API responses.
@@ -616,7 +616,7 @@ class TaskApiService
      * only have one parent at a time, and a task cannot be made its own parent. Setting parent to null makes
      * the task a top-level task.
      *
-     * API Documentation: https://developers.asana.com/docs/set-the-parent-of-a-task
+     * API Documentation: https://developers.asana.com/reference/setparentfortask
      *
      * @param string $taskGid Global ID of the task whose parent will be changed. Can be found in the
      *                        task URL or via API responses. Example: "12345"
@@ -673,7 +673,7 @@ class TaskApiService
      * completed before the task itself can be completed. For example, if task A is a dependency of task B, then task B
      * cannot be marked complete until task A is first completed.
      *
-     * API Documentation: https://developers.asana.com/docs/get-dependencies-from-a-task
+     * API Documentation: https://developers.asana.com/reference/getdependenciesfortask
      *
      * @param string $taskGid The unique global ID of the task from which to fetch dependencies.
      *                        This identifier can be found in the task URL or returned from
@@ -719,7 +719,7 @@ class TaskApiService
      * (i.e., a dependency can have its own dependencies). There is a limit of 30 total dependencies
      * and dependents combined per task.
      *
-     * API Documentation: https://developers.asana.com/docs/set-dependencies-for-a-task
+     * API Documentation: https://developers.asana.com/reference/adddependenciesfortask
      *
      * @param string $taskGid The unique global ID of the task to set dependencies for.
      *                        This identifier can be found in the task URL or returned from
@@ -761,7 +761,7 @@ class TaskApiService
      * then task A must be finished before task B can be started. A task can't be dependent on itself
      * or create a circular dependency chain.
      *
-     * API Documentation: https://developers.asana.com/docs/unlink-dependencies-from-a-task
+     * API Documentation: https://developers.asana.com/reference/removedependenciesfortask
      *
      * @param string $taskGid The unique global ID of the task from which to remove dependencies.
      *                        This identifier can be found in the task URL or returned from
@@ -800,7 +800,7 @@ class TaskApiService
      * task B cannot be started until task A is completed. In this case, task A would return task B
      * as its dependent.
      *
-     * API Documentation: https://developers.asana.com/docs/get-dependents-from-a-task
+     * API Documentation: https://developers.asana.com/reference/getdependentsfortask
      *
      * @param string $taskGid The unique global ID of the task from which to fetch dependents.
      *                        This identifier can be found in the task URL or returned from
@@ -847,7 +847,7 @@ class TaskApiService
      * to create sequential workflows. Note that there is a limit of 30 total dependencies and
      * dependents combined per task.
      *
-     * API Documentation: https://developers.asana.com/docs/set-dependents-for-a-task
+     * API Documentation: https://developers.asana.com/reference/adddependentsfortask
      *
      * @param string $taskGid The unique global ID of the task for which to set dependents.
      *                        This identifier can be found in the task URL or returned from
@@ -889,7 +889,7 @@ class TaskApiService
      * start until the current task is completed. If task B depends on task A, then task A must
      * be completed before task B can begin.
      *
-     * API Documentation: https://developers.asana.com/docs/unlink-dependents-from-a-task
+     * API Documentation: https://developers.asana.com/reference/removedependentsfortask
      *
      * @param string $taskGid The unique global ID of the task from which to remove dependents.
      *                        This identifier can be found in the task URL or returned from
@@ -927,7 +927,7 @@ class TaskApiService
      * Associates a task with a project. Tasks can be members of multiple projects at once, and
      * adding a task to a project will automatically add its parent project to the task.
      *
-     * API Documentation: https://developers.asana.com/docs/add-a-project-to-a-task
+     * API Documentation: https://developers.asana.com/reference/addprojectfortask
      *
      * @param string $taskGid The unique global ID of the task that will be added to the project.
      *                        This identifier can be found in the task URL or returned from
@@ -971,7 +971,7 @@ class TaskApiService
      * Removes the specified project from a task. The task will no longer be associated with
      * the project, but will remain accessible in other projects and in the user's task list.
      *
-     * API Documentation: https://developers.asana.com/docs/remove-a-project-from-a-task
+     * API Documentation: https://developers.asana.com/reference/removeprojectfortask
      *
      * @param string $taskGid The unique global ID of the task from which to remove the project. This identifier
      *                        can be found in the task URL or returned from task-related API endpoints.
@@ -1007,7 +1007,7 @@ class TaskApiService
      * Associates a tag with a task. Tags provide a way to organize tasks and make them more searchable.
      * A task can have multiple tags, and adding a tag that is already on the task will not create a duplicate.
      *
-     * API Documentation: https://developers.asana.com/docs/add-a-tag-to-a-task
+     * API Documentation: https://developers.asana.com/reference/addtagfortask
      *
      * @param string $taskGid The unique global ID of the task to which the tag will be added.
      *                        This identifier can be found in the task URL or returned from
@@ -1040,7 +1040,7 @@ class TaskApiService
      * Removes a tag from a task. The task will no longer be associated with the specified tag.
      * Tags provide a way to organize tasks and make them more searchable.
      *
-     * API Documentation: https://developers.asana.com/docs/remove-a-tag-from-a-task
+     * API Documentation: https://developers.asana.com/reference/removetagfortask
      *
      * @param string $taskGid The unique global ID of the task from which to remove the tag.
      *                        This identifier can be found in the task URL or returned from
@@ -1079,7 +1079,7 @@ class TaskApiService
      * Adds one or more followers to a task. A follower in Asana is a user that will receive notifications
      * about any changes or comments made to the task.
      *
-     * API Documentation: https://developers.asana.com/docs/add-followers-to-a-task
+     * API Documentation: https://developers.asana.com/reference/addfollowersfortask
      *
      * @param string $taskGid The unique global ID of the task to which followers will be added. This identifier
      *                        can be found in the task URL or returned from task-related API endpoints.
@@ -1125,7 +1125,7 @@ class TaskApiService
      * Removes one or more followers from a task. A follower in Asana is a user that will receive notifications
      * about any changes or comments made to the task.
      *
-     * API Documentation: https://developers.asana.com/docs/remove-followers-from-a-task
+     * API Documentation: https://developers.asana.com/reference/removefollowerfortask
      *
      * @param string $taskGid The unique global ID of the task from which to remove followers. This identifier
      *                        can be found in the task URL or returned from task-related API endpoints.

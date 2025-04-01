@@ -259,7 +259,7 @@ class UserApiService
      * Returns all favorites for the currently authenticated user.
      * A shortcut method that uses "me" as the user identifier.
      *
-     * API Documentation: https://developers.asana.com/reference/getfavorites
+     * API Documentation: https://developers.asana.com/reference/getfavoritesforuser
      *
      * @param array $options Optional parameters to customize the request:
      *                      - workspace (string): The workspace in which to get favorites
