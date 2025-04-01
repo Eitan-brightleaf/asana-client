@@ -3,6 +3,7 @@
 namespace BrightleafDigital;
 
 use BrightleafDigital\Api\ProjectApiService;
+use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
@@ -20,6 +21,7 @@ class AsanaClient
 	private ?TaskApiService $tasks = null;
 	private ?ProjectApiService $projects = null;
     private ?UserApiService $users = null;
+    private ?TagsApiService $tags = null;
 
 	/**
 	 * Initialize Asana client
@@ -109,6 +111,17 @@ class AsanaClient
         $this->ensureValidToken();
 
         return $this->users;
+    }
+
+    public function tags(): TagsApiService
+    {
+        if ($this->tags === null) {
+            $this->tags = new TagsApiService($this->getApiClient());
+        }
+
+        $this->ensureValidToken();
+
+        return $this->tags;
     }
 
     /**
