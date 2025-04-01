@@ -2,6 +2,7 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
 use GuzzleHttp\Exception\RequestException;
 
@@ -46,25 +47,33 @@ class TagsApiService
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array List of tags matching the filters. Each tag contains:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing:
      *               - gid: Tag's unique identifier
      *               - name: Tag name
      *               - resource_type: Always "tag"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid parameter values
-     *                         - Insufficient permissions
-     *                         - Rate limiting
-     *                         - Network connectivity issues
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid parameter values
+     *                          - Insufficient permissions
+     *                          - Rate limiting
+     *                          - Network connectivity issues
      */
-    public function getTags(string $workspace, array $options = []): array
+    public function getTags(string $workspace, array $options = [], bool $fullResponse = false): array
     {
         // Include workspace in options
         $options['workspace'] = $workspace;
 
-        return $this->client->request('GET', 'tags', ['query' => $options]);
+        return $this->client->request('GET', 'tags', ['query' => $options], $fullResponse);
     }
 
     /**
@@ -90,23 +99,27 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array The created tag data including at minimum:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Tag's unique identifier
      *               - resource_type: Always "tag"
      *               - name: Tag name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Missing required fields
-     *                         - Invalid field values
-     *                         - Insufficient permissions
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If missing required fields, invalid field values,
+     *                          insufficient permissions, network issues, or rate limiting occurs
      */
-    public function createTag(array $data, array $options = []): array
+    public function createTag(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'tags', ['json' => $data, 'query' => $options]);
+        return $this->client->request('POST', 'tags', ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -122,19 +135,27 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array Tag record containing at minimum:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Tag's unique identifier
      *               - resource_type: Always "tag"
      *               - name: Tag name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid tag GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getTag(string $tagGid, array $options = []): array
+    public function getTag(string $tagGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tags/$tagGid", ['query' => $options]);
+        return $this->client->request('GET', "tags/$tagGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -156,19 +177,27 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array The updated tag data including:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Tag's unique identifier
      *               - resource_type: Always "tag"
      *               - name: Updated tag name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid tag GID provided, malformed data,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid tag GID provided, malformed data,
+     *                          insufficient permissions, or network issues occur
      */
-    public function updateTag(string $tagGid, array $data, array $options = []): array
+    public function updateTag(string $tagGid, array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('PUT', "tags/$tagGid", ['json' => $data, 'query' => $options]);
+        return $this->client->request('PUT', "tags/$tagGid", ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -182,19 +211,24 @@ class TagsApiService
      *                       This identifier can be found in the tag URL
      *                       or returned from tag-related API endpoints.
      *                       Example: "12345"
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid tag GID
-     *                         - Insufficient permissions to delete the tag
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function deleteTag(string $tagGid): array
+    public function deleteTag(string $tagGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "tags/$tagGid");
+        return $this->client->request('DELETE', "tags/$tagGid", [], $fullResponse);
     }
 
     /**
@@ -214,19 +248,27 @@ class TagsApiService
      *                      - offset (string): Pagination offset token
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array List of tasks with the specified tag. Each task contains:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Task's unique identifier
      *               - name: Task name
      *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
+     *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid tag GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getTasksForTag(string $tagGid, array $options = []): array
+    public function getTasksForTag(string $tagGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options]);
+        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -246,19 +288,27 @@ class TagsApiService
      *                      - offset (string): Pagination offset token
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array List of tags in the workspace containing at minimum:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Tag's unique identifier
      *               - name: Tag name
      *               - resource_type: Always "tag"
-     *               Additional fields if specified in opt_fields
+     *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid workspace GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid workspace GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getTagsForWorkspace(string $workspaceGid, array $options = []): array
+    public function getTagsForWorkspace(string $workspaceGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options]);
+        return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -280,18 +330,35 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
      *
-     * @return array The created tag data including at minimum:
+     * @return array If $fullResponse is true, returns complete response details including:
+     *               - status: HTTP status code
+     *               - reason: Status reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               Otherwise returns just the decoded response body containing at minimum:
      *               - gid: Tag's unique identifier
      *               - resource_type: Always "tag"
      *               - name: Tag name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid workspace GID provided, malformed data,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid workspace GID provided, malformed data,
+     *                          insufficient permissions, or network issues occur
      */
-    public function createTagInWorkspace(string $workspaceGid, array $data, array $options = []): array
-    {
-        return $this->client->request('POST', "workspaces/$workspaceGid/tags", ['json' => $data, 'query' => $options]);
+    public function createTagInWorkspace(
+        string $workspaceGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'POST',
+            "workspaces/$workspaceGid/tags",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 }
