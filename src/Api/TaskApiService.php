@@ -89,7 +89,11 @@ class TaskApiService
      *                    - followers (array): Array of user GIDs to add as followers
      *                    - notes (string): Task description/notes
      *                    - parent (string|null): GID of parent task for subtasks
-     *                    Example: ["name" => "New task", "workspace" => "12345"]
+     *                    - memberships (array): Array specifying project/section memberships for task. Format:
+     *                                         [{"project": project_gid, "section": section_gid}]
+     *                                         The section_gid is optional - if omitted task will be added to project root
+     *                    Example: ["name" => "New task", "workspace" => "12345",
+     *                             "memberships" => [["project" => "789", "section" => "101112"]]]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
@@ -163,7 +167,15 @@ class TaskApiService
      *                    - due_on (string|null): Due date in YYYY-MM-DD format
      *                    - due_at (string|null): Due date with time in UTC format
      *                    - notes (string): Task description/notes
-     *                    Example: ["name" => "Update Task", "completed" => true]
+     *                    - memberships (array): Array of project/section memberships. Each membership contains:
+     *                      - project (string): GID of the project
+     *                      - section (string, optional): GID of specific section to add task to
+     *                      Example: [
+     *                        ["project" => "123", "section" => "456"],
+     *                        ["project" => "789"] // Adds to project root if no section specified
+     *                      ]
+     *                    Example: ["name" => "Update Task", "completed" => true,
+     *                             "memberships" => [["project" => "123", "section" => "456"]]]
      * @param array $options Optional parameters for the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
