@@ -2,6 +2,7 @@
 
 namespace BrightleafDigital\Api;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
 use GuzzleHttp\Exception\RequestException;
 
@@ -57,21 +58,33 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns prettier formatting in responses
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array List of projects matching the filters. Each project contains:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Project's unique identifier
      *               - name: Project name/title
      *               - resource_type: Always "project"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid parameter values
-     *                         - Insufficient permissions
-     *                         - Rate limiting
-     *                         - Network connectivity issues
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid parameter values
+     *                          - Insufficient permissions
+     *                          - Rate limiting
+     *                          - Network connectivity issues
      */
-    public function getProjects(?string $workspace = null, ?string $team = null, array $options = []): array
-    {
+    public function getProjects(
+        ?string $workspace = null,
+        ?string $team = null,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         // Ensure one of workspace or team is provided
         if (!$workspace && !$team) {
             throw new \InvalidArgumentException('You must provide either a "workspace" or "team" parameter.');
@@ -85,7 +98,7 @@ class ProjectApiService
             $options['team'] = $team;
         }
 
-        return $this->client->request('GET', 'projects', ['query' => $options]);
+        return $this->client->request('GET', 'projects', ['query' => $options], $fullResponse);
     }
 
     /**
@@ -115,23 +128,31 @@ class ProjectApiService
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,color"]
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Project data including at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique project identifier
      *               - resource_type: Always "project"
      *               - name: Project name/title
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If the API request fails due to:
+     * @throws AsanaApiException If the API request fails due to:
      *                         - Missing required fields
      *                         - Invalid field values
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function createProject(array $data, array $options = []): array
+    public function createProject(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'projects', ['json' => $data, 'query' => $options]);
+        return $this->client->request('POST', 'projects', ['json' => $data, 'query' => $options], $fullResponse);
     }
 
     /**
@@ -154,19 +175,27 @@ class ProjectApiService
      *                        created_at, modified_at, due_date, current_status
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      Example: ["opt_fields" => "name,notes,owner"]
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Project record containing at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique project identifier
      *               - resource_type: Always "project"
      *               - name: Project name/title
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If the API request fails due to invalid project GID, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getProject(string $projectGid, array $options = []): array
+    public function getProject(string $projectGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "projects/$projectGid", ['query' => $options]);
+        return $this->client->request('GET', "projects/$projectGid", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -195,19 +224,36 @@ class ProjectApiService
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,owner"]
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project data including:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique project identifier
      *               - resource_type: Always "project"
      *               - name: Updated project name
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, malformed data,
+     * @throws AsanaApiException If invalid project GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
      */
-    public function updateProject(string $projectGid, array $data, array $options = []): array
-    {
-        return $this->client->request('PUT', "projects/$projectGid", ['json' => $data, 'query' => $options]);
+    public function updateProject(
+        string $projectGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'PUT',
+            "projects/$projectGid",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -223,19 +269,27 @@ class ProjectApiService
      *                        This identifier can be found in the project URL
      *                        or returned from project-related API endpoints.
      *                        Example: "12345"
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Empty data object containing only the HTTP status indicator:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Empty data object {}
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns empty data object:
      *               - data: An empty JSON object {}
      *
-     * @throws RequestException If the API request fails due to:
-     *                         - Invalid project GID
-     *                         - Insufficient permissions to delete the project
-     *                         - Network connectivity issues
-     *                         - Rate limiting
+     * @throws AsanaApiException If the API request fails due to:
+     *                          - Invalid project GID
+     *                          - Insufficient permissions to delete the project
+     *                          - Network connectivity issues
+     *                          - Rate limiting
      */
-    public function deleteProject(string $projectGid): array
+    public function deleteProject(string $projectGid, bool $fullResponse = false): array
     {
-        return $this->client->request('DELETE', "projects/$projectGid");
+        return $this->client->request('DELETE', "projects/$projectGid", [], $fullResponse);
     }
 
     /**
@@ -258,20 +312,28 @@ class ProjectApiService
      *                      - should_skip_weekends (boolean): Whether to skip weekends during scheduling
      *                      - due_on (string): The due date for the duplicated project
      *                      - start_on (string): The start date for the duplicated project
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Data about the duplication job in progress:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing job data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique identifier of the job
      *               - resource_type: Always "job"
      *               - resource_subtype: Type of job
      *               - status: Current job status (e.g. "not_started", "in_progress", "succeeded")
      *               - new_project: Contains the duplicated project data once job is complete
      *
-     * @throws RequestException For invalid project GIDs, malformed data,
-     *                         insufficient permissions, or network issues
+     * @throws AsanaApiException If the API request fails due to invalid project GID, malformed data,
+     *                          insufficient permissions, network issues, or rate limiting
      */
-    public function duplicateProject(string $projectGid, array $data): array
+    public function duplicateProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/duplicate", ['json' => $data]);
+        return $this->client->request('POST', "projects/$projectGid/duplicate", ['json' => $data], $fullResponse);
     }
 
     /**
@@ -292,19 +354,27 @@ class ProjectApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array List of projects containing at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Project identifier
      *               - name: Project name
      *               - resource_type: Always "project"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid task GID provided, permission errors,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid task GID provided, permission errors,
+     *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTask(string $taskGid, array $options = []): array
+    public function getProjectsForTask(string $taskGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options]);
+        return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -327,19 +397,27 @@ class ProjectApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array List of projects in the team containing at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Project identifier
      *               - name: Project name
      *               - resource_type: Always "project"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid team GID provided, permission errors,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid team GID provided, permission errors,
+     *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTeam(string $teamGid, array $options = []): array
+    public function getProjectsForTeam(string $teamGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options]);
+        return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -367,19 +445,36 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Project data including at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique project identifier
      *               - resource_type: Always "project"
      *               - name: Project name/title
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid team GID provided, missing required fields,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid team GID provided, missing required fields,
+     *                          insufficient permissions, or network issues occur
      */
-    public function createProjectInTeam(string $teamGid, array $data, array $options = []): array
-    {
-        return $this->client->request('POST', "teams/$teamGid/projects", ['json' => $data, 'query' => $options]);
+    public function createProjectInTeam(
+        string $teamGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'POST',
+            "teams/$teamGid/projects",
+            ['json' => $data, 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -400,19 +495,30 @@ class ProjectApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array List of projects in the workspace containing at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Project identifier
      *               - name: Project name
      *               - resource_type: Always "project"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid workspace GID provided, permission errors,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid workspace GID provided, permission errors,
+     *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForWorkspace(string $workspaceGid, array $options = []): array
-    {
-        return $this->client->request('GET', "workspaces/$workspaceGid/projects", ['query' => $options]);
+    public function getProjectsForWorkspace(
+        string $workspaceGid,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request('GET', "workspaces/$workspaceGid/projects", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -439,22 +545,35 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Project data including at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique project identifier
      *               - resource_type: Always "project"
      *               - name: Project name/title
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid workspace GID provided, missing required fields,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid workspace GID provided, missing required fields,
+     *                          insufficient permissions, or network issues occur
      */
-    public function createProjectInWorkspace(string $workspaceGid, array $data, array $options = []): array
-    {
+    public function createProjectInWorkspace(
+        string $workspaceGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/projects",
-            ['json' => $data, 'query' => $options]
+            ['json' => $data, 'query' => $options],
+            $fullResponse
         );
     }
 
@@ -476,15 +595,29 @@ class ProjectApiService
      *                    - is_important (boolean): Whether the custom field should be displayed prominently
      *                    - insert_before (string): GID of a custom field setting to insert this one before
      *                    - insert_after (string): GID of a custom field setting to insert this one after
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project with the custom field setting added
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing the updated project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the custom field setting added
      *
-     * @throws RequestException If invalid project GID provided, invalid custom field GID,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
+     *                          insufficient permissions, or network issues occur
      */
-    public function addCustomFieldToProject(string $projectGid, array $data): array
+    public function addCustomFieldToProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/addCustomFieldSetting", ['json' => $data]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/addCustomFieldSetting",
+            ['json' => $data],
+            $fullResponse
+        );
     }
 
     /**
@@ -500,15 +633,29 @@ class ProjectApiService
      *                        project-related API endpoints.
      * @param array $data Data for removing the custom field setting. Must include:
      *                    - custom_field (string): The GID of the custom field to remove
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project with the custom field setting removed
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing the updated project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the custom field setting removed
      *
-     * @throws RequestException If invalid project GID provided, invalid custom field GID,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
+     *                          insufficient permissions, or network issues occur
      */
-    public function removeCustomFieldFromProject(string $projectGid, array $data): array
+    public function removeCustomFieldFromProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/removeCustomFieldSetting", ['json' => $data]);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/removeCustomFieldSetting",
+            ['json' => $data],
+            $fullResponse
+        );
     }
 
     /**
@@ -530,8 +677,16 @@ class ProjectApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array List of custom field settings containing at minimum:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing custom field settings
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Custom field setting identifier
      *               - custom_field: Object with the custom field information
      *               - is_important: Whether the custom field is prominently displayed
@@ -539,12 +694,20 @@ class ProjectApiService
      *               - resource_type: Always "custom_field_setting"
      *               Additional fields if specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, permission errors,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid project GID provided, permission errors,
+     *                          network issues, or rate limiting occurs
      */
-    public function getCustomFieldsForProject(string $projectGid, array $options = []): array
-    {
-        return $this->client->request('GET', "projects/$projectGid/custom_field_settings", ['query' => $options]);
+    public function getCustomFieldsForProject(
+        string $projectGid,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
+        return $this->client->request(
+            'GET',
+            "projects/$projectGid/custom_field_settings",
+            ['query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -563,18 +726,26 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Task count data with:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task count data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - num_incomplete_tasks: Number of incomplete tasks in the project
      *               - num_completed_tasks: Number of completed tasks in the project
      *               - num_tasks: Total number of tasks in the project
      *
-     * @throws RequestException If invalid project GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function getTaskCountsForProject(string $projectGid, array $options = []): array
+    public function getTaskCountsForProject(string $projectGid, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options]);
+        return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options], $fullResponse);
     }
 
     /**
@@ -597,18 +768,32 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project data with the new members added
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the new members added
      *
-     * @throws RequestException If invalid project GID provided, invalid user GIDs,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
+     *                          insufficient permissions, or network issues occur
      */
-    public function addMembersToProject(string $projectGid, array $members, array $options = []): array
-    {
+    public function addMembersToProject(
+        string $projectGid,
+        array $members,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addMembers",
-            ['json' => ['members' => $members], 'query' => $options]
+            ['json' => ['members' => $members], 'query' => $options],
+            $fullResponse
         );
     }
 
@@ -632,18 +817,32 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project data with the members removed
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the members removed
      *
-     * @throws RequestException If invalid project GID provided, invalid user GIDs,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
+     *                          insufficient permissions, or network issues occur
      */
-    public function removeMembersFromProject(string $projectGid, array $members, array $options = []): array
-    {
+    public function removeMembersFromProject(
+        string $projectGid,
+        array $members,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeMembers",
-            ['json' => ['members' => $members], 'query' => $options]
+            ['json' => ['members' => $members], 'query' => $options],
+            $fullResponse
         );
     }
 
@@ -666,18 +865,32 @@ class ProjectApiService
      *                       (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project data with the new followers added
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the new followers added
      *
-     * @throws RequestException If invalid project GID provided, invalid user GIDs,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
+     *                          insufficient permissions, or network issues occur
      */
-    public function addFollowersToProject(string $projectGid, array $followers, array $options = []): array
-    {
+    public function addFollowersToProject(
+        string $projectGid,
+        array $followers,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addFollowers",
-            ['json' => ['followers' => $followers], 'query' => $options]
+            ['json' => ['followers' => $followers], 'query' => $options],
+            $fullResponse
         );
     }
 
@@ -700,18 +913,32 @@ class ProjectApiService
      *                       (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array The updated project data with the followers removed
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing
+     *               the updated project with the followers removed
      *
-     * @throws RequestException If invalid project GID provided, invalid user GIDs,
-     *                         insufficient permissions, or network issues occur
+     * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
+     *                          insufficient permissions, or network issues occur
      */
-    public function removeFollowersFromProject(string $projectGid, array $followers, array $options = []): array
-    {
+    public function removeFollowersFromProject(
+        string $projectGid,
+        array $followers,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeFollowers",
-            ['json' => ['followers' => $followers], 'query' => $options]
+            ['json' => ['followers' => $followers], 'query' => $options],
+            $fullResponse
         );
     }
 
@@ -737,22 +964,35 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
      *
-     * @return array Data about the created template:
+     * @return array If $fullResponse is true, returns array containing:
+     *               - status: Response status code
+     *               - reason: Response reason phrase
+     *               - headers: Response headers
+     *               - body: Decoded response body containing project template data
+     *               - raw_body: Raw response body string
+     *               - request: Original request details
+     *               If $fullResponse is false, returns decoded response body containing:
      *               - gid: Unique identifier of the template
      *               - resource_type: Always "project_template"
      *               - name: Name of the template
      *               Additional fields as specified in opt_fields
      *
-     * @throws RequestException If invalid project GID provided, insufficient permissions,
-     *                         network issues, or rate limiting occurs
+     * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
+     *                          network issues, or rate limiting occurs
      */
-    public function createProjectTemplateFromProject(string $projectGid, array $data, array $options = []): array
-    {
+    public function createProjectTemplateFromProject(
+        string $projectGid,
+        array $data,
+        array $options = [],
+        bool $fullResponse = false
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/saveAsTemplate",
-            ['json' => $data, 'query' => $options]
+            ['json' => $data, 'query' => $options],
+            $fullResponse
         );
     }
 }
