@@ -2,7 +2,9 @@
 
 namespace BrightleafDigital\Http;
 
+use BrightleafDigital\Exceptions\AsanaApiException;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\GuzzleException;
 
 class AsanaApiClient
 {
@@ -30,17 +32,68 @@ class AsanaApiClient
     }
 
     /**
-     * Sends an HTTP request using the specified method, URI, and options, and returns the decoded JSON response.
+     * Sends an HTTP request with the specified method, URI, and options.
      *
-     * @param string $method The HTTP method to use for the request (e.g., GET, POST, PUT, DELETE).
-     * @param string $uri The URI of the endpoint to send the request to.
-     * @param array $options Optional configuration options for the request (e.g., headers, query parameters, body).
-     *
-     * @return mixed The decoded JSON response body.
+     * @param string $method The HTTP method to use (e.g., 'GET', 'POST', etc.).
+     * @param string $uri The URI to make the request to.
+     * @param array $options Additional options for the request, such as headers, body, and query parameters.
+     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @return array The response data. If $fullResponse is true, it includes status, reason, headers, body,
+     *               raw body, and the request details; otherwise, it returns the decoded body directly.
+     * @throws AsanaApiException If the response indicates an error or if the request fails.
      */
-    public function request(string $method, string $uri, array $options = [])
+    public function request(string $method, string $uri, array $options = [], bool $fullResponse = false): array
     {
-        $response = $this->httpClient->request($method, $uri, $options);
-        return json_decode($response->getBody(), true);
+        try {
+            $response = $this->httpClient->request($method, $uri, $options);
+            if ($fullResponse) {
+                return [
+                    'status' => $response->getStatusCode(),
+                    'reason' => $response->getReasonPhrase(),
+                    'headers' => $response->getHeaders(),
+                    'body' => json_decode($response->getBody(), true),
+                    'raw_body' => (string)$response->getBody(),
+                    'request' => [
+                        'method' => $method,
+                        'uri' => $uri,
+                        'options' => $options,
+                    ],
+                ];
+            }
+            return json_decode($response->getBody(), true);
+        } catch (GuzzleException $e) {
+            $message = '';
+            $details = [];
+
+            if (method_exists($e, 'hasResponse') && $e->hasResponse() && method_exists($e, 'getResponse')) {
+                $response = $e->getResponse();
+                $body = (string) $response->getBody();
+
+                // Try to decode it as JSON (Asana usually returns structured errors)
+                $decoded = json_decode($body, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    if (isset($decoded['errors'][0]['message'])) {
+                        if (method_exists($e, 'getRequest')) {
+                            $request = $e->getRequest();
+                            $uri = $request->getUri();
+                            $uri = $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() .
+                                ($uri->getQuery() ? '?' . $uri->getQuery() : '');
+                            $message = $request->getMethod() . ' ' . $uri . PHP_EOL . 'resulted in a ' .
+                                $e->getCode() . ' ' . $response->getReasonPhrase() . '  : ' . PHP_EOL;
+                        }
+                        $message .= $decoded['errors'][0]['message'] . PHP_EOL . $decoded['errors'][0]['help'];
+                    }
+                    $details = $decoded;
+                } else {
+                    // If the body isn’t JSON, fall back to plain string
+                    $message = $body;
+                }
+            } else {
+                // Fall back to the short Guzzle error if no response
+                $message = $e->getMessage();
+            }
+
+            throw new AsanaApiException($message, $e->getCode(), $details, $e);
+        }
     }
 }
