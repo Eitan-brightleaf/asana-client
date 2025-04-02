@@ -136,7 +136,12 @@ class TaskApiService
      */
     public function createTask(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'tasks', ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'POST',
+            'tasks',
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -237,7 +242,12 @@ class TaskApiService
      */
     public function updateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('PUT', "tasks/$taskGid", ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'PUT',
+            "tasks/$taskGid",
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -321,7 +331,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/duplicate",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -604,7 +614,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/subtasks",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -661,7 +671,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/setParent",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -750,7 +760,12 @@ class TaskApiService
      */
     public function setDependenciesForTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addDependencies", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/addDependencies",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -789,7 +804,12 @@ class TaskApiService
      */
     public function unlinkDependenciesFromTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeDependencies", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/removeDependencies",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -878,7 +898,12 @@ class TaskApiService
      */
     public function setDependentsForTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addDependents", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/addDependents",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -918,7 +943,12 @@ class TaskApiService
      */
     public function unlinkDependentsFromTask(string $taskGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/removeDependents", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/removeDependents",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -962,7 +992,12 @@ class TaskApiService
         bool $fullResponse = false
     ): array {
         $data['project'] = $projectGid;
-        return $this->client->request('POST', "tasks/$taskGid/addProject", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/addProject",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -996,7 +1031,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeProject",
-            ['json' => ['project' => $projectGid]],
+            ['json' => ['data' => ['project' => $projectGid]]],
             $fullResponse
         );
     }
@@ -1031,7 +1066,12 @@ class TaskApiService
      */
     public function addTagToTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "tasks/$taskGid/addTag", ['json' => ['tag' => $tagGid]], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "tasks/$taskGid/addTag",
+            ['json' => ['data' => ['tag' => $tagGid]]],
+            $fullResponse
+        );
     }
 
     /**
@@ -1068,7 +1108,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeTag",
-            ['json' => ['tag' => $tagGid]],
+            ['json' => ['data' => ['tag' => $tagGid]]],
             $fullResponse
         );
     }
@@ -1114,7 +1154,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addFollowers",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -1160,7 +1200,7 @@ class TaskApiService
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeFollowers",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }

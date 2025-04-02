@@ -151,7 +151,12 @@ class ProjectApiService
      */
     public function createProject(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'projects', ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'POST',
+            'projects',
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -250,7 +255,7 @@ class ProjectApiService
         return $this->client->request(
             'PUT',
             "projects/$projectGid",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -332,7 +337,12 @@ class ProjectApiService
      */
     public function duplicateProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/duplicate", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/duplicate",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -471,7 +481,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "teams/$teamGid/projects",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -571,7 +581,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/projects",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -614,7 +624,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/addCustomFieldSetting",
-            ['json' => $data],
+            ['json' => ['data' => $data]],
             $fullResponse
         );
     }
@@ -652,7 +662,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeCustomFieldSetting",
-            ['json' => $data],
+            ['json' => ['data' => $data]],
             $fullResponse
         );
     }
@@ -791,7 +801,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/addMembers",
-            ['json' => ['members' => $members], 'query' => $options],
+            ['json' => ['data' => ['members' => $members]], 'query' => $options],
             $fullResponse
         );
     }
@@ -840,7 +850,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeMembers",
-            ['json' => ['members' => $members], 'query' => $options],
+            ['json' => ['data' => ['members' => $members]], 'query' => $options],
             $fullResponse
         );
     }
@@ -888,7 +898,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/addFollowers",
-            ['json' => ['followers' => $followers], 'query' => $options],
+            ['json' => ['data' => ['followers' => $followers]], 'query' => $options],
             $fullResponse
         );
     }
@@ -936,7 +946,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeFollowers",
-            ['json' => ['followers' => $followers], 'query' => $options],
+            ['json' => ['data' => ['followers' => $followers]], 'query' => $options],
             $fullResponse
         );
     }
@@ -990,7 +1000,7 @@ class ProjectApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/saveAsTemplate",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }

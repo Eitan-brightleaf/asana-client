@@ -118,7 +118,12 @@ class MembershipApiService
      */
     public function createMembership(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'memberships', ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'POST',
+            'memberships',
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -205,7 +210,7 @@ class MembershipApiService
         return $this->client->request(
             'PUT',
             "memberships/$membershipGid",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }

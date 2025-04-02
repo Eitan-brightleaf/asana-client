@@ -115,7 +115,7 @@ class SectionApiService
         return $this->client->request(
             'PUT',
             "sections/$sectionGid",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -250,7 +250,7 @@ class SectionApiService
         return $this->client->request(
             'POST',
             "projects/$projectGid/sections",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
@@ -290,7 +290,12 @@ class SectionApiService
      */
     public function addTaskToSection(string $sectionGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "sections/$sectionGid/addTask", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "sections/$sectionGid/addTask",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 
     /**
@@ -328,6 +333,11 @@ class SectionApiService
      */
     public function insertSectionForProject(string $projectGid, array $data, bool $fullResponse = false): array
     {
-        return $this->client->request('POST', "projects/$projectGid/sections/insert", ['json' => $data], $fullResponse);
+        return $this->client->request(
+            'POST',
+            "projects/$projectGid/sections/insert",
+            ['json' => ['data' => $data]],
+            $fullResponse
+        );
     }
 }

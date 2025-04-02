@@ -119,7 +119,12 @@ class TagsApiService
      */
     public function createTag(array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('POST', 'tags', ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'POST',
+            'tags',
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -197,7 +202,12 @@ class TagsApiService
      */
     public function updateTag(string $tagGid, array $data, array $options = [], bool $fullResponse = false): array
     {
-        return $this->client->request('PUT', "tags/$tagGid", ['json' => $data, 'query' => $options], $fullResponse);
+        return $this->client->request(
+            'PUT',
+            "tags/$tagGid",
+            ['json' => ['data' => $data], 'query' => $options],
+            $fullResponse
+        );
     }
 
     /**
@@ -357,7 +367,7 @@ class TagsApiService
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/tags",
-            ['json' => $data, 'query' => $options],
+            ['json' => ['data' => $data], 'query' => $options],
             $fullResponse
         );
     }
