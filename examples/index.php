@@ -16,7 +16,7 @@ $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri, __DIR__ .
 $asanaClient->loadToken();
 
 if ($asanaClient->hasToken()) {
-    header('Location: tasks.php');
+    header('Location: workspaces.php');
     exit;
 }
 

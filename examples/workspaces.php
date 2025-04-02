@@ -15,21 +15,21 @@ $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $tokenPath = __DIR__ . '/token.json';
 $tokenData = json_decode(file_get_contents($tokenPath), true);
 
+// $pat = $_ENV['PAT'];
+// $asanaClient = AsanaClient::withPAT($pat);
+
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
-    $tasks = $asanaClient->tasks()->getTasksByProject($_GET['project'], [
-            'opt_fields' => 'name',
-            'limit' => 100,
-        ]);
-    echo '<ol>';
-    foreach ($tasks as $task) {
-        echo '<li><a href="viewTask.php?task=' . $task['gid'] . '">' . $task['name'] . '</a></li>';
+    $me = $asanaClient->users()->getCurrentUser();
+    $name = $me['name'];
+    ?>
+        <h1>Hello, <?= $name ?>!</h1>
+    <?php
+    $workspaces = $me['workspaces'];
+    foreach ($workspaces as $workspace) {
+        echo '<a href="projects.php?workspace=' . $workspace['gid'] . '">' . $workspace['name'] . '</a><br>';
     }
-    echo '</ol>';
-    $project = $asanaClient->projects()->getProject($_GET['project'], ['opt_fields' => 'workspace.gid']);
-    $workspace = $project['workspace']['gid'];
-    echo '<a href="projects.php?workspace=' . $workspace . '">Back to projects</a>';
 } catch (AsanaApiException | TokenInvalidException $e) {
     echo 'Error: ' . $e->getMessage();
 }

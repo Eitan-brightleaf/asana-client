@@ -11,16 +11,16 @@ $redirectUri = $_ENV['ASANA_REDIRECT_URI'];
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri, __DIR__ . '/token.json');
 
 /*if ( isset( $_GET['code'] ) ) {
-	try {
-		$tokenData = $asanaClient->handleCallback( $_GET['code'] );
-		if ( $tokenData ) {
-			$asanaClient->saveToken();
-			header( 'Location: tasks.php' );
-			exit;
-		}
-	} catch ( Exception $e ) {
-		die( 'Error during authentication: ' . $e->getMessage() );
-	}
+    try {
+        $tokenData = $asanaClient->handleCallback( $_GET['code'] );
+        if ( $tokenData ) {
+            $asanaClient->saveToken();
+            header( 'Location: tasks.php' );
+            exit;
+        }
+    } catch ( Exception $e ) {
+        die( 'Error during authentication: ' . $e->getMessage() );
+    }
 }
 
 $authUrl = $asanaClient->getAuthorizationUrl();
@@ -51,7 +51,7 @@ if (isset($_GET['code'], $_GET['state'])) {
         if ($tokenData) {
         // Save the token to a file and redirect the user to tasks.php
             $asanaClient->saveToken();
-            header('Location: tasks.php');
+            header('Location: workspaces.php');
             exit;
         }
     } catch (Exception $e) {

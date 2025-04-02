@@ -18,18 +18,10 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
-    $tasks = $asanaClient->tasks()->getTasksByProject($_GET['project'], [
-            'opt_fields' => 'name',
-            'limit' => 100,
-        ]);
-    echo '<ol>';
-    foreach ($tasks as $task) {
-        echo '<li><a href="viewTask.php?task=' . $task['gid'] . '">' . $task['name'] . '</a></li>';
-    }
-    echo '</ol>';
-    $project = $asanaClient->projects()->getProject($_GET['project'], ['opt_fields' => 'workspace.gid']);
-    $workspace = $project['workspace']['gid'];
-    echo '<a href="projects.php?workspace=' . $workspace . '">Back to projects</a>';
+    $memberships = $asanaClient->memberships()->getMemberships(['parent' => $_GET['project']]);
+    echo '<pre>';
+    print_r($memberships);
+    echo '</pre>';
 } catch (AsanaApiException | TokenInvalidException $e) {
     echo 'Error: ' . $e->getMessage();
 }
