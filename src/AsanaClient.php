@@ -152,7 +152,7 @@ class AsanaClient
      * the API client is configured, and validates the current token.
      *
      * @return TaskApiService The instance of TaskApiService.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function tasks(): TaskApiService
     {
@@ -171,7 +171,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return ProjectApiService The initialized ProjectApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function projects(): ProjectApiService
     {
@@ -190,7 +190,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return UserApiService The initialized UserApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function users(): UserApiService
     {
@@ -209,7 +209,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return TagsApiService The initialized TagsApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function tags(): TagsApiService
     {
@@ -228,7 +228,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return SectionApiService The initialized SectionApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function sections(): SectionApiService
     {
@@ -247,7 +247,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return MembershipApiService The initialized MembershipApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function memberships(): MembershipApiService
     {
@@ -266,7 +266,7 @@ class AsanaClient
      * Ensures the token validity before returning the instance.
      *
      * @return AttachmentApiService The initialized AttachmentApiService instance.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function attachments(): AttachmentApiService
     {
@@ -403,7 +403,7 @@ class AsanaClient
      * Check if access token is valid (PATs are always valid unless null).
      *
      * @return bool True if token is valid (either a valid OAuth token or PAT)
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function ensureValidToken(): bool
     {
@@ -435,11 +435,15 @@ class AsanaClient
      * Refreshes the expired access token.
      *
      * @return AccessToken|null Returns the refreshed access token if it was expired, otherwise null.
-     * @throws TokenInvalidException
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function refreshToken(): ?AccessToken
     {
-        if ($this->accessToken && $this->accessToken->hasExpired()) {
+        if (!$this->hasToken()) {
+            throw new TokenInvalidException('No access token is available.');
+        }
+
+        if ($this->accessToken->hasExpired()) {
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
             } catch (GuzzleException $e) {
@@ -460,9 +464,7 @@ class AsanaClient
      */
     private function getApiClient(): AsanaApiClient
     {
-        if (!$this->ensureValidToken()) {
-            throw new TokenInvalidException('Not authenticated or token expired');
-        }
+        $this->ensureValidToken();
 
         if ($this->apiClient === null) {
             $this->apiClient = new AsanaApiClient($this->accessToken->getToken());
@@ -473,17 +475,22 @@ class AsanaClient
 
     /**
      * Load token from storage
+     *
+     * @return bool Whether the token was loaded or not.
      */
-    public function loadToken(): void
+    public function loadToken(): bool
     {
         if (file_exists($this->tokenStoragePath)) {
             try {
                 $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true);
                 $this->accessToken = new AccessToken($tokenData);
+                return true;
             } catch (Exception $e) {
                 $this->accessToken = null;
+                return false;
             }
         }
+        return false;
     }
 
     /**
