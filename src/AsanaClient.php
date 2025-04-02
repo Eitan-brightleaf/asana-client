@@ -11,7 +11,9 @@ use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Exceptions\OAuthCallbackException;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Token\AccessToken;
 
 class AsanaClient
@@ -291,21 +293,85 @@ class AsanaClient
     }
 
 
-    /**
-     * Handle callback and retrieve an access token
-     *
-     * @param string $authorizationCode
-     * @param string|null $codeVerifier
-     * @return array|null Access Token data as array or null on failure
-     */
+   /**
+    * Handle callback and retrieve an access token.
+    *
+    * @param string $authorizationCode The code returned by the OAuth callback.
+    * @param string|null $codeVerifier The PKCE code verifier (optional).
+    *
+    * @return array Access Token data as array.
+    *
+    * @throws OAuthCallbackException If the callback handling process fails.
+    */
     public function handleCallback(string $authorizationCode, ?string $codeVerifier = null): ?array
     {
         try {
             $this->accessToken = $this->authHandler->handleCallback($authorizationCode, $codeVerifier);
             return $this->accessToken->jsonSerialize();
+        } catch (GuzzleException $e) {
+            $this->handleGuzzleException($e, $authorizationCode, $codeVerifier);
         } catch (Exception $e) {
-            return null;
+            $this->handleGeneralException($e, $authorizationCode, $codeVerifier);
         }
+        return null;
+    }
+
+    /**
+     * Handles exceptions thrown by Guzzle HTTP client and processes the associated response data.
+     *
+     * @param GuzzleException $e The exception instance thrown by the Guzzle HTTP client.
+     * @param string $authorizationCode The authorization code associated with the request.
+     * @param string|null $codeVerifier An optional code verifier used for PKCE (Proof Key for Code Exchange) flow.
+     *
+     * @return void
+     * @throws OAuthCallbackException
+     */
+    private function handleGuzzleException(GuzzleException $e, string $authorizationCode, ?string $codeVerifier): void
+    {
+        $responseData = [];
+        if (method_exists($e, 'getResponse')) {
+            $response = $e->getResponse();
+            if ($response) {
+                $responseData = [
+                    'http_status'      => $response->getStatusCode(),
+                    'http_reason'      => $response->getReasonPhrase(),
+                    'response_body'    => (string) $response->getBody(),
+                    'response_headers' => $response->getHeaders(),
+                ];
+            }
+        }
+
+        // Pass collected Guzzle-specific data to the general exception handler
+        $this->handleGeneralException($e, $authorizationCode, $codeVerifier, $responseData);
+    }
+
+    /**
+     * Handles general exceptions during the OAuth callback process.
+     *
+     * @param GuzzleException|Exception $e The exception that occurred.
+     * @param string $authorizationCode The authorization code involved in the OAuth process.
+     * @param string|null $codeVerifier The optional code verifier used in the OAuth process.
+     * @param array $additionalResponseData Additional data to include in the exception response.
+     *
+     * @return void
+     * @throws OAuthCallbackException
+     */
+    private function handleGeneralException(
+        $e,
+        string $authorizationCode,
+        ?string $codeVerifier,
+        array $additionalResponseData = []
+    ): void {
+        throw new OAuthCallbackException(
+            "Error during OAuth callback: {$e->getMessage()}",
+            $e->getCode(),
+            array_merge($additionalResponseData, [
+                'error_context'      => 'OAuth Callback',
+                'authorization_code' => substr($authorizationCode, 0, 5) . '***' . substr($authorizationCode, - 5),
+                'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
+            ]),
+            $e
+        );
     }
 
 
