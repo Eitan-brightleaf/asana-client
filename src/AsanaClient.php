@@ -10,11 +10,13 @@ use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
+use BrightleafDigital\Exceptions\TokenInvalidException;
 use BrightleafDigital\Http\AsanaApiClient;
 use BrightleafDigital\Exceptions\OAuthCallbackException;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Token\AccessToken;
+use Throwable;
 
 class AsanaClient
 {
@@ -309,24 +311,34 @@ class AsanaClient
             $this->accessToken = $this->authHandler->handleCallback($authorizationCode, $codeVerifier);
             return $this->accessToken->jsonSerialize();
         } catch (GuzzleException $e) {
-            $this->handleGuzzleException($e, $authorizationCode, $codeVerifier);
+            $data = [
+                'authorization_code' => substr($authorizationCode, 0, 5) . '***' . substr($authorizationCode, - 5),
+                'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
+                'context'            => 'OAuth callback'
+            ];
+            $this->handleGuzzleException($e, $data);
         } catch (Exception $e) {
-            $this->handleGeneralException($e, $authorizationCode, $codeVerifier);
+            $data = [
+                'authorization_code' => substr($authorizationCode, 0, 5) . '***' . substr($authorizationCode, - 5),
+                'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
+                'context'            => 'OAuth callback'
+            ];
+            $this->handleGeneralException($e, $data);
         }
         return null;
     }
 
     /**
-     * Handles exceptions thrown by Guzzle HTTP client and processes the associated response data.
+     * Handles exceptions raised by Guzzle HTTP client and extracts relevant response data.
      *
-     * @param GuzzleException $e The exception instance thrown by the Guzzle HTTP client.
-     * @param string $authorizationCode The authorization code associated with the request.
-     * @param string|null $codeVerifier An optional code verifier used for PKCE (Proof Key for Code Exchange) flow.
+     * @param GuzzleException $e The exception thrown by the Guzzle HTTP client.
+     * @param array $data Additional contextual data related to the request.
      *
      * @return void
      * @throws OAuthCallbackException
+     * @throws TokenInvalidException
      */
-    private function handleGuzzleException(GuzzleException $e, string $authorizationCode, ?string $codeVerifier): void
+    private function handleGuzzleException(GuzzleException $e, array $data): void
     {
         $responseData = [];
         if (method_exists($e, 'getResponse')) {
@@ -342,36 +354,36 @@ class AsanaClient
         }
 
         // Pass collected Guzzle-specific data to the general exception handler
-        $this->handleGeneralException($e, $authorizationCode, $codeVerifier, $responseData);
+        $this->handleGeneralException($e, $data, $responseData);
     }
 
     /**
-     * Handles general exceptions during the OAuth callback process.
+     * Handles general exceptions by throwing specific exceptions based on the context provided in the data.
      *
-     * @param GuzzleException|Exception $e The exception that occurred.
-     * @param string $authorizationCode The authorization code involved in the OAuth process.
-     * @param string|null $codeVerifier The optional code verifier used in the OAuth process.
-     * @param array $additionalResponseData Additional data to include in the exception response.
+     * @param Throwable $e The exception that occurred.
+     * @param array $data An associative array containing information about the exception context.
+     * @param array $additionalResponseData Optional. Additional data to be included in the exception context.
      *
      * @return void
      * @throws OAuthCallbackException
+     * @throws TokenInvalidException
      */
     private function handleGeneralException(
-        $e,
-        string $authorizationCode,
-        ?string $codeVerifier,
+        Throwable $e,
+        array $data,
         array $additionalResponseData = []
     ): void {
-        throw new OAuthCallbackException(
-            "Error during OAuth callback: {$e->getMessage()}",
-            $e->getCode(),
-            array_merge($additionalResponseData, [
-                'error_context'      => 'OAuth Callback',
-                'authorization_code' => substr($authorizationCode, 0, 5) . '***' . substr($authorizationCode, - 5),
-                'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
-            ]),
-            $e
-        );
+        $context = $data['context'];
+        $message = "Error during $context: {$e->getMessage()}";
+        $code = $e->getCode();
+        $data = array_merge($data, $additionalResponseData);
+
+        switch ($context) {
+            case 'OAuth callback':
+                throw new OAuthCallbackException($message, $code, $data, $e);
+            case 'Refresh token':
+                throw new TokenInvalidException($message, $code, $data, $e);
+        }
     }
 
 
@@ -389,11 +401,12 @@ class AsanaClient
      * Check if access token is valid (PATs are always valid unless null).
      *
      * @return bool True if token is valid (either a valid OAuth token or PAT)
+     * @throws TokenInvalidException
      */
     public function ensureValidToken(): bool
     {
         if (!$this->hasToken()) {
-            return false;
+            throw new TokenInvalidException('No access token is available.');
         }
 
         // If token has no expiration (e.g., PAT), it is considered valid
@@ -406,9 +419,10 @@ class AsanaClient
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
                 return true;
+            } catch (GuzzleException $e) {
+                $this->handleGuzzleException($e, ['context' => 'Refresh token']);
             } catch (Exception $e) {
-                $this->accessToken = null;
-                return false;
+                $this->handleGeneralException($e, ['context' => 'Refresh token']);
             }
         }
 
