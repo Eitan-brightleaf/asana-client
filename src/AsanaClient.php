@@ -324,14 +324,14 @@ class AsanaClient
                 'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
                 'context'            => 'OAuth callback'
             ];
-            $this->handleGuzzleException($e, 'OAuthCallbackException', $data);
+            $this->handleGuzzleException($e, OAuthCallbackException::class, $data);
         } catch (Exception $e) {
             $data = [
                 'authorization_code' => substr($authorizationCode, 0, 5) . '***' . substr($authorizationCode, - 5),
                 'code_verifier'      => isset($codeVerifier) ? 'Provided' : 'Not Provided',
                 'context'            => 'OAuth callback'
             ];
-            $this->handleGeneralException($e, 'OAuthCallbackException', $data);
+            $this->handleGeneralException($e, OAuthCallbackException::class, $data);
         }
         return null;
     }
@@ -422,9 +422,9 @@ class AsanaClient
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
                 return true;
             } catch (GuzzleException $e) {
-                $this->handleGuzzleException($e, 'TokenInvalidException', ['context' => 'Refresh token']);
+                $this->handleGuzzleException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             } catch (Exception $e) {
-                $this->handleGeneralException($e, 'TokenInvalidException', ['context' => 'Refresh token']);
+                $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             }
         }
 
@@ -447,9 +447,9 @@ class AsanaClient
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
             } catch (GuzzleException $e) {
-                $this->handleGuzzleException($e, 'TokenInvalidException', ['context' => 'Refresh token']);
+                $this->handleGuzzleException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             } catch (IdentityProviderException $e) {
-                $this->handleGeneralException($e, 'TokenInvalidException', ['context' => 'Refresh token']);
+                $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             }
             return $this->accessToken;
         }
