@@ -4,7 +4,6 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
 
 class ProjectApiService
 {
