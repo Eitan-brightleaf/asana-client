@@ -9,6 +9,26 @@ $clientId = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $redirectUri = $_ENV['ASANA_REDIRECT_URI'];
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri, __DIR__ . '/token.json');
+
+/*if ( isset( $_GET['code'] ) ) {
+	try {
+		$tokenData = $asanaClient->handleCallback( $_GET['code'] );
+		if ( $tokenData ) {
+			$asanaClient->saveToken();
+			header( 'Location: tasks.php' );
+			exit;
+		}
+	} catch ( Exception $e ) {
+		die( 'Error during authentication: ' . $e->getMessage() );
+	}
+}
+
+$authUrl = $asanaClient->getAuthorizationUrl();
+header( 'Location: ' . $authUrl );
+exit;*/
+
+
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

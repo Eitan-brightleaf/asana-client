@@ -20,6 +20,10 @@ if ($asanaClient->hasToken()) {
     exit;
 }
 
+/*$authUrl = $asanaClient->getAuthorizationUrl();
+header('Location: ' . $authUrl);
+exit;*/
+
 $authUrl = $asanaClient->getSecureAuthorizationUrl();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
