@@ -1,6 +1,6 @@
 {
   "name": "brightleaf-digital/asana-client",
-  "description": "A modern, actively maintained PHP client library for the Asana API with OAuth 2.0 support",
+  "description": "A PHP client library for the Asana API",
   "type": "library",
   "license": "MIT", 
   "authors": [
