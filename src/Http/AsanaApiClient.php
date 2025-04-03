@@ -60,7 +60,7 @@ class AsanaApiClient
                     ],
                 ];
             }
-            return json_decode($response->getBody(), true)['data'];
+            return json_decode($response->getBody(), true);
         } catch (GuzzleException $e) {
             $message = '';
             $details = [];

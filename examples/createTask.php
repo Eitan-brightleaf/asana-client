@@ -25,11 +25,11 @@ try {
         throw new InvalidArgumentException('Project parameter is required');
     }
 
-    $project = $asanaClient->projects()->getProject($projectGid, ['opt_fields' => 'workspace.gid']);
+    $project = $asanaClient->projects()->getProject($projectGid, ['opt_fields' => 'workspace.gid'])['data'];
     $workspace = $project['workspace']['gid'];
 
-    $projects = $asanaClient->projects()->getProjects($workspace);
-    $users = $asanaClient->users()->getUsers($workspace);
+    $projects = $asanaClient->projects()->getProjects($workspace)['data'];
+    $users = $asanaClient->users()->getUsers($workspace)['data'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['action'])) {

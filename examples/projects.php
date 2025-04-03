@@ -18,7 +18,7 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
-    $projects = $asanaClient->projects()->getProjects($_GET['workspace']);
+    $projects = $asanaClient->projects()->getProjects($_GET['workspace'])['data'];
 
     foreach ($projects as $project) {
         echo '<h3>' . $project['name'] . '</h3>';

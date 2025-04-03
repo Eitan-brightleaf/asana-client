@@ -18,7 +18,7 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
-    $memberships = $asanaClient->memberships()->getMemberships(['parent' => $_GET['project']]);
+    $memberships = $asanaClient->memberships()->getMemberships(['parent' => $_GET['project']])['data'];
     echo '<pre>';
     print_r($memberships);
     echo '</pre>';

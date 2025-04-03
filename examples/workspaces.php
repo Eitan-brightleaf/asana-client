@@ -21,7 +21,7 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
 
 try {
-    $me = $asanaClient->users()->getCurrentUser();
+    $me = $asanaClient->users()->getCurrentUser()['data'];
     $name = $me['name'];
     ?>
         <h1>Hello, <?= $name ?>!</h1>
