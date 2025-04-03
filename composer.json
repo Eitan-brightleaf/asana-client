@@ -11,8 +11,8 @@
   ],
   "require": {
     "php": "^7.2.5 || ^8.0",
-    "league/oauth2-client": "2.8.1",
-    "guzzlehttp/guzzle": "7.9.2"
+    "league/oauth2-client": "^2.8.1",
+    "guzzlehttp/guzzle": "^7.9.3"
   },
   "require-dev": {
     "vlucas/phpdotenv": "v5.6.1",
