@@ -38,8 +38,15 @@ This library may not support all parts of the Asana API. I've focused primarily 
 ```bash
 composer require brightleafdigital/asana-client
 ```
+then use Composer's autoload:
+```php
+require __DIR__.'/vendor/autoload.php';
+```
 
 ## Basic Usage
+
+To get started you need an Asana app configured with a proper redirect URL. You get the client ID and secret from the app. Remember to store them securely!
+Please read the [official documentation](https://developers.asana.com/docs/overview#authentication-basics) if you aren't sure how to set up an app.
 
 ### Using Personal Access Token (PAT)
 
@@ -85,6 +92,12 @@ $tokenData = $asanaClient->handleCallback($code);
 // Then use the client
 $workspaces = $asanaClient->users()->getCurrentUser();
 ```
+You will retrieve an access token that contains the token itself, which expires in an hour, the timestamp of expiry, 
+and a refresh token you can use to get a new access token.
+
+While the Asana client has a `refreshToken()` method you can use, the library is supposed to take care of that automatically,
+leaving you free to work on what you really need to. Built into the library is a quick check before any api calls to 
+make sure the token is not expired, and if it is to refresh it.
 
 More examples are available in the `examples` folder, including:
 - OAuth flow setup with PKCE and state validation
