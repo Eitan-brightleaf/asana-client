@@ -3,12 +3,14 @@
 namespace BrightleafDigital;
 
 use BrightleafDigital\Api\AttachmentApiService;
+use BrightleafDigital\Api\CustomFieldApiService;
 use BrightleafDigital\Api\MembershipApiService;
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
+use BrightleafDigital\Api\WorkspaceApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Exceptions\TokenInvalidException;
 use BrightleafDigital\Http\AsanaApiClient;
@@ -86,6 +88,16 @@ class AsanaClient
      * @var AttachmentApiService|null
      */
     private ?AttachmentApiService $attachments = null;
+    /**
+     * Workspaces API service instance
+     * @var WorkspaceApiService|null
+     */
+    private ?WorkspaceApiService $workspaces = null;
+    /**
+     * Custom Fields API service instance
+     * @var CustomFieldApiService|null
+     */
+    private ?CustomFieldApiService $customFields = null;
 
     /**
      * Constructor method for initializing the AsanaOAuthHandler and setting the token storage path.
@@ -278,6 +290,38 @@ class AsanaClient
         $this->ensureValidToken();
 
         return $this->attachments;
+    }
+
+    /**
+     * Retrieves the Workspace API service instance.
+     *
+     * @return WorkspaceApiService Returns the Workspace API service instance.
+     * @throws TokenInvalidException If the access token is invalid.
+     */
+    public function workspaces(): WorkspaceApiService
+    {
+        if ($this->workspaces === null) {
+            $this->workspaces = new WorkspaceApiService($this->getApiClient());
+            return $this->workspaces;
+        }
+        $this->ensureValidToken();
+        return $this->workspaces;
+    }
+
+    /**
+     * Provides access to the custom fields API service.
+     *
+     * @return CustomFieldApiService Returns the instance of the custom fields API service.
+     * @throws TokenInvalidException If the token is invalid or cannot be refreshed.
+     */
+    public function customFields(): CustomFieldApiService
+    {
+        if ($this->customFields === null) {
+            $this->customFields = new CustomFieldApiService($this->getApiClient());
+            return $this->customFields;
+        }
+        $this->ensureValidToken();
+        return $this->customFields;
     }
 
     /**

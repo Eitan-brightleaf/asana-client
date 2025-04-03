@@ -26,7 +26,7 @@ try {
     ?>
         <h1>Hello, <?= $name ?>!</h1>
     <?php
-    $workspaces = $me['workspaces'];
+    $workspaces = $asanaClient->workspaces()->getWorkspaces();
     foreach ($workspaces as $workspace) {
         echo '<a href="projects.php?workspace=' . $workspace['gid'] . '">' . $workspace['name'] . '</a><br>';
     }
