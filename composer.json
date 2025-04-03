@@ -1,4 +1,14 @@
 {
+  "name": "brightleaf-digital/asana-client",
+  "description": "A modern, actively maintained PHP client library for the Asana API with OAuth 2.0 support",
+  "type": "library",
+  "license": "MIT", 
+  "authors": [
+    {
+      "name": "Eitan Adler",
+      "email": "eitan@brightleafc.com"
+    }
+  ],
   "require": {
     "league/oauth2-client": "2.8.1",
     "guzzlehttp/guzzle": "7.9.2"
