@@ -16,11 +16,17 @@
   },
   "require-dev": {
     "vlucas/phpdotenv": "v5.6.1",
-    "squizlabs/php_codesniffer": "@stable"
+    "squizlabs/php_codesniffer": "@stable",
+    "phpunit/phpunit": "@stable"
   },
   "autoload": {
     "psr-4": {
       "BrightleafDigital\\": "src/"
     }
-  }
+  },
+  "autoload-dev": {
+    "psr-4": {
+        "BrightleafDigital\\Tests\\": "tests/"
+    }
+}
 }

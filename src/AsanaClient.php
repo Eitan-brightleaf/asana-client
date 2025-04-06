@@ -25,9 +25,9 @@ class AsanaClient
 {
     /**
      * OAuth handler for authentication with Asana API
-     * @var AsanaOAuthHandler
+     * @var ?AsanaOAuthHandler
      */
-    private AsanaOAuthHandler $authHandler;
+    private ?AsanaOAuthHandler $authHandler = null;
 
     /**
      * HTTP client for making API requests to Asana
@@ -118,7 +118,7 @@ class AsanaClient
             $this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
         }
 
-        $this->tokenStoragePath = $tokenStoragePath ?? __DIR__ . '/token.json';
+        $this->tokenStoragePath = $tokenStoragePath ?? getcwd() . '/token.json';
     }
 
     /**
@@ -377,7 +377,10 @@ class AsanaClient
             ];
             $this->handleGeneralException($e, OAuthCallbackException::class, $data);
         }
+        // @codeCoverageIgnoreStart
+        // Unreachable code. Just to satisfy return type.
         return null;
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -526,7 +529,7 @@ class AsanaClient
     {
         if (file_exists($this->tokenStoragePath)) {
             try {
-                $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true);
+                $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
                 $this->accessToken = new AccessToken($tokenData);
                 return true;
             } catch (Exception $e) {
