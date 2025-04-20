@@ -3,3 +3,4 @@ vendor
 composer.lock
 .env
 token.json
+.aiignore
