@@ -3,6 +3,7 @@
 require '../vendor/autoload.php';
 
 use BrightleafDigital\AsanaClient;
+use BrightleafDigital\Auth\Scopes;
 use Dotenv\Dotenv;
 
 
@@ -24,7 +25,16 @@ if ($asanaClient->hasToken()) {
 header('Location: ' . $authUrl);
 exit;*/
 
-$authUrl = $asanaClient->getSecureAuthorizationUrl();
+$scopes = [
+    Scopes::ATTACHMENTS_WRITE,
+    Scopes::PROJECTS_READ,
+    Scopes::TASKS_READ,
+    Scopes::TASKS_WRITE,
+    Scopes::TASKS_DELETE,
+    Scopes::USERS_READ,
+    Scopes::WORKSPACES_READ
+];
+$authUrl = $asanaClient->getSecureAuthorizationUrl($scopes);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

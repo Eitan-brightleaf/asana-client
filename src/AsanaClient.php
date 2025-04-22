@@ -329,9 +329,10 @@ class AsanaClient
      *
      * @return string
      */
-    public function getAuthorizationUrl(): string
+    public function getAuthorizationUrl(array $scopes): string
     {
-        return $this->authHandler->getAuthorizationUrl();
+        $options['scope'] = implode(' ', $scopes);
+        return $this->authHandler->getAuthorizationUrl($options);
     }
 
     /**
@@ -341,9 +342,10 @@ class AsanaClient
      * @param bool $enablePKCE
      * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
      */
-    public function getSecureAuthorizationUrl(bool $enableState = true, bool $enablePKCE = true): array
+    public function getSecureAuthorizationUrl(array $scopes, bool $enableState = true, bool $enablePKCE = true): array
     {
-        return $this->authHandler->getSecureAuthorizationUrl($enableState, $enablePKCE);
+        $options['scope'] = implode(' ', $scopes);
+        return $this->authHandler->getSecureAuthorizationUrl($options, $enableState, $enablePKCE);
     }
 
 

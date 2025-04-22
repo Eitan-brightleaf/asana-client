@@ -2,6 +2,7 @@
 
 require '../vendor/autoload.php';
 use BrightleafDigital\AsanaClient;
+use BrightleafDigital\Auth\Scopes;
 use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -60,7 +61,16 @@ if (isset($_GET['code'], $_GET['state'])) {
 }
 
 // If no authorization code or state is available, restart the authentication flow
-$authData = $asanaClient->getSecureAuthorizationUrl();
+$scopes = [
+    Scopes::ATTACHMENTS_WRITE,
+    Scopes::PROJECTS_READ,
+    Scopes::TASKS_READ,
+    Scopes::TASKS_WRITE,
+    Scopes::TASKS_DELETE,
+    Scopes::USERS_READ,
+    Scopes::WORKSPACES_READ
+];
+$authData = $asanaClient->getSecureAuthorizationUrl($scopes);
 // Store the new state and PKCE verifier in the session
 $_SESSION['oauth2_state'] = $authData['state'];
 $_SESSION['oauth2_pkce_verifier'] = $authData['codeVerifier'];

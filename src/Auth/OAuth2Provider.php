@@ -85,10 +85,9 @@ class OAuth2Provider extends AbstractProvider
      * @param bool $enablePKCE
      * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
      */
-    public function getSecureAuthorizationUrl(bool $enableState = true, bool $enablePKCE = true): array
+    public function getSecureAuthorizationUrl(array $options, bool $enableState = true, bool $enablePKCE = true): array
     {
         $extras = [];
-        $options = [];
 
         // Generate a state parameter if enabled
         if ($enableState) {
