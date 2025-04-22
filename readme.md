@@ -14,6 +14,26 @@ This is my first library of this kind, and I am still developing my skills as a 
 - Reviewing documentation
 - Identifying improvements
 
+## OAuth Scopes
+
+This library now supports Asana's new OAuth permission scopes. These scopes provide more granular control over what 
+actions an app can perform following the principle of least privilege and should enhance user trust and so increase app 
+adoption. 
+
+### Important Notes:
+
+- **Incomplete Rollout**: Asana has not yet introduced scopes for all API endpoints. More scopes will be added in the future and incorporated into this library.
+- **Backward Compatibility**: Existing apps can continue to use the `default` scope (full access) for now, and new apps can still toggle this option on in the app settings.
+- **Getting Full Access With This Library**:
+  - When creating your app in Asana, request full access permissions
+  - When generating an authorization URL, pass an empty array for scopes: `$authUrl = $asanaClient->getAuthorizationUrl([]);`
+- **Helper `Scopes` Class**: To simplify things for developers using this library, I create a helper `Scopes` class containing
+constants with available scopes. As noted below the library may not cover all API endpoints so some scopes in helper class
+may correspond to an endpoint without support. Contributions and help expanding the library to have full API coverage is
+welcome!
+
+For more information about the new OAuth scopes and implementation details, refer to [Asana's announcement](https://forum.asana.com/t/new-oauth-permission-scopes/1048556/1) and its linked documentation.
+
 ## Features
 
 - Modern PHP implementation
@@ -72,6 +92,7 @@ $task = $asanaClient->tasks()->createTask($taskData);
 
 ```php
 use BrightleafDigital\AsanaClient;
+use BrightleafDigital\Auth\Scopes;
 
 $clientId = 'your-client-id';
 $clientSecret = 'your-client-secret';
@@ -79,7 +100,16 @@ $redirectUri = 'https://your-app.com/callback';
 
 // Create a client and get the authorization URL
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri);
-$authUrl = $asanaClient->getAuthorizationUrl();
+
+// Option 1: Request specific scopes
+$authUrl = $asanaClient->getAuthorizationUrl([
+    Scopes::TASKS_READ,
+    Scopes::PROJECTS_READ,
+    Scopes::USERS_READ
+]);
+
+// Option 2: Use default/full access (pass an empty array). May not be supported after July 2025.
+// $authUrl = $asanaClient->getAuthorizationUrl([]);
 
 // Redirect the user to $authUrl
 // After authorization, Asana will redirect back to your callback URL
