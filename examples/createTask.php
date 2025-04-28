@@ -61,7 +61,7 @@ try {
                 'opt_fields' => 'name,notes,due_on,assignee.name,projects.name,created_at,modified_at,permalink_url',
                 'opt_pretty' => true
             ]
-        );
+        )['data'];
         if ($task) {
             echo '<h1>Task created successfully!</h1>';
             echo '<pre>';
