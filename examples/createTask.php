@@ -29,7 +29,7 @@ try {
     $workspace = $project['workspace']['gid'];
 
     $projects = $asanaClient->projects()->getProjects($workspace)['data'];
-    $users = $asanaClient->users()->getUsers($workspace)['data'];
+    $users = $asanaClient->users()->getUsersForWorkspace($workspace, ['opt_fields' => 'name'])['data'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['action'])) {
