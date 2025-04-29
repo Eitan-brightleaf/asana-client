@@ -487,7 +487,7 @@ class AsanaClient
      */
     public function getAccessToken(): ?AccessToken
     {
-        return $this->accessToken;
+        return $this->accessToken->jsonSerialize();
     }
 
     /**
@@ -510,7 +510,7 @@ class AsanaClient
             } catch (IdentityProviderException $e) {
                 $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             }
-            return $this->accessToken;
+            return $this->accessToken->jsonSerialize();
         }
         return null;
     }
