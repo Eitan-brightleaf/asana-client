@@ -34,7 +34,7 @@ $scopes = [
     Scopes::USERS_READ,
     Scopes::WORKSPACES_READ
 ];
-$authUrl = $asanaClient->getSecureAuthorizationUrl($scopes);
+$authUrl = $asanaClient->getSecureAuthorizationUrl([]); //using default for now
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

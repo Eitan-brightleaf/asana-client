@@ -70,7 +70,7 @@ $scopes = [
     Scopes::USERS_READ,
     Scopes::WORKSPACES_READ
 ];
-$authData = $asanaClient->getSecureAuthorizationUrl($scopes);
+$authData = $asanaClient->getSecureAuthorizationUrl([]); //using default for now
 // Store the new state and PKCE verifier in the session
 $_SESSION['oauth2_state'] = $authData['state'];
 $_SESSION['oauth2_pkce_verifier'] = $authData['codeVerifier'];
