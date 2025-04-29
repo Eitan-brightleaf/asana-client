@@ -481,6 +481,16 @@ class AsanaClient
     }
 
     /**
+     * Retrieves the current access token.
+     *
+     * @return AccessToken|null The current access token, or null if not set.
+     */
+    public function getAccessToken(): ?AccessToken
+    {
+        return $this->accessToken;
+    }
+
+    /**
      * Refreshes the expired access token.
      *
      * @return AccessToken|null Returns the refreshed access token if it was expired, otherwise null.
