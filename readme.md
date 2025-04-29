@@ -27,7 +27,7 @@ adoption.
 - **Getting Full Access With This Library**:
   - When creating your app in Asana, request full access permissions
   - When generating an authorization URL, pass an empty array for scopes: `$authUrl = $asanaClient->getAuthorizationUrl([]);`
-- **Helper `Scopes` Class**: To simplify things for developers using this library, I create a helper `Scopes` class containing
+- **Helper `Scopes` Class**: To simplify things for developers using this library, I've created a helper `Scopes` class containing
 constants with available scopes. As noted below the library may not cover all API endpoints so some scopes in helper class
 may correspond to an endpoint without support. Contributions and help expanding the library to have full API coverage is
 welcome!
@@ -145,6 +145,29 @@ For example, creating a task in a specific section isn't documented in the API r
 1. Check the [Asana Developer Forum](https://forum.asana.com/c/developers/13)
 2. Open an issue in this repository
 3. Feel free to link to relevant forum or Stack Overflow posts
+
+## Before Version 1.0.0
+
+Before we can move to version 1.0.0, we need the following:
+
+   **Expanded Test Coverage**
+  - Add more unit and integration tests
+  - Improve test documentation
+  - Improve existing tests
+
+   **Workflow Automation**
+  - Implement automated testing workflows
+  - Add security scanning and checks
+  - Add code quality checks
+
+   **Enhanced API Documentation**
+  - Document endpoint URLs and HTTP methods in API classes
+  - This additional context will help developers choose appropriate OAuth scopes
+
+   **API Coverage Expansion**
+  - Implement additional Asana API endpoints
+  - Add support for missing resource types
+  - Ensure comprehensive coverage of core Asana features
 
 ## Contributing
 
