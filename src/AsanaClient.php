@@ -493,7 +493,8 @@ class AsanaClient
     /**
      * Refreshes the expired access token.
      *
-     * @return AccessToken|null Returns the refreshed access token if it was expired, otherwise null.
+     * @return AccessToken|null Returns the current access token, after refreshing it if necessary.
+     *
      * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
     public function refreshToken(): ?AccessToken
@@ -510,9 +511,8 @@ class AsanaClient
             } catch (IdentityProviderException $e) {
                 $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             }
-            return $this->accessToken->jsonSerialize();
         }
-        return null;
+        return $this->accessToken->jsonSerialize();
     }
 
     /**
