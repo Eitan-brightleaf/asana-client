@@ -98,6 +98,13 @@ class AsanaClient
      * @var CustomFieldApiService|null
      */
     private ?CustomFieldApiService $customFields = null;
+    /**
+    * List of callbacks to be triggered when the access token is refreshed.
+    * The array can have numeric or string keys, which are used to identify the callbacks.
+    * Each callback should accept one parameter: the refreshed access token.
+    * @var array<string|int, callable>
+    */
+    private array $tokenRefreshSubscribers = [];
 
     /**
      * Constructor method for initializing the AsanaOAuthHandler and setting the token storage path.
@@ -112,7 +119,7 @@ class AsanaClient
         ?string $clientId = null,
         ?string $clientSecret = null,
         ?string $redirectUri = null,
-        string $tokenStoragePath = null
+        ?string $tokenStoragePath = null
     ) {
         if ($clientId && $clientSecret) {
             $this->authHandler = new AsanaOAuthHandler($clientId, $clientSecret, $redirectUri);
@@ -469,6 +476,7 @@ class AsanaClient
         if ($this->accessToken->hasExpired()) {
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+                $this->notifyTokenRefreshSubscribers($this->accessToken);
                 return true;
             } catch (GuzzleException $e) {
                 $this->handleGuzzleException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
@@ -483,9 +491,9 @@ class AsanaClient
     /**
      * Retrieves the current access token.
      *
-     * @return AccessToken|null The current access token, or null if not set.
+     * @return array|null The current access token, or null if not set.
      */
-    public function getAccessToken(): ?AccessToken
+    public function getAccessToken(): ?array
     {
         return $this->accessToken->jsonSerialize();
     }
@@ -493,11 +501,11 @@ class AsanaClient
     /**
      * Refreshes the expired access token.
      *
-     * @return AccessToken|null Returns the current access token, after refreshing it if necessary.
+     * @return array|null Returns the current access token, after refreshing it if necessary.
      *
      * @throws TokenInvalidException If no token or it's expired and error refreshing it.
      */
-    public function refreshToken(): ?AccessToken
+    public function refreshToken(): ?array
     {
         if (!$this->hasToken()) {
             throw new TokenInvalidException('No access token is available.');
@@ -512,7 +520,57 @@ class AsanaClient
                 $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
             }
         }
+        $this->notifyTokenRefreshSubscribers($this->accessToken);
         return $this->accessToken->jsonSerialize();
+    }
+    /**
+     * Register a callback to be invoked when the access token is refreshed.
+     * Can also be used to modify existing callbacks by passing in the key of the callback to modify.
+     *
+     * @param callable $callback The callback function to register.
+     *                           It should accept one parameter: the refreshed access token.
+     * @param string|int|null $key Optional key to identify the callback. If not provided, the next numeric index will be used.
+     * @return string|int The key of the registered callback.
+     */
+    public function onTokenRefresh(callable $callback, $key = null)
+    {
+        if (is_null($key)) {
+            // Use the next numeric index if no key is provided
+            $this->tokenRefreshSubscribers[] = $callback;
+            return array_key_last($this->tokenRefreshSubscribers);
+        }
+
+        // Use the provided key
+        $this->tokenRefreshSubscribers[$key] = $callback;
+        return $key;
+    }
+
+    /**
+     * Unregister a callback from the token refresh event using its index.
+     *
+     * @param string|int $key The index of the callback to unregister.
+     * @return bool True if the callback was removed, false if the index was invalid.
+     */
+    public function removeTokenRefreshSubscriber($key): bool
+    {
+        if (isset($this->tokenRefreshSubscribers[$key])) {
+            unset($this->tokenRefreshSubscribers[$key]);
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Notify all registered subscribers about the refreshed token.
+     *
+     * @param AccessToken $token The refreshed access token.
+     */
+    private function notifyTokenRefreshSubscribers(AccessToken $token): void
+    {
+        foreach ($this->tokenRefreshSubscribers as $callback) {
+            $callback($token->jsonSerialize());
+        }
     }
 
     /**
