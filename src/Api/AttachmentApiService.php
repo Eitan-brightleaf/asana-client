@@ -147,8 +147,9 @@ class AttachmentApiService
     /**
      * Upload an attachment
      *
-     * Upload an attachment to a task, project, or story. The request should be a multipart/form-data
-     * request with a file field named "file" and a form field named "parent".
+     * Upload an attachment to a task, project, or story. This method is useful when you have
+     * a file on disk and can provide the file path. If you have the file contents in memory,
+     * consider using `uploadAttachmentFromContents` instead.
      *
      * API Documentation: https://developers.asana.com/reference/createattachmentforobject
      *
@@ -239,8 +240,8 @@ class AttachmentApiService
      *               If $fullResponse is false, returns the created attachment data
      *               (see uploadAttachment for details on return structure)
      *
-     * @throws AsanaApiException If the file is too large, invalid parent GID,
-     *                          insufficient permissions, or network issues occur
+     * @throws AsanaApiException If the file is too large, invalid parent GID, insufficient permissions, or network issues occur
+     * @throws RuntimeException If the stream cannot be created or written to or if the stream is not writable
      */
     public function uploadAttachmentFromContents(
         string $parentGid,
@@ -251,7 +252,21 @@ class AttachmentApiService
     ): array {
         // Create a temporary stream with the file contents
         $stream = fopen('php://temp', 'r+');
-        fwrite($stream, $fileContents);
+        if ($stream === false) {
+            throw new RuntimeException('Failed to create temporary stream');
+        }
+        // Write the file contents to the stream
+        // Check if the stream is writable
+        if (stream_get_meta_data($stream)['mode'] !== 'r+') {
+            fclose($stream);
+            throw new RuntimeException('Stream is not writable');
+        }
+        // Write the file contents to the stream and check if fwrite was successful
+        if (fwrite($stream, $fileContents) === false) {
+            fclose($stream);
+            throw new RuntimeException('Failed to write to temporary stream');
+        }
+        // Rewind the stream to the beginning for reading
         rewind($stream);
 
         // Create multipart form data options for the request
@@ -273,12 +288,9 @@ class AttachmentApiService
         if (!empty($options)) {
             $multipartOptions['query'] = $options;
         }
-
-        try {
-            return $this->client->request('POST', 'attachments', $multipartOptions, $fullResponse);
-        } finally {
-            // Always close the stream
-            fclose($stream);
-        }
+        
+        // Make the request to upload the attachment
+        return $this->client->request('POST', 'attachments', $multipartOptions, $fullResponse);
+        // Don't have to close the stream b/c Guzzle does it.
     }
 }
