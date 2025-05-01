@@ -16,6 +16,9 @@ $tokenPath = __DIR__ . '/token.json';
 $tokenData = json_decode(file_get_contents($tokenPath), true);
 
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
+$asanaClient->onTokenRefresh(function ($token) use ($tokenPath) {
+    file_put_contents($tokenPath, json_encode($token));
+});
 
 try {
     $sections = $asanaClient->sections()->getSectionsForProject($_GET['project'], ['opt_pretty' => true], true);

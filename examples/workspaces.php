@@ -19,6 +19,9 @@ $tokenData = json_decode(file_get_contents($tokenPath), true);
 // $asanaClient = AsanaClient::withPAT($pat);
 
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
+$asanaClient->onTokenRefresh(function ($token) use ($tokenPath) {
+    file_put_contents($tokenPath, json_encode($token));
+});
 
 try {
     $me = $asanaClient->users()->getCurrentUser()['data'];

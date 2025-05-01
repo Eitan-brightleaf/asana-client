@@ -101,8 +101,16 @@ class AsanaOAuthHandler
      */
     public function refreshToken(AccessToken $token): AccessToken
     {
-        return $this->provider->getAccessToken('refresh_token', [
+        // Get the new token from the provider
+        $newToken = $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $token->getRefreshToken(),
         ]);
+    
+        // Ensure the new token retains the current refresh token
+        $tokenData = $newToken->jsonSerialize();
+        $tokenData['refresh_token'] = $token->getRefreshToken();
+    
+        // Return a new AccessToken instance with the updated data
+        return new AccessToken($tokenData);
     }
 }
