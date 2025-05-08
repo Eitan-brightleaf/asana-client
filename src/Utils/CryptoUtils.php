@@ -11,7 +11,14 @@ class CryptoUtils
      * The encrypted data includes a MAC for integrity verification.
      *
      * @param string $data The data to be encrypted.
-     * @param string $salt A unique string used to derive the encryption and MAC keys.
+     * @param string $salt A unique string used to derive the decryption and MAC keys.
+     *                      For generating a secure salt, consider using tools like:
+     *                       - https://www.symbionts.de/tools/random-password-salt-generator.html
+     *                       - https://www.vondy.com/random-salt-generator--Pn9HVxnU
+     *                     For more information about salts, see, for example, one of the following:
+     *                       - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#salting
+     *                       - https://crypto.stackexchange.com/questions/44976/how-do-i-create-an-effective-salt
+     *                       - https://stackoverflow.com/questions/2513734/generating-a-salt-in-php/34173258#34173258
      *
      * @return string The base64-encoded encrypted string containing the MAC, nonce, and ciphertext.
      * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
@@ -48,6 +55,13 @@ class CryptoUtils
      *
      * @param string $data The base64-encoded encrypted string containing the MAC, nonce, and ciphertext.
      * @param string $salt A unique string used to derive the decryption and MAC keys.
+     *                     For generating a secure salt, consider using tools like:
+     *                      - https://www.symbionts.de/tools/random-password-salt-generator.html
+     *                      - https://www.vondy.com/random-salt-generator--Pn9HVxnU
+     *                    For more information about salts, see, for example, one of the following:
+     *                      - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#salting
+     *                      - https://crypto.stackexchange.com/questions/44976/how-do-i-create-an-effective-salt
+     *                      - https://stackoverflow.com/questions/2513734/generating-a-salt-in-php/34173258#34173258
      *
      * @return string The decrypted plaintext data.
      * @throws Exception If the OpenSSL extension is unavailable, MAC verification fails, or decryption fails.

@@ -12,15 +12,21 @@ $dotenv->load();
 
 $clientId     = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
-$tokenPath = __DIR__ . '/token.json';
-$tokenData = json_decode(file_get_contents($tokenPath), true);
+$salt = $_ENV['SALT'];
+try {
+    $tokenData = AsanaClient::retrieveToken($salt);
+} catch (JsonException | Exception $e) {
+    echo 'Error: ' . $e->getMessage();
+    exit;
+}
 
 // $pat = $_ENV['PAT'];
 // $asanaClient = AsanaClient::withPAT($pat);
 
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
-$asanaClient->onTokenRefresh(function ($token) use ($tokenPath) {
-    file_put_contents($tokenPath, json_encode($token));
+$asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $salt) {
+    $asanaClient->saveToken($salt);
+    //  file_put_contents($tokenPath, json_encode($token));
 });
 
 try {
