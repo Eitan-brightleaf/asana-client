@@ -112,8 +112,7 @@ class AsanaClient
      * @param string|null $clientId Optional client ID for authentication.
      * @param string|null $clientSecret Optional client secret for authentication.
      * @param string|null $redirectUri Optional redirect URI for OAuth flow.
-     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
-     *
+     * @param string|null $tokenStoragePath Path to token storage file. Defaults to token.json in working dir.
      */
     public function __construct(
         ?string $clientId = null,
@@ -134,15 +133,14 @@ class AsanaClient
      * @param string|null $clientId Optional client ID for authentication.
      * @param string|null $clientSecret Optional client secret for authentication.
      * @param string|null $redirectUri Optional redirect URI for OAuth flow.
-     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
-     *
+     * @param string|null $tokenStoragePath Path to token storage file. Defaults to token.json in working dir.
      */
     public static function OAuth(
         ?string $clientId = null,
         ?string $clientSecret = null,
         ?string $redirectUri = null,
         ?string $tokenStoragePath = null
-    ) : self {
+    ): self {
         return new self($clientId, $clientSecret, $redirectUri, $tokenStoragePath);
     }
 
@@ -152,7 +150,7 @@ class AsanaClient
      * @param string $clientId OAuth client ID
      * @param string $clientSecret OAuth client secret
      * @param array $token The user's preexisting access token
-     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
+     * @param string|null $tokenStoragePath Path to token storage file. Defaults to token.json in working dir.
      * @return self
      */
     public static function withAccessToken(
@@ -175,7 +173,8 @@ class AsanaClient
      * Initialize the Asana client with a Personal Access Token (PAT)
      *
      * @param string $personalAccessToken The user's PAT from Asana
-     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
+     * @param string|null $tokenStoragePath Path to token storage file. Defaults to token.json in working dir.
+     *
      * @return self
      */
     public static function withPAT(
@@ -551,7 +550,8 @@ class AsanaClient
      *
      * @param callable $callback The callback function to register.
      *                           It should accept one parameter: the refreshed access token.
-     * @param string|int|null $key Optional key to identify the callback. If not provided, the next numeric index will be used.
+     * @param string|int|null $key ID for the callback. If absent, next numeric index will be used.
+     *
      * @return string|int The key of the registered callback.
      */
     public function onTokenRefresh(callable $callback, $key = null)
