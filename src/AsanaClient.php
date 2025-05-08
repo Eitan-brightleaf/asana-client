@@ -182,7 +182,7 @@ class AsanaClient
         string $personalAccessToken,
         ?string $tokenStoragePath = null
     ): self {
-        $instance = new self('', '', '', '', $tokenStoragePath); // Empty clientId, clientSecret, and redirectUri not needed for PAT
+        $instance = new self('', '', '', $tokenStoragePath); // clientId, clientSecret, & redirectUri not needed for PAT
         $instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
         return $instance;
     }
