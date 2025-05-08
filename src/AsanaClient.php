@@ -112,7 +112,7 @@ class AsanaClient
      * @param string|null $clientId Optional client ID for authentication.
      * @param string|null $clientSecret Optional client secret for authentication.
      * @param string|null $redirectUri Optional redirect URI for OAuth flow.
-     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current directory.
+     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
      *
      */
     public function __construct(
@@ -129,22 +129,43 @@ class AsanaClient
     }
 
     /**
+     * Constructor method for initializing the AsanaOAuthHandler and setting the token storage path.
+     *
+     * @param string|null $clientId Optional client ID for authentication.
+     * @param string|null $clientSecret Optional client secret for authentication.
+     * @param string|null $redirectUri Optional redirect URI for OAuth flow.
+     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
+     *
+     */
+    public static function OAuth(
+        ?string $clientId = null,
+        ?string $clientSecret = null,
+        ?string $redirectUri = null,
+        ?string $tokenStoragePath = null
+    ) : self {
+        return new self($clientId, $clientSecret, $redirectUri, $tokenStoragePath);
+    }
+
+    /**
      * Initialize the Asana client with an access token
      *
      * @param string $clientId OAuth client ID
      * @param string $clientSecret OAuth client secret
      * @param array $token The user's preexisting access token
+     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
      * @return self
      */
     public static function withAccessToken(
         string $clientId,
         string $clientSecret,
-        array $token
+        array $token,
+        ?string $tokenStoragePath = null
     ): self {
         $instance = new self(
             $clientId,
             $clientSecret,
-            '' // No redirect URI required when preloading a token
+            '', // No redirect URI required when preloading a token
+            $tokenStoragePath
         );
         $instance->accessToken = new AccessToken($token);
         return $instance;
@@ -154,12 +175,14 @@ class AsanaClient
      * Initialize the Asana client with a Personal Access Token (PAT)
      *
      * @param string $personalAccessToken The user's PAT from Asana
+     * @param string|null $tokenStoragePath Path to token storage file. Default token.json in the current working directory.
      * @return self
      */
     public static function withPAT(
-        string $personalAccessToken
+        string $personalAccessToken,
+        ?string $tokenStoragePath = null
     ): self {
-        $instance = new self('', '', '', ''); // Empty clientId, clientSecret, and redirectUri not needed for PAT
+        $instance = new self('', '', '', '', $tokenStoragePath); // Empty clientId, clientSecret, and redirectUri not needed for PAT
         $instance->accessToken = new AccessToken(['access_token' => $personalAccessToken]);
         return $instance;
     }
@@ -518,7 +541,7 @@ class AsanaClient
         } catch (IdentityProviderException $e) {
             $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
         }
-        
+
         $this->notifyTokenRefreshSubscribers($this->accessToken);
         return $this->accessToken->jsonSerialize();
     }
