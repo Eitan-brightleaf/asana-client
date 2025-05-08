@@ -511,15 +511,14 @@ class AsanaClient
             throw new TokenInvalidException('No access token is available.');
         }
 
-        if ($this->accessToken->hasExpired()) {
-            try {
-                $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
-            } catch (GuzzleException $e) {
-                $this->handleGuzzleException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
-            } catch (IdentityProviderException $e) {
-                $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
-            }
+        try {
+            $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
+        } catch (GuzzleException $e) {
+            $this->handleGuzzleException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
+        } catch (IdentityProviderException $e) {
+            $this->handleGeneralException($e, TokenInvalidException::class, ['context' => 'Refresh token']);
         }
+        
         $this->notifyTokenRefreshSubscribers($this->accessToken);
         return $this->accessToken->jsonSerialize();
     }
