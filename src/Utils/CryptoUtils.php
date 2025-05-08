@@ -6,6 +6,16 @@ use Exception;
 
 class CryptoUtils
 {
+    /**
+     * Encrypts the given data using an encryption key derived from the provided salt.
+     * The encrypted data includes a MAC for integrity verification.
+     *
+     * @param string $data The data to be encrypted.
+     * @param string $salt A unique string used to derive the encryption and MAC keys.
+     *
+     * @return string The base64-encoded encrypted string containing the MAC, nonce, and ciphertext.
+     * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
+     */
     public static function encrypt(string $data, string $salt): string
     {
         if (! function_exists('openssl_encrypt')) {
@@ -31,13 +41,23 @@ class CryptoUtils
         return base64_encode($mac . $nonce . $ciphertext);
     }
 
-    
+
+    /**
+     * Decrypts the given data using a decryption key derived from the provided salt.
+     * Verifies the integrity of the data using a MAC before decryption.
+     *
+     * @param string $data The base64-encoded encrypted string containing the MAC, nonce, and ciphertext.
+     * @param string $salt A unique string used to derive the decryption and MAC keys.
+     *
+     * @return string The decrypted plaintext data.
+     * @throws Exception If the OpenSSL extension is unavailable, MAC verification fails, or decryption fails.
+     */
     public static function decrypt(string $data, string $salt): string
     {
         if (! function_exists('openssl_decrypt')) {
             throw new Exception('OpenSSL extension is not available.');
         }
-        
+
         $encryptionKey = 'AsanaClientEncryptionKey_' . $salt;
         $macKey = 'AsanaClientMacKey_' . $salt;
 
