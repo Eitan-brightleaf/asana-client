@@ -37,6 +37,8 @@ class ProjectApiService
     /**
      * Get multiple projects
      *
+     * GET /projects
+     *
      * Returns a list of projects in a workspace or team that the user has access to.
      * This endpoint provides a way to get multiple projects in a single request according
      * to your search parameters.
@@ -103,6 +105,8 @@ class ProjectApiService
     /**
      * Create a project
      *
+     * POST /projects
+     *
      * Creates a new project in an Asana workspace or team. The project can be given a name,
      * notes, specified team/workspace, and other configurable attributes.
      *
@@ -162,6 +166,8 @@ class ProjectApiService
     /**
      * Get a project
      *
+     * GET /projects/{project_gid}
+     *
      * Returns the complete project record for a single project. The project record includes
      * basic metadata (name, notes, status, etc.) along with any custom fields and more
      * as requested via opt_fields.
@@ -204,6 +210,8 @@ class ProjectApiService
 
     /**
      * Update a project
+     *
+     * PUT /projects/{project_gid}
      *
      * Updates the properties of a project. Projects can be updated to change things like their name,
      * notes, due date, and other properties. Any unspecified fields will remain unchanged.
@@ -263,6 +271,8 @@ class ProjectApiService
     /**
      * Delete a project
      *
+     * DELETE /projects/{project_gid}
+     *
      * Deletes a project. This endpoint may return with a success code before the project has been
      * completely deleted. Also note that while you can delete a single-owner project, you must be an
      * admin in the workspace that contains the project to delete a multi-owned project.
@@ -298,6 +308,8 @@ class ProjectApiService
 
     /**
      * Duplicate a project
+     *
+     * POST /projects/{project_gid}/duplicate
      *
      * Creates and returns a job that will duplicate a project, copying its tasks, sections, and structure.
      * The project must be in a premium workspace to use this capability.
@@ -348,6 +360,8 @@ class ProjectApiService
     /**
      * Get projects a task is in
      *
+     * GET /tasks/{task_gid}/projects
+     *
      * Returns a list of projects that the specified task is a member of. A task can
      * be associated with multiple projects.
      *
@@ -388,6 +402,8 @@ class ProjectApiService
 
     /**
      * Get a team's projects
+     *
+     * GET /teams/{team_gid}/projects
      *
      * Returns the projects in a team. Teams are only available on Asana Premium or Business plans.
      * This endpoint requires the team to be public to the authenticated user or for the user to be an
@@ -431,6 +447,8 @@ class ProjectApiService
 
     /**
      * Create a project in a team
+     *
+     * POST /teams/{team_gid}/projects
      *
      * Creates a project and adds it to the specified team. This endpoint creates a project from
      * scratch, setting its workspace to be the same workspace containing the team.
@@ -489,6 +507,8 @@ class ProjectApiService
     /**
      * Get all projects in a workspace
      *
+     * GET /workspaces/{workspace_gid}/projects
+     *
      * Returns the projects in a workspace. Includes archived projects by default.
      *
      * API Documentation: https://developers.asana.com/reference/getprojectsforworkspace
@@ -532,6 +552,8 @@ class ProjectApiService
 
     /**
      * Create a project in a workspace
+     *
+     * POST /workspaces/{workspace_gid}/projects
      *
      * Creates a project in the specified workspace.
      *
@@ -589,6 +611,8 @@ class ProjectApiService
     /**
      * Add a custom field to a project
      *
+     * POST /projects/{project_gid}/addCustomFieldSetting
+     *
      * Adds a custom field to a project. Custom fields are defined per-organization and must exist
      * before they can be added to a project. By default, a custom field in a project may not be
      * associated with another project in the same organization, but this can be controlled by the project.
@@ -632,6 +656,8 @@ class ProjectApiService
     /**
      * Remove a custom field from a project
      *
+     * POST /projects/{project_gid}/removeCustomFieldSetting
+     *
      * Removes a custom field from a project. Note that this does not delete the custom field,
      * it just removes the custom field from the specified project.
      *
@@ -669,6 +695,8 @@ class ProjectApiService
 
     /**
      * Get a project's custom fields
+     *
+     * GET /projects/{project_gid}/custom_field_settings
      *
      * Returns a list of all the custom fields settings on a project, in compact form.
      * These are custom fields that the project has direct access to and can be seen
@@ -722,6 +750,8 @@ class ProjectApiService
     /**
      * Get task count of a project
      *
+     * GET /projects/{project_gid}/task_counts
+     *
      * Returns the number of tasks within the specified project, grouped by completion status.
      * This is useful for understanding project progress and workload.
      *
@@ -759,6 +789,8 @@ class ProjectApiService
 
     /**
      * Add users to a project
+     *
+     * POST /projects/{project_gid}/addMembers
      *
      * Adds the specified list of users as members of the project. Users are
      * immediately able to collaborate on the project, get notifications, and
@@ -809,6 +841,8 @@ class ProjectApiService
     /**
      * Remove users from a project
      *
+     * POST /projects/{project_gid}/removeMembers
+     *
      * Removes the specified list of users as members of the project. Users will
      * immediately lose access to the project and will no longer receive notifications
      * unless they remain added as followers.
@@ -858,6 +892,8 @@ class ProjectApiService
     /**
      * Add followers to a project
      *
+     * POST /projects/{project_gid}/addFollowers
+     *
      * Adds the specified list of users as followers of the project. Followers receive notifications
      * when the project is changed, but do not necessarily have permissions to modify the project.
      *
@@ -906,6 +942,8 @@ class ProjectApiService
     /**
      * Remove followers from a project
      *
+     * POST /projects/{project_gid}/removeFollowers
+     *
      * Removes the specified list of users from following the project. Followers receive notifications
      * when the project is changed, and removing them will stop these notifications.
      *
@@ -953,6 +991,8 @@ class ProjectApiService
 
     /**
      * Create a project template from a project
+     *
+     * POST /projects/{project_gid}/saveAsTemplate
      *
      * Creates a project template from an existing project. The new template will be in the same
      * workspace as the given project. Properties such as task names, descriptions, notes,

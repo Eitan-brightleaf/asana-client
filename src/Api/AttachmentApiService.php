@@ -34,6 +34,8 @@ class AttachmentApiService
     /**
      * Get an attachment
      *
+     * GET /attachments/{attachment_gid}
+     *
      * Returns the full record for a single attachment.
      * Attachments are files uploaded to objects in Asana (such as tasks).
      *
@@ -75,6 +77,8 @@ class AttachmentApiService
     /**
      * Delete an attachment
      *
+     * DELETE /attachments/{attachment_gid}
+     *
      * Deletes a specific, existing attachment. Only the owner of the attachment
      * can delete it.
      *
@@ -108,6 +112,8 @@ class AttachmentApiService
 
     /**
      * Get attachments from an object
+     *
+     * GET /attachments
      *
      * Returns the compact records for all attachments on the object.
      *
@@ -146,6 +152,8 @@ class AttachmentApiService
 
     /**
      * Upload an attachment
+     *
+     * POST /attachments
      *
      * Upload an attachment to a task, project, or story. This method is useful when you have
      * a file on disk and can provide the file path. If you have the file contents in memory,
@@ -216,6 +224,8 @@ class AttachmentApiService
     }
     /**
      * Upload an attachment from file contents
+     *
+     * POST /attachments
      *
      * Upload an attachment to a task, project, or story using file contents.
      * This method is useful when you have the file content in memory rather than on disk.

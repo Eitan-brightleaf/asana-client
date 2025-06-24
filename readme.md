@@ -273,10 +273,6 @@ Before we can move to version 1.0.0, we need the following:
   - Add security scanning and checks
   - Add code quality checks
 
-   **Enhanced API Documentation**
-  - Document endpoint URLs and HTTP methods in API classes
-  - This additional context will help developers choose appropriate OAuth scopes
-
    **API Coverage Expansion**
   - Implement additional Asana API endpoints
   - Add support for missing resource types

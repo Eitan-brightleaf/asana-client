@@ -33,6 +33,8 @@ class SectionApiService
     /**
      * Get a section
      *
+     * GET /sections/{section_gid}
+     *
      * Returns the complete record for a single section.
      * Sections are used to divide projects into smaller parts.
      *
@@ -71,6 +73,8 @@ class SectionApiService
 
     /**
      * Update a section
+     *
+     * PUT /sections/{section_gid}
      *
      * Updates the properties of a section. Only the fields provided in the data block will be updated;
      * any unspecified fields will remain unchanged.
@@ -123,6 +127,8 @@ class SectionApiService
     /**
      * Delete a section
      *
+     * DELETE /sections/{section_gid}
+     *
      * Deletes a section from a project. This operation is only possible for
      * sections in board or list projects that have the opt-in layout feature enabled.
      * This does not delete tasks within the section - they will be moved to other sections
@@ -161,6 +167,8 @@ class SectionApiService
 
     /**
      * Get sections in a project
+     *
+     * GET /projects/{project_gid}/sections
      *
      * Returns the compact records for all sections in the specified project.
      * Sections represent an organizational unit within a project and help group tasks.
@@ -202,6 +210,8 @@ class SectionApiService
 
     /**
      * Create a section in a project
+     *
+     * POST /projects/{project_gid}/sections
      *
      * Creates a new section in a project. Returns the full record of the newly created section.
      * Sections can be created in board projects and list projects with the layout feature enabled.
@@ -258,6 +268,8 @@ class SectionApiService
     /**
      * Add task to section
      *
+     * POST /sections/{section_gid}/addTask
+     *
      * Adds a task to a specific section. This will remove the task from other sections
      * of the project.
      *
@@ -300,6 +312,8 @@ class SectionApiService
 
     /**
      * Move or insert sections
+     *
+     * POST /projects/{project_gid}/sections/insert
      *
      * Move sections or insert a section in a project. This endpoint allows you to reorder sections or
      * insert a section at a specific index in the project.

@@ -34,6 +34,8 @@ class TaskApiService
     /**
      * Get multiple tasks
      *
+     * GET /tasks
+     *
      * Returns a list of tasks filtered by the specified criteria. This endpoint provides a way to get
      * multiple tasks in a single request according to your search parameters.
      *
@@ -82,6 +84,8 @@ class TaskApiService
 
     /**
      * Create a task
+     *
+     * POST /tasks
      *
      * Creates a new task in an Asana workspace or project. The task can be assigned to a specific user,
      * given a due date and notes, and added to projects and tags.
@@ -147,6 +151,8 @@ class TaskApiService
     /**
      * Get a task
      *
+     * GET /tasks/{task_gid}
+     *
      * Returns the complete task record for a single task. The task record includes
      * basic metadata (name, notes, completion status, etc.) along with any custom
      * fields, followers, assignee and more (or less) as requested via opt_fields.
@@ -189,6 +195,8 @@ class TaskApiService
 
     /**
      * Update a task
+     *
+     * PUT /tasks/{task_gid}
      *
      * Updates the properties of a task. Tasks can be updated to change things like their name,
      * assignee, completion state, due date, and other properties. Some of the properties that can be updated
@@ -253,6 +261,8 @@ class TaskApiService
     /**
      * Delete a task
      *
+     * DELETE /tasks/{task_gid}
+     *
      * Deletes a task and moves it to the trash of the user making the delete request.
      * Tasks can be recovered from the trash within 30 days. After 30 days, deleted tasks
      * are permanently removed from the system and cannot be recovered.
@@ -289,6 +299,8 @@ class TaskApiService
 
     /**
      * Duplicate a task
+     *
+     * POST /tasks/{task_gid}/duplicate
      *
      * Creates and returns a job that will duplicate a task, copying its properties and memberships
      * to a new task. Fields like assignee, name, notes, projects, etc. can be overridden in the duplicated task.
@@ -339,6 +351,8 @@ class TaskApiService
     /**
      * Get tasks from a project
      *
+     * GET /projects/{project_gid}/tasks
+     *
      * Returns compact task records that are contained within the specified project. Tasks can exist
      * in multiple projects at once. By default, tasks included are not sorted and basic task fields
      * are returned. Tasks may be filtered by specifying the query options.
@@ -385,6 +399,8 @@ class TaskApiService
     /**
      * Get tasks from a section
      *
+     * GET /sections/{section_gid}/tasks
+     *
      * Returns a list of tasks in a section. Tasks can be placed into a section within a project.
      * This endpoint allows retrieving all tasks that are currently in a specific section.
      *
@@ -426,6 +442,8 @@ class TaskApiService
     /**
      * Get tasks from a tag
      *
+     * GET /tags/{tag_gid}/tasks
+     *
      * Returns a list of all tasks with the specified tag. Tasks can have multiple tags
      * and this endpoint allows retrieving all tasks associated with a particular tag.
      *
@@ -466,6 +484,8 @@ class TaskApiService
 
     /**
      * Get tasks from a user task list
+     *
+     * GET /user_task_lists/{user_task_list_gid}/tasks
      *
      * Retrieves the compact list of tasks in a user's My Tasks list. The My Tasks list
      * represents the tasks assigned to a user that also appear in their My Tasks list.
@@ -521,6 +541,8 @@ class TaskApiService
     /**
      * Get subtasks from a task
      *
+     * GET /tasks/{task_gid}/subtasks
+     *
      * Retrieves a compact list of all subtasks associated with the given task. A subtask is a task that
      * represents a breakdown of a larger task and maintains a parent-child relationship with its parent task.
      *
@@ -564,6 +586,8 @@ class TaskApiService
 
     /**
      * Create a subtask
+     *
+     * POST /tasks/{task_gid}/subtasks
      *
      * Creates and returns a subtask of an existing parent task. Creating a new subtask requires
      * providing the parent task's GID and basic details for the subtask like its name. The subtask
@@ -622,6 +646,8 @@ class TaskApiService
     /**
      * Set the parent of a task
      *
+     * POST /tasks/{task_gid}/setParent
+     *
      * Changes the parent of a task by specifying a new parent task. Tasks can
      * only have one parent at a time, and a task cannot be made its own parent. Setting parent to null makes
      * the task a top-level task.
@@ -679,6 +705,8 @@ class TaskApiService
     /**
      * Get dependencies from a task
      *
+     * GET /tasks/{task_gid}/dependencies
+     *
      * Returns a compact list of tasks that this task depends on. A task's dependencies are those tasks that need to be
      * completed before the task itself can be completed. For example, if task A is a dependency of task B, then task B
      * cannot be marked complete until task A is first completed.
@@ -723,6 +751,8 @@ class TaskApiService
 
     /**
      * Set dependencies for a task
+     *
+     * POST /tasks/{task_gid}/addDependencies
      *
      * Marks other tasks as dependencies of this task. Dependencies must be completed before the task
      * can be completed. A task can have multiple dependencies and dependencies can be chained
@@ -771,6 +801,8 @@ class TaskApiService
     /**
      * Unlink dependencies from a task
      *
+     * POST /tasks/{task_gid}/removeDependencies
+     *
      * Removes the specified dependencies from a task. Dependencies are the tasks that need to be
      * completed before the current task can begin. For example, if task A is a dependency of task B,
      * then task A must be finished before task B can be started. A task can't be dependent on itself
@@ -814,6 +846,8 @@ class TaskApiService
 
     /**
      * Get dependents from a task
+     *
+     * GET /tasks/{task_gid}/dependents
      *
      * Returns a compact list of tasks that are dependents of this task. A task's dependents
      * are those tasks that depend on this task's completion. For instance, if task B depends on task A,
@@ -860,6 +894,8 @@ class TaskApiService
 
     /**
      * Set dependents for a task
+     *
+     * POST /tasks/{task_gid}/addDependents
      *
      * Adds tasks that depend on the completion of this task. These dependent tasks cannot start
      * until this task is completed. Once this task is marked complete, its dependent tasks will be
@@ -909,6 +945,8 @@ class TaskApiService
     /**
      * Unlink dependents from a task
      *
+     * POST /tasks/{task_gid}/removeDependents
+     *
      * Removes the specified dependent tasks from a task. This endpoint removes the link between
      * the tasks but does not delete the tasks themselves. Dependent tasks are those that cannot
      * start until the current task is completed. If task B depends on task A, then task A must
@@ -953,6 +991,8 @@ class TaskApiService
 
     /**
      * Add a project to a task
+     *
+     * POST /tasks/{task_gid}/addProject
      *
      * Associates a task with a project. Tasks can be members of multiple projects at once, and
      * adding a task to a project will automatically add its parent project to the task.
@@ -1003,6 +1043,8 @@ class TaskApiService
     /**
      * Remove a project from a task
      *
+     * POST /tasks/{task_gid}/removeProject
+     *
      * Removes the specified project from a task. The task will no longer be associated with
      * the project, but will remain accessible in other projects and in the user's task list.
      *
@@ -1038,6 +1080,8 @@ class TaskApiService
 
     /**
      * Add a tag to a task
+     *
+     * POST /tasks/{task_gid}/addTag
      *
      * Associates a tag with a task. Tags provide a way to organize tasks and make them more searchable.
      * A task can have multiple tags, and adding a tag that is already on the task will not create a duplicate.
@@ -1077,6 +1121,8 @@ class TaskApiService
     /**
      * Remove a tag from a task
      *
+     * POST /tasks/{task_gid}/removeTag
+     *
      * Removes a tag from a task. The task will no longer be associated with the specified tag.
      * Tags provide a way to organize tasks and make them more searchable.
      *
@@ -1115,6 +1161,8 @@ class TaskApiService
 
     /**
      * Add followers to a task
+     *
+     * POST /tasks/{task_gid}/addFollowers
      *
      * Adds one or more followers to a task. A follower in Asana is a user that will receive notifications
      * about any changes or comments made to the task.
@@ -1162,6 +1210,8 @@ class TaskApiService
     /**
      * Remove followers from a task.
      *
+     * POST /tasks/{task_gid}/removeFollowers
+     *
      * Removes one or more followers from a task. A follower in Asana is a user that will receive notifications
      * about any changes or comments made to the task.
      *
@@ -1208,6 +1258,8 @@ class TaskApiService
     /**
      * Get a task by a given custom ID.
      *
+     * GET /workspaces/{workspace_gid}/tasks/custom_id/{custom_id}
+     *
      * Fetches a task from a specific workspace using its custom task ID.
      * The `custom_task_id` must be unique within the workspace. If no task matches
      * the provided custom ID, an error will be returned.
@@ -1237,6 +1289,8 @@ class TaskApiService
 
     /**
      * Search tasks in a workspace.
+     *
+     * GET /workspaces/{workspace_gid}/tasks/search
      *
      * Executes a search query to retrieve tasks from a specific workspace using
      * the Asana API. This method allows filtering tasks based on a variety of
@@ -1311,6 +1365,8 @@ class TaskApiService
     /**
      * Mark a task as complete.
      *
+     * PUT /tasks/{task_gid}
+     *
      * Updates the status of a task to mark it as completed.
      *
      * @param string $taskGid The unique global ID of the task to be marked as complete.
@@ -1334,6 +1390,8 @@ class TaskApiService
 
     /**
      * Reassign a task to a different user.
+     *
+     * PUT /tasks/{task_gid}
      *
      * Changes the assignee of a task to a specified user.
      *
@@ -1359,6 +1417,8 @@ class TaskApiService
 
     /**
      * Get overdue tasks in a workspace.
+     *
+     * GET /workspaces/{workspace_gid}/tasks/search
      *
      * Retrieves tasks that are past their due date (`due_on.before`) and are not completed.
      * This is useful for identifying tasks that have missed their deadlines.

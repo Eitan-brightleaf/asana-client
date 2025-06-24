@@ -34,6 +34,8 @@ class TagsApiService
     /**
      * Get multiple tags
      *
+     * GET /tags
+     *
      * Returns a list of tags in the specified workspace or organization. Tags are used to help
      * categorize and sort tasks, making them easier to find and manage.
      *
@@ -78,6 +80,8 @@ class TagsApiService
 
     /**
      * Create a tag
+     *
+     * POST /tags
      *
      * Creates a new tag in a workspace. Every tag is required to be created in a specific workspace,
      * and this cannot be changed once set.
@@ -130,6 +134,8 @@ class TagsApiService
     /**
      * Get a tag
      *
+     * GET /tags/{tag_gid}
+     *
      * Returns the complete tag record for a single tag.
      *
      * API Documentation: https://developers.asana.com/reference/gettag
@@ -165,6 +171,8 @@ class TagsApiService
 
     /**
      * Update a tag
+     *
+     * PUT /tags/{tag_gid}
      *
      * Updates the properties of a tag. Only the fields provided in the data block will be updated;
      * any unspecified fields will remain unchanged.
@@ -213,6 +221,8 @@ class TagsApiService
     /**
      * Delete a tag
      *
+     * DELETE /tags/{tag_gid}
+     *
      * Deletes a tag. This does not remove the tag from any tasks; it only deletes the tag resource itself.
      *
      * API Documentation: https://developers.asana.com/reference/deletetag
@@ -243,6 +253,8 @@ class TagsApiService
 
     /**
      * Get tasks from a tag
+     *
+     * GET /tags/{tag_gid}/tasks
      *
      * Returns the tasks that have this tag. Tasks can have multiple tags, and
      * this endpoint allows retrieving all tasks with a specific tag.
@@ -284,6 +296,8 @@ class TagsApiService
     /**
      * Get tags in a workspace
      *
+     * GET /workspaces/{workspace_gid}/tags
+     *
      * Returns the tags available in the specified workspace. Tags are used to categorize
      * and label tasks within a workspace.
      *
@@ -323,6 +337,8 @@ class TagsApiService
 
     /**
      * Create a tag in a workspace
+     *
+     * POST /workspaces/{workspace_gid}/tags
      *
      * Creates a new tag in a workspace. This is a shortcut for creating a tag in a specific workspace
      * rather than specifying the workspace in the data.

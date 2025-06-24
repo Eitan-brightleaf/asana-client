@@ -34,6 +34,8 @@ class UserApiService
     /**
      * Get multiple users
      *
+     * GET /users
+     *
      * Returns a list of all users in the organization or workspace accessible to the authenticated user.
      * Access to a user's full profile and other actions is determined by your access control settings.
      *
@@ -87,6 +89,8 @@ class UserApiService
     /**
      * Get a user
      *
+     * GET /users/{user_gid}
+     *
      * Returns the full user record for a single user identified by their GID.
      * Access to a user's full profile and other actions is determined by your access control settings.
      *
@@ -117,6 +121,8 @@ class UserApiService
 
     /**
      * Get a user's favorites
+     *
+     * GET /users/{user_gid}/favorites
      *
      * Returns all of a user's favorites in the order they appear in Asana's sidebar.
      * Results are paginated and include projects, tasks, tags, users, portfolios, and goals.
@@ -157,6 +163,8 @@ class UserApiService
     /**
      * Get users in a team
      *
+     * GET /teams/{team_gid}/users
+     *
      * Returns the users that are members of the team specified.
      * Team members can view and interact with each other in the team.
      *
@@ -191,6 +199,8 @@ class UserApiService
 
     /**
      * Get users in a workspace or organization
+     *
+     * GET /workspaces/{workspace_gid}/users
      *
      * Returns the users that are members of a workspace or organization.
      * Each user's ability to interact with tasks and other resources depends on their role
@@ -228,6 +238,8 @@ class UserApiService
     /**
      * Get the current user
      *
+     * GET /users/me
+     *
      * Returns the full user record for the currently authenticated user.
      * A shortcut method that uses "me" as the user identifier.
      *
@@ -255,6 +267,8 @@ class UserApiService
 
     /**
      * Get the current user's favorites
+     *
+     * GET /users/me/favorites
      *
      * Returns all favorites for the currently authenticated user.
      * A shortcut method that uses "me" as the user identifier.

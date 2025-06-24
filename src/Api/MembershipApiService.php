@@ -33,6 +33,8 @@ class MembershipApiService
     /**
      * Get multiple memberships
      *
+     * GET /memberships
+     *
      * Returns the compact membership records for the memberships matching the given filters.
      * Memberships represent connections between non-project objects and relevant users,
      * indicating a user's access and permissions in relation to that object.
@@ -77,6 +79,8 @@ class MembershipApiService
 
     /**
      * Create a membership
+     *
+     * POST /memberships
      *
      * Creates a new membership in a parent object (goal, project, or portfolio).
      * Memberships provide a way to add users as members of top-level objects.
@@ -129,6 +133,8 @@ class MembershipApiService
     /**
      * Get a membership
      *
+     * GET /memberships/{membership_gid}
+     *
      * Returns the complete membership record for a single membership.
      *
      * API Documentation: https://developers.asana.com/reference/getmembership
@@ -164,6 +170,8 @@ class MembershipApiService
 
     /**
      * Update a membership
+     *
+     * PUT /memberships/{membership_gid}
      *
      * Updates the properties of a membership. Only the fields provided in the data block
      * will be updated; any unspecified fields will remain unchanged.
@@ -217,6 +225,8 @@ class MembershipApiService
 
     /**
      * Delete a membership
+     *
+     * DELETE /memberships/{membership_gid}
      *
      * Deletes a membership. This is the way to remove a user or team from a
      * portfolio, project, goal, or custom_field.

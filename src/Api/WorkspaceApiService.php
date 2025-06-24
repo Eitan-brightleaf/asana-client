@@ -37,6 +37,8 @@ class WorkspaceApiService
     /**
      * Get multiple workspaces
      *
+     * GET /workspaces
+     *
      * Returns the compact representation of all workspaces visible to the authorized user.
      *
      * API Documentation: https://developers.asana.com/reference/getworkspaces
@@ -72,6 +74,8 @@ class WorkspaceApiService
 
     /**
      * Get a workspace
+     *
+     * GET /workspaces/{workspace_gid}
      *
      * Returns the full workspace record for a single workspace.
      *
@@ -110,6 +114,8 @@ class WorkspaceApiService
 
     /**
      * Update a workspace
+     *
+     * PUT /workspaces/{workspace_gid}
      *
      * Updates the workspace with the provided data. Currently, only name can be updated.
      *
@@ -159,6 +165,8 @@ class WorkspaceApiService
 
     /**
      * Add a user to a workspace or organization
+     *
+     * POST /workspaces/{workspace_gid}/addUser
      *
      * Adds a user to a workspace or organization. The user can be referenced by their globally unique user ID or
      * their email address. Returns the full user record for the invited user.
@@ -212,6 +220,8 @@ class WorkspaceApiService
     /**
      * Remove a user from a workspace or organization
      *
+     * POST /workspaces/{workspace_gid}/removeUser
+     *
      * Removes a user from a workspace or organization. The user making this call must be an admin
      * in the workspace. The user can be referenced by their globally unique user ID or their email address.
      * Returns an empty data block.
@@ -255,6 +265,8 @@ class WorkspaceApiService
 
     /**
      * Get users in a workspace or organization
+     *
+     * GET /workspaces/{workspace_gid}/users
      *
      * Returns the user records for all users in the specified workspace or organization.
      *
@@ -305,6 +317,8 @@ class WorkspaceApiService
     /**
      * Get teams in a workspace
      *
+     * GET /workspaces/{workspace_gid}/teams
+     *
      * Returns the compact records for all teams in the workspace visible to the authorized user.
      *
      * API Documentation: https://developers.asana.com/reference/getteamsforworkspace
@@ -352,6 +366,8 @@ class WorkspaceApiService
 
     /**
      * Get all projects in a workspace
+     *
+     * GET /workspaces/{workspace_gid}/projects
      *
      * Returns the compact project records for all projects in the workspace.
      * Returns projects the authenticated user has access to.
@@ -402,6 +418,8 @@ class WorkspaceApiService
 
     /**
      * Search tasks in a workspace
+     *
+     * GET /workspaces/{workspace_gid}/tasks/search
      *
      * Search for tasks within a specific workspace. Results are returned based on the search criteria and
      * permissions of the user making the request.
@@ -464,6 +482,8 @@ class WorkspaceApiService
 
     /**
      * Get workspace events
+     *
+     * GET /workspaces/{workspace_gid}/events
      *
      * Returns events for a single workspace.
      * This endpoint supports retrieval of either all events in a workspace (for synchronization)

@@ -37,6 +37,8 @@ class CustomFieldApiService
     /**
      * Create a custom field
      *
+     * POST /custom_fields
+     *
      * Creates a new custom field in a workspace. Every custom field has a type, which determines how values
      * of the custom field are formatted. Custom fields can be simple types like text, number, or dates, or
      * complex types like enum, multi-enum, or people.
@@ -96,6 +98,8 @@ class CustomFieldApiService
     /**
      * Get a custom field
      *
+     * GET /custom_fields/{custom_field_gid}
+     *
      * Returns the complete definition of a custom field's metadata.
      *
      * API Documentation: https://developers.asana.com/reference/getcustomfield
@@ -133,6 +137,8 @@ class CustomFieldApiService
 
     /**
      * Update a custom field
+     *
+     * PUT /custom_fields/{custom_field_gid}
      *
      * Updates a custom field's metadata. Updates the name, format, description, or enum_options
      * of a custom field.
@@ -191,6 +197,8 @@ class CustomFieldApiService
     /**
      * Delete a custom field
      *
+     * DELETE /custom_fields/{custom_field_gid}
+     *
      * Permanently deletes a custom field. Note that the field is permanently deleted and cannot be recovered.
      * This operation is only possible for users with organization admin permissions or for the person who created
      * the custom field.
@@ -222,6 +230,8 @@ class CustomFieldApiService
 
     /**
      * Get a workspace's custom fields
+     *
+     * GET /workspaces/{workspace_gid}/custom_fields
      *
      * Returns a list of the compact representation of all custom fields in a workspace.
      *
@@ -270,6 +280,8 @@ class CustomFieldApiService
 
     /**
      * Create an enum option
+     *
+     * POST /custom_fields/{custom_field_gid}/enum_options
      *
      * Creates an enum option and adds it to the enum custom field. Note that this method only works for custom fields
      * of type 'enum' or 'multi_enum'. This is also the preferred way to add options to an enum custom field
@@ -329,6 +341,8 @@ class CustomFieldApiService
     /**
      * Reorder a custom field's enum
      *
+     * POST /custom_fields/{custom_field_gid}/enum_options/insert
+     *
      * Moves a particular enum option to be either before or after another specified enum option
      * in the custom field. Reordering enum options is only possible for custom fields of type 'enum'.
      *
@@ -370,6 +384,8 @@ class CustomFieldApiService
 
     /**
      * Update an enum option
+     *
+     * PUT /custom_fields/{custom_field_gid}/enum_options/{enum_option_gid}
      *
      * Updates an existing enum option. Enum custom fields require at least one enabled option.
      *
@@ -428,6 +444,8 @@ class CustomFieldApiService
     /**
      * Get a project's custom fields
      *
+     * GET /projects/{project_gid}/custom_field_settings
+     *
      * Returns a list of all the custom fields settings on a project, in compact form.
      * Note that, as in other endpoints, custom field settings are distinct from the custom fields
      * themselves. Custom field settings represent a mapping of a custom field to a particular container
@@ -479,6 +497,8 @@ class CustomFieldApiService
 
     /**
      * Get a portfolio's custom fields
+     *
+     * GET /portfolios/{portfolio_gid}/custom_field_settings
      *
      * Returns a list of all the custom fields settings on a portfolio, in compact form.
      * Note that, as in other endpoints, custom field settings are distinct from the custom fields
