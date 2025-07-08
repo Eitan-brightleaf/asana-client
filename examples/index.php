@@ -13,10 +13,10 @@ $dotenv->load();
 $clientId = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $redirectUri = $_ENV['ASANA_REDIRECT_URI'];
-$salt = $_ENV['SALT'];
+$password     = $_ENV['PASSWORD'];
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri);
 
-if ($asanaClient->loadToken($salt)) {
+if ($asanaClient->loadToken($password)) {
     header('Location: workspaces.php');
     exit;
 }

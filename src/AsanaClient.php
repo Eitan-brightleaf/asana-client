@@ -618,110 +618,90 @@ class AsanaClient
         return $this->apiClient;
     }
 
-    /**
-     * Loads and decrypts the token stored in the specified path, initializing it for further use.
-     * If the token file does not exist or an error occurs during the loading process, the method fails gracefully.
-     *
-     * @param string $salt A unique string used to derive the decryption and MAC keys.
-     *                       For generating a secure salt, consider using tools like:
-     *                        - https://www.symbionts.de/tools/random-password-salt-generator.html
-     *                        - https://www.vondy.com/random-salt-generator--Pn9HVxnU
-     *                      For more information about salts, see, for example, one of the following:
-     *                        - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#salting
-     *                        - https://crypto.stackexchange.com/questions/44976/how-do-i-create-an-effective-salt
-     *                        - https://stackoverflow.com/questions/2513734/generating-a-salt-in-php/34173258#34173258
-     *
-     *
-     * @return bool True if the token was successfully loaded and decrypted, false otherwise.
-     */
-    public function loadToken(string $salt): bool
-    {
-        if (file_exists($this->tokenStoragePath)) {
-            try {
-                // Read and decode the stored token data
-                $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+	/**
+	 * Loads and decrypts the token stored in the specified path, initializing it for further use.
+	 * If the token file does not exist or an error occurs during the loading process, the method fails gracefully.
+	 *
+	 * @param string $password
+	 *
+	 * @return bool True if the token was successfully loaded and decrypted, false otherwise.
+	 */
+	public function loadToken(string $password): bool
+	{
+		if (file_exists($this->tokenStoragePath)) {
+			try {
+				$tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
 
-                // Decrypt sensitive fields
-                $tokenData['access_token'] = CryptoUtils::decrypt($tokenData['access_token'], $salt);
-                if (isset($tokenData['refresh_token'])) {
-                    $tokenData['refresh_token'] = CryptoUtils::decrypt($tokenData['refresh_token'], $salt);
-                }
+				// Decrypt sensitive fields
+				$tokenData['access_token'] = CryptoUtils::decrypt($tokenData['access_token'], $password);
+				if (isset($tokenData['refresh_token'])) {
+					$tokenData['refresh_token'] = CryptoUtils::decrypt($tokenData['refresh_token'], $password);
+				}
 
-                // Set the access token in the library
-                $this->accessToken = new AccessToken($tokenData);
-                return true;
-            } catch (Exception $e) {
-                $this->accessToken = null;
-                return false;
-            }
-        }
-        return false;
-    }
+				$this->accessToken = new AccessToken($tokenData);
+				return true;
+			} catch (Exception $e) {
+				$this->accessToken = null;
+				return false;
+			}
+		}
+		return false;
+	}
 
-    /**
-     * Retrieves and decrypts a token from the specified storage path.
-     * If no storage path is provided, it defaults to a file named 'token.json' in the current working directory.
-     *
-     * @param string $salt A unique string used to derive the decryption and MAC keys.
-     *                       For generating a secure salt, consider using tools like:
-     *                        - https://www.symbionts.de/tools/random-password-salt-generator.html
-     *                        - https://www.vondy.com/random-salt-generator--Pn9HVxnU
-     *                      For more information about salts, see, for example, one of the following:
-     *                        - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#salting
-     *                        - https://crypto.stackexchange.com/questions/44976/how-do-i-create-an-effective-salt
-     *                        - https://stackoverflow.com/questions/2513734/generating-a-salt-in-php/34173258#34173258
-     * @param string|null $tokenStoragePath The path to the file where the token is stored. Optional.
-     *
-     * @return array The decrypted token data, including 'access_token' and optionally 'refresh_token'.
-     * @throws JsonException If there is an error decoding the JSON from the token storage file.
-     * @throws Exception If the OpenSSL extension is unavailable, MAC verification fails, or decryption fails.
-     */
-    public static function retrieveToken(string $salt, ?string $tokenStoragePath = null): array
-    {
-        if (is_null($tokenStoragePath)) {
-            $tokenStoragePath = getcwd() . '/token.json';
-        }
-        $token = json_decode(file_get_contents($tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
-        $token['access_token'] = CryptoUtils::decrypt($token['access_token'], $salt);
-        if (isset($token['refresh_token'])) {
-            $token['refresh_token'] = CryptoUtils::decrypt($token['refresh_token'], $salt);
-        }
-        return $token;
-    }
 
-    /**
-     * Encrypts the current access token using the provided salt and saves it to the defined storage path.
-     * If no access token is available, the method does nothing.
-     *
-     * @param string $salt A unique string used to derive the decryption and MAC keys.
-     *                       For generating a secure salt, consider using tools like:
-     *                        - https://www.symbionts.de/tools/random-password-salt-generator.html
-     *                        - https://www.vondy.com/random-salt-generator--Pn9HVxnU
-     *                      For more information about salts, see, for example, one of the following:
-     *                        - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#salting
-     *                        - https://crypto.stackexchange.com/questions/44976/how-do-i-create-an-effective-salt
-     *                        - https://stackoverflow.com/questions/2513734/generating-a-salt-in-php/34173258#34173258
-     *
-     * @return void
-     * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
-     */
-    public function saveToken(string $salt): void
-    {
-        if ($this->accessToken) {
-            $token = $this->accessToken->jsonSerialize();
+	/**
+	 * Retrieves and decrypts a token from the specified storage path.
+	 * If no storage path is provided, it defaults to a file named 'token.json' in the current working directory.
+	 *
+	 * @param string $password
+	 * @param string|null $tokenStoragePath The path to the file where the token is stored. Optional.
+	 *
+	 * @return array The decrypted token data, including 'access_token' and optionally 'refresh_token'.
+	 * @throws JsonException If there is an error decoding the JSON from the token storage file.
+	 * @throws Exception If required OpenSSL functions are unavailable, data is invalid, or decryption fails.
+	 */
+	public static function retrieveToken(string $password, ?string $tokenStoragePath = null): array
+	{
+		if (is_null($tokenStoragePath)) {
+			$tokenStoragePath = getcwd() . '/token.json';
+		}
 
-            // Encrypt sensitive fields
-            $token['access_token'] = CryptoUtils::encrypt($token['access_token'], $salt);
-            if (isset($token['refresh_token'])) {
-                $token['refresh_token'] = CryptoUtils::encrypt($token['refresh_token'], $salt);
-            }
+		$token = json_decode(file_get_contents($tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+		$token['access_token'] = CryptoUtils::decrypt($token['access_token'], $password);
+		if (isset($token['refresh_token'])) {
+			$token['refresh_token'] = CryptoUtils::decrypt($token['refresh_token'], $password);
+		}
 
-            // Save the resulting token to the storage path
-            file_put_contents($this->tokenStoragePath, json_encode($token));
-        }
-    }
+		return $token;
+	}
 
-    /**
+
+	/**
+	 * Encrypts the current access token using the provided salt/key and saves it to the defined storage path.
+	 * If no access token is available, the method does nothing.
+	 *
+	 * @param string $password
+	 *
+	 * @return void
+	 * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
+	 */
+	public function saveToken(string $password): void
+	{
+		if ($this->accessToken) {
+			$token = $this->accessToken->jsonSerialize();
+
+			// Encrypt sensitive fields
+			$token['access_token'] = CryptoUtils::encrypt($token['access_token'], $password);
+			if (isset($token['refresh_token'])) {
+				$token['refresh_token'] = CryptoUtils::encrypt($token['refresh_token'], $password);
+			}
+
+			file_put_contents($this->tokenStoragePath, json_encode($token));
+		}
+	}
+
+
+	/**
      * Clear stored token (logout)
      */
     public function logout(): void

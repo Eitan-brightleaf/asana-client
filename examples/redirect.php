@@ -9,7 +9,7 @@ $dotenv->load();
 $clientId = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
 $redirectUri = $_ENV['ASANA_REDIRECT_URI'];
-$salt = $_ENV['SALT'];
+$password     = $_ENV['PASSWORD'];
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri);
 
 /*if ( isset( $_GET['code'] ) ) {
@@ -52,7 +52,7 @@ if (isset($_GET['code'], $_GET['state'])) {
         $tokenData = $asanaClient->handleCallback($authorizationCode, $pkceVerifier);
         if ($tokenData) {
         // Save the token to a file and redirect the user to tasks.php
-            $asanaClient->saveToken($salt);
+            $asanaClient->saveToken($password);
             header('Location: workspaces.php');
             exit;
         }

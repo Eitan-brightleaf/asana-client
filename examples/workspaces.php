@@ -12,9 +12,9 @@ $dotenv->load();
 
 $clientId     = $_ENV['ASANA_CLIENT_ID'];
 $clientSecret = $_ENV['ASANA_CLIENT_SECRET'];
-$salt = $_ENV['SALT'];
+$password     = $_ENV['PASSWORD'];
 try {
-    $tokenData = AsanaClient::retrieveToken($salt);
+    $tokenData = AsanaClient::retrieveToken($password);
 } catch (JsonException | Exception $e) {
     echo 'Error: ' . $e->getMessage();
     exit;
@@ -24,8 +24,8 @@ try {
 // $asanaClient = AsanaClient::withPAT($pat);
 
 $asanaClient = AsanaClient::withAccessToken($clientId, $clientSecret, $tokenData);
-$asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $salt) {
-    $asanaClient->saveToken($salt);
+$asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
+    $asanaClient->saveToken($password);
     //  file_put_contents($tokenPath, json_encode($token));
 });
 
