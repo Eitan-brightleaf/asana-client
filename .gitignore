@@ -5,3 +5,5 @@ composer.lock
 token.json
 .aiignore
 .vscode
+docs
+.junie
