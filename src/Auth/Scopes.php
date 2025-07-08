@@ -4,11 +4,22 @@ namespace BrightleafDigital\Auth;
 
 class Scopes
 {
+	// 🔹 Attachments
     /**
-     * 🔹 Attachments
+     * GET /attachments/{attachment_gid}
+     * GET /tasks/{task_gid}/attachments
+     */
+    public const ATTACHMENTS_READ = 'attachments:read';
+
+    /**
      * POST /attachments
      */
     public const ATTACHMENTS_WRITE = 'attachments:write';
+
+	/**
+	 * DELETE /attachments/{attachment_gid}
+	 */
+	public const ATTACHMENTS_DELETE = 'attachments:delete';
 
     /**
      * 🔹 Goals
@@ -17,6 +28,16 @@ class Scopes
      * GET /goals/{goal_gid}/parentGoals
      */
     public const GOALS_READ = 'goals:read';
+
+	/**
+	 * POST /portfolios
+	 * PUT /portfolios/{portfolio_gid}
+	 * POST /portfolios/{portfolio_gid}/addItem
+	 * POST /portfolios/{portfolio_gid}/removeItem
+	 * POST /portfolios/{portfolio_gid}/addCustomFieldSetting
+	 * POST /portfolios/{portfolio_gid}/removeCustomFieldSetting
+	 */
+	public const PORTFOLIOS_WRITE = 'portfolios:write';
 
     /**
      * 🔹 Project Templates
@@ -60,6 +81,13 @@ class Scopes
      * GET /tasks/{task_gid}/stories
      */
     public const STORIES_READ = 'stories:read';
+
+	// 🔹 Task templates
+	/**
+	 * GET /task_templates
+	 * GET /task_templates/{task_template_gid}
+	 */
+	public const TASK_TEMPLATES_READ = 'task_templates:read';
 
     // 🔹 Tasks
     /**
@@ -125,6 +153,13 @@ class Scopes
      * GET /workspaces/{workspace_gid}/users
      */
     public const USERS_READ = 'users:read';
+
+	// 🔹 Webhooks
+	/**
+	 * GET /webhooks
+	 * GET /webhooks/{webhook_gid}
+	 */
+	public const WEBHOOKS_READ = 'webhooks:read';
 
     /**
      * 🔹 Workspaces

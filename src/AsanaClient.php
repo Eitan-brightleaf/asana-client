@@ -355,24 +355,28 @@ class AsanaClient
         return $this->customFields;
     }
 
-    /**
-     * Get the authorization URL for OAuth flow
-     *
-     * @return string
-     */
+	/**
+	 * Get the authorization URL for OAuth flow
+	 *
+	 * @param array $scopes An array of requested scopes
+	 *
+	 * @return string
+	 */
     public function getAuthorizationUrl(array $scopes): string
     {
         $options['scope'] = implode(' ', $scopes);
         return $this->authHandler->getAuthorizationUrl($options);
     }
 
-    /**
-     * Get authorization URL, state, and PKCE verifier
-     *
-     * @param bool $enableState
-     * @param bool $enablePKCE
-     * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
-     */
+	/**
+	 * Get authorization URL, state, and PKCE verifier
+	 *
+	 * @param array $scopes An array of requested scopes
+	 * @param bool $enableState A bool to indicate if you are using state
+	 * @param bool $enablePKCE A bool to indicate if you are using PKCE
+	 *
+	 * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
+	 */
     public function getSecureAuthorizationUrl(array $scopes, bool $enableState = true, bool $enablePKCE = true): array
     {
         $options['scope'] = implode(' ', $scopes);
