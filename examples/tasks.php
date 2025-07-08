@@ -3,6 +3,7 @@
 use BrightleafDigital\AsanaClient;
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Exceptions\TokenInvalidException;
+use BrightleafDigital\Http\AsanaApiClient;
 use Dotenv\Dotenv;
 
 require '../vendor/autoload.php';
@@ -34,7 +35,11 @@ if (isset($_GET['offset'])) {
     $options['offset'] = $_GET['offset'];
 }
 try {
-    $tasks = $asanaClient->tasks()->getTasksByProject($_GET['project'], $options);
+    $tasks = $asanaClient->tasks()->getTasksByProject(
+        $_GET['project'],
+        $options,
+        AsanaApiClient::RESPONSE_NORMAL
+    );
     $nextPage = $tasks['next_page'] ?? null;
     $tasks = $tasks['data'];
 

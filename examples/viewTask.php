@@ -41,7 +41,9 @@ try {
         }
     }
 
-    $task = $asanaClient->tasks()->getTask($_GET['task'])['data'];
+    $task = $asanaClient->tasks()->getTask(
+        $_GET['task']
+    );
     echo '<pre>';
     print_r($task);
     echo '</pre>';

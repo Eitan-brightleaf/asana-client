@@ -4,6 +4,7 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use InvalidArgumentException;
 
 class ProjectApiService
 {
@@ -59,20 +60,23 @@ class ProjectApiService
      *                        (e.g., "name,owner.name,custom_field_settings")
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty (bool): Returns prettier formatting in responses
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
      *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Project's unique identifier
-     *               - name: Project name/title
-     *               - resource_type: Always "project"
-     *               Additional fields if specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of projects
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid parameter values
@@ -84,11 +88,11 @@ class ProjectApiService
         ?string $workspace = null,
         ?string $team = null,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         // Ensure one of workspace or team is provided
         if (!$workspace && !$team) {
-            throw new \InvalidArgumentException('You must provide either a "workspace" or "team" parameter.');
+            throw new InvalidArgumentException('You must provide either a "workspace" or "team" parameter.');
         }
 
         // Add the provided identifier to options
@@ -99,7 +103,7 @@ class ProjectApiService
             $options['team'] = $team;
         }
 
-        return $this->client->request('GET', 'projects', ['query' => $options], $fullResponse);
+        return $this->client->request('GET', 'projects', ['query' => $options], $responseType);
     }
 
     /**
@@ -131,20 +135,24 @@ class ProjectApiService
      * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,notes,color"]
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
      *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique project identifier
-     *               - resource_type: Always "project"
-     *               - name: Project name/title
-     *               Additional fields as specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created project
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Missing required fields
@@ -153,13 +161,13 @@ class ProjectApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function createProject(array $data, array $options = [], bool $fullResponse = false): array
+    public function createProject(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             'projects',
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -185,27 +193,20 @@ class ProjectApiService
      *                        created_at, modified_at, due_date, current_status
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      Example: ["opt_fields" => "name,notes,owner"]
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique project identifier
-     *               - resource_type: Always "project"
-     *               - name: Project name/title
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to invalid project GID, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getProject(string $projectGid, array $options = [], bool $fullResponse = false): array
+    public function getProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "projects/$projectGid", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "projects/$projectGid", ['query' => $options], $responseType);
     }
 
     /**
@@ -218,38 +219,16 @@ class ProjectApiService
      *
      * API Documentation: https://developers.asana.com/reference/updateproject
      *
-     * @param string $projectGid The unique global ID of the project to update. This identifier can
-     *                        be found in the project URL or returned from project-related API endpoints.
-     *                        Example: "12345"
-     * @param array $data The properties of the project to update. Can include:
-     *                    - name (string): Name of the project
-     *                    - notes (string): Project description/notes
-     *                    - color (string): Color of the project (e.g., "light-green")
-     *                    - due_date (string): Due date in YYYY-MM-DD format
-     *                    - public (boolean): Whether the project is public to the organization
-     *                    - owner (string): GID of user to set as project owner
-     *                    - archived (boolean): Whether the project is archived
-     *                    Example: ["name" => "Updated Project", "notes" => "New description"]
-     * @param array $options Optional parameters for the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty: Return formatted JSON
-     *                      Example: ["opt_fields" => "name,notes,owner"]
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param string $projectGid The unique global ID of the project to update.
+     * @param array $data The properties of the project to update.
+     * @param array $options Optional parameters for the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique project identifier
-     *               - resource_type: Always "project"
-     *               - name: Updated project name
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
@@ -258,13 +237,13 @@ class ProjectApiService
         string $projectGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'PUT',
             "projects/$projectGid",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -280,20 +259,13 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/deleteproject
      *
      * @param string $projectGid The unique global ID of the project to delete/trash.
-     *                        This identifier can be found in the project URL
-     *                        or returned from project-related API endpoints.
-     *                        Example: "12345"
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Empty data object {}
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns empty data object:
-     *               - data: An empty JSON object {}
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid project GID
@@ -301,9 +273,9 @@ class ProjectApiService
      *                          - Network connectivity issues
      *                          - Rate limiting
      */
-    public function deleteProject(string $projectGid, bool $fullResponse = false): array
+    public function deleteProject(string $projectGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('DELETE', "projects/$projectGid", [], $fullResponse);
+        return $this->client->request('DELETE', "projects/$projectGid", [], $responseType);
     }
 
     /**
@@ -317,43 +289,25 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/duplicateproject
      *
      * @param string $projectGid The unique global ID of the project to duplicate.
-     *                        The GID can be found in the project URL or returned from project-related API endpoints.
-     *                        Example: "12345"
-     * @param array $data Data for the duplicated project. Must include:
-     *                    - name (string): Name of the new duplicated project
-     *                    Optional:
-     *                    - team (string): GID of the team to put the new project in
-     *                    - include (array): Additional fields to include in the duplicate
-     *                    - schedule_dates (object): Schedule dates to use in the duplicated project with:
-     *                      - should_skip_weekends (boolean): Whether to skip weekends during scheduling
-     *                      - due_on (string): The due date for the duplicated project
-     *                      - start_on (string): The start date for the duplicated project
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $data Data for the duplicated project.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing job data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique identifier of the job
-     *               - resource_type: Always "job"
-     *               - resource_subtype: Type of job
-     *               - status: Current job status (e.g. "not_started", "in_progress", "succeeded")
-     *               - new_project: Contains the duplicated project data once job is complete
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to invalid project GID, malformed data,
      *                          insufficient permissions, network issues, or rate limiting
      */
-    public function duplicateProject(string $projectGid, array $data, bool $fullResponse = false): array
+    public function duplicateProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "projects/$projectGid/duplicate",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -368,36 +322,21 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/getprojectsfortask
      *
      * @param string $taskGid The unique global ID of the task to get projects for.
-     *                       This identifier can be found in the task URL or returned from
-     *                       task-related API endpoints.
-     * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters for customizing the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Project identifier
-     *               - name: Project name
-     *               - resource_type: Always "project"
-     *               Additional fields if specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid task GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTask(string $taskGid, array $options = [], bool $fullResponse = false): array
+    public function getProjectsForTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options], $responseType);
     }
 
     /**
@@ -412,37 +351,21 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/getprojectsforteam
      *
      * @param string $teamGid The unique global ID of the team to get projects from.
-     *                      This identifier can be found in the team URL or returned from
-     *                      team-related API endpoints.
-     * @param array $options Optional parameters for customizing the request:
-     *                      - archived (boolean): Only return projects whose archived field matches this value
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters for customizing the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Project identifier
-     *               - name: Project name
-     *               - resource_type: Always "project"
-     *               Additional fields if specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid team GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTeam(string $teamGid, array $options = [], bool $fullResponse = false): array
+    public function getProjectsForTeam(string $teamGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options], $responseType);
     }
 
     /**
@@ -459,33 +382,14 @@ class ProjectApiService
      *                      This identifier can be found in the team URL or returned from
      *                      team-related API endpoints.
      * @param array $data Data for creating the project.
-     *                    Optional:
-     *                    - name (string): Name of the project
-     *                    - notes (string): Project description/notes
-     *                    - color (string): Color of the project (e.g., "light-green")
-     *                    - due_date (string): Due date in YYYY-MM-DD format
-     *                    - public (boolean): Whether the project is public to the organization
-     *                    - default_view (string): Default view for the project ("list", "board", "calendar", etc.)
-     *                    Example: ["name" => "New team project", "notes" => "Project details"]
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty: Return formatted JSON
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique project identifier
-     *               - resource_type: Always "project"
-     *               - name: Project name/title
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid team GID provided, missing required fields,
      *                          insufficient permissions, or network issues occur
@@ -494,13 +398,13 @@ class ProjectApiService
         string $teamGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "teams/$teamGid/projects",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -514,30 +418,14 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/getprojectsforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to get projects from.
-     *                           This identifier can be found in the workspace URL or returned from
-     *                           workspace-related API endpoints.
-     * @param array $options Optional parameters for customizing the request:
-     *                      - archived (boolean): Only return projects whose archived field matches this value
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters for customizing the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Project identifier
-     *               - name: Project name
-     *               - resource_type: Always "project"
-     *               Additional fields if specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -545,9 +433,9 @@ class ProjectApiService
     public function getProjectsForWorkspace(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
-        return $this->client->request('GET', "workspaces/$workspaceGid/projects", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "workspaces/$workspaceGid/projects", ['query' => $options], $responseType);
     }
 
     /**
@@ -560,36 +448,15 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/createproject
      *
      * @param string $workspaceGid The unique global ID of the workspace to create the project in.
-     *                           This identifier can be found in the workspace URL or returned from
-     *                           workspace-related API endpoints.
-     * @param array $data Data for creating the project. Must include:
-     *                    Optional:
-     *                    - name (string): Name of the project
-     *                    - notes (string): Project description/notes
-     *                    - color (string): Color of the project (e.g., "light-green")
-     *                    - due_date (string): Due date in YYYY-MM-DD format
-     *                    - public (boolean): Whether the project is public to the organization
-     *                    - default_view (string): Default view for the project ("list", "board", "calendar", etc.)
-     *                    Example: ["name" => "New workspace project", "notes" => "Project details"]
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty: Return formatted JSON
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $data Data for creating the project.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique project identifier
-     *               - resource_type: Always "project"
-     *               - name: Project name/title
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, missing required fields,
      *                          insufficient permissions, or network issues occur
@@ -598,13 +465,13 @@ class ProjectApiService
         string $workspaceGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/projects",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -620,36 +487,25 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/addcustomfieldsettingforproject
      *
      * @param string $projectGid The unique global ID of the project to add the custom field to.
-     *                        This identifier can be found in the project URL or returned from
-     *                        project-related API endpoints.
-     * @param array $data Data for adding the custom field setting. Must include:
-     *                    - custom_field (string): The GID of the custom field to add
-     *                    Optional:
-     *                    - is_important (boolean): Whether the custom field should be displayed prominently
-     *                    - insert_before (string): GID of a custom field setting to insert this one before
-     *                    - insert_after (string): GID of a custom field setting to insert this one after
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $data Data for adding the custom field setting.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing the updated project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the custom field setting added
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
      *                          insufficient permissions, or network issues occur
      */
-    public function addCustomFieldToProject(string $projectGid, array $data, bool $fullResponse = false): array
+    public function addCustomFieldToProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addCustomFieldSetting",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -664,32 +520,25 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/removecustomfieldsettingforproject
      *
      * @param string $projectGid The unique global ID of the project to remove the custom field from.
-     *                        This identifier can be found in the project URL or returned from
-     *                        project-related API endpoints.
-     * @param array $data Data for removing the custom field setting. Must include:
-     *                    - custom_field (string): The GID of the custom field to remove
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $data Data for removing the custom field setting.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing the updated project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the custom field setting removed
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
      *                          insufficient permissions, or network issues occur
      */
-    public function removeCustomFieldFromProject(string $projectGid, array $data, bool $fullResponse = false): array
+    public function removeCustomFieldFromProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeCustomFieldSetting",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -705,31 +554,14 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/getcustomfieldsettingsforproject
      *
      * @param string $projectGid The unique global ID of the project to get custom field settings from.
-     *                        This identifier can be found in the project URL or returned from
-     *                        project-related API endpoints.
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing custom field settings
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Custom field setting identifier
-     *               - custom_field: Object with the custom field information
-     *               - is_important: Whether the custom field is prominently displayed
-     *               - project: GID of the parent project
-     *               - resource_type: Always "custom_field_setting"
-     *               Additional fields if specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -737,13 +569,13 @@ class ProjectApiService
     public function getCustomFieldsForProject(
         string $projectGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "projects/$projectGid/custom_field_settings",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -758,33 +590,21 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/gettaskcountsforproject
      *
      * @param string $projectGid The unique global ID of the project to get task counts for.
-     *                        This identifier can be found in the project URL or returned from
-     *                        project-related API endpoints.
-     * @param array $options Optional parameters for the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters for the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task count data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - num_incomplete_tasks: Number of incomplete tasks in the project
-     *               - num_completed_tasks: Number of completed tasks in the project
-     *               - num_tasks: Total number of tasks in the project
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTaskCountsForProject(string $projectGid, array $options = [], bool $fullResponse = false): array
+    public function getTaskCountsForProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options], $responseType);
     }
 
     /**
@@ -802,24 +622,14 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $members An array of user GIDs representing the users to add to the project.
-     *                       Each GID should be a string that uniquely identifies a user in Asana.
-     *                       Example: ['12345', '67890']
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the new members added
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
      *                          insufficient permissions, or network issues occur
@@ -828,13 +638,13 @@ class ProjectApiService
         string $projectGid,
         array $members,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addMembers",
             ['json' => ['data' => ['members' => $members]], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -853,24 +663,14 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $members An array of user GIDs representing the users to remove from the project.
-     *                       Each GID should be a string that uniquely identifies a user in Asana.
-     *                       Example: ['12345', '67890']
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the members removed
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
      *                          insufficient permissions, or network issues occur
@@ -879,13 +679,13 @@ class ProjectApiService
         string $projectGid,
         array $members,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeMembers",
             ['json' => ['data' => ['members' => $members]], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -903,24 +703,14 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $followers An array of user GIDs representing the followers to add to the project.
-     *                       Each GID should be a string that uniquely identifies a user in Asana.
-     *                       Example: ['12345', '67890']
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                       (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the new followers added
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
      *                          insufficient permissions, or network issues occur
@@ -929,13 +719,13 @@ class ProjectApiService
         string $projectGid,
         array $followers,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addFollowers",
             ['json' => ['data' => ['followers' => $followers]], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -953,24 +743,14 @@ class ProjectApiService
      *                        This identifier can be found in the project URL or returned from
      *                        project-related API endpoints.
      * @param array $followers An array of user GIDs representing the followers to remove from the project.
-     *                       Each GID should be a string that uniquely identifies a user in Asana.
-     *                       Example: ['12345', '67890']
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                       (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing
-     *               the updated project with the followers removed
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, invalid user GIDs,
      *                          insufficient permissions, or network issues occur
@@ -979,13 +759,13 @@ class ProjectApiService
         string $projectGid,
         array $followers,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeFollowers",
             ['json' => ['data' => ['followers' => $followers]], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1001,32 +781,15 @@ class ProjectApiService
      * API Documentation: https://developers.asana.com/reference/projectsaveastemplate
      *
      * @param string $projectGid The unique global ID of the project to use as a basis for creating a template.
-     *                        This identifier can be found in the project URL or returned from
-     *                        project-related API endpoints.
-     * @param array $data Data for creating the project template. Must include:
-     *                    - name (string): Name of the new template
-     *                    Optional:
-     *                    - public (boolean): Whether the template is public to the team
-     *                    Example: ["name" => "Marketing Campaign Template"]
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,owner.name,custom_field_settings")
-     * Example: ['opt_fields' => 'name,owner.name,custom_field_settings']
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param array $data Data for creating the project template.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *                              
      *
-     * @return array If $fullResponse is true, returns array containing:
-     *               - status: Response status code
-     *               - reason: Response reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project template data
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               If $fullResponse is false, returns decoded response body containing:
-     *               - gid: Unique identifier of the template
-     *               - resource_type: Always "project_template"
-     *               - name: Name of the template
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -1035,13 +798,13 @@ class ProjectApiService
         string $projectGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/saveAsTemplate",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 }

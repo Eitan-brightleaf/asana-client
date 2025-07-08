@@ -27,7 +27,9 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $memberships = $asanaClient->memberships()->getMemberships(['parent' => $_GET['project']])['data'];
+    $memberships = $asanaClient->memberships()->getMemberships(
+        ['parent' => $_GET['project']]
+    );
     echo '<pre>';
     print_r($memberships);
     echo '</pre>';

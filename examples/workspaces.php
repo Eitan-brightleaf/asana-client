@@ -30,12 +30,12 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $me = $asanaClient->users()->getCurrentUser()['data'];
+    $me = $asanaClient->users()->getCurrentUser();
     $name = $me['name'];
     ?>
         <h1>Hello, <?= $name ?>!</h1>
     <?php
-    $workspaces = $asanaClient->workspaces()->getWorkspaces()['data'];
+    $workspaces = $asanaClient->workspaces()->getWorkspaces();
     foreach ($workspaces as $workspace) {
         echo '<a href="projects.php?workspace=' . $workspace['gid'] . '">' . $workspace['name'] . '</a><br>';
     }

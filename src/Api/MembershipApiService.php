@@ -53,17 +53,23 @@ class MembershipApiService
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
-     * @param bool $fullResponse Whether to return the full response details including headers and request info
-     *
-     * @return array If $fullResponse is true, returns complete response array including:
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+ *
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
-     *               - body: Parsed response body with list of memberships
+     *               - body: Decoded response body containing membership list
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns just the list of memberships containing:
-     *               - gid: Membership's unique identifier
-     *               - resource_type: Always "membership"
-     *               Additional fields if specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of memberships
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Missing required parameters
@@ -72,9 +78,9 @@ class MembershipApiService
      *                          - Rate limiting
      *                          - Network connectivity issues
      */
-    public function getMemberships(array $options = [], bool $fullResponse = false): array
+    public function getMemberships(array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', 'memberships', ['query' => $options], $fullResponse);
+        return $this->client->request('GET', 'memberships', ['query' => $options], $responseType);
     }
 
     /**
@@ -101,17 +107,23 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details including headers and request info
-     *
-     * @return array If $fullResponse is true, returns complete response array including:
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+ *
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
-     *               - body: Parsed response body with created membership data
+     *               - body: Decoded response body containing created membership data
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns just the created membership data including:
-     *               - gid: Membership's unique identifier
-     *               - resource_type: Always "membership"
-     *               Additional fields as specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created membership
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Missing required fields
@@ -120,13 +132,13 @@ class MembershipApiService
      *                          - Network connectivity issues
      *                          - Rate limiting
      */
-    public function createMembership(array $data, array $options = [], bool $fullResponse = false): array
+    public function createMembership(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             'memberships',
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -145,27 +157,30 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details including headers and request info
-     *
-     * @return array If $fullResponse is true, returns complete response array including:
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+ *
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
-     *               - body: Parsed response body with membership data
+     *               - body: Decoded response body containing membership data
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns just the membership record containing:
-     *               - gid: Membership's unique identifier
-     *               - resource_type: Always "membership"
-     *               - parent: The parent object (portfolio, project, goal, or custom_field) of this membership
-     *               - member: The member (user or team) in this membership
-     *               - access_level: The access level of the membership (admin, editor, commenter, viewer, etc.)
-     *               Additional fields as specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the membership details
      *
      * @throws AsanaApiException If invalid membership GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getMembership(string $membershipGid, array $options = [], bool $fullResponse = false): array
+    public function getMembership(string $membershipGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options], $responseType);
     }
 
     /**
@@ -191,20 +206,23 @@ class MembershipApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details including headers and request info
-     *
-     * @return array If $fullResponse is true, returns complete response array including:
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+ *
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
-     *               - body: Parsed response body with updated membership data
+     *               - body: Decoded response body containing updated membership data
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns just the updated membership data including:
-     *               - gid: Membership's unique identifier
-     *               - resource_type: Always "membership"
-     *               - parent: The parent object (portfolio, project, goal, or custom_field) of this membership
-     *               - member: The member (user or team) in this membership
-     *               - access_level: The updated access level of the membership
-     *               Additional fields as specified in opt_fields
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the updated membership
      *
      * @throws AsanaApiException If invalid membership GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
@@ -213,13 +231,13 @@ class MembershipApiService
         string $membershipGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'PUT',
             "memberships/$membershipGid",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -236,15 +254,23 @@ class MembershipApiService
      * @param string $membershipGid The unique global ID of the membership to delete.
      *                              This identifier can be found in the membership URL or
      *                              returned from membership-related API endpoints.
-     * @param bool $fullResponse Whether to return the full response details including headers and request info
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response array including:
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
+     *               - reason: Response status message
      *               - headers: Response headers
-     *               - body: Empty data object
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
      *               - request: Original request details
-     *               If $fullResponse is false, returns just an empty data object:
-     *               - data: An empty JSON object {}
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {})
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid membership GID
@@ -252,8 +278,8 @@ class MembershipApiService
      *                          - Network connectivity issues
      *                          - Rate limiting
      */
-    public function deleteMembership(string $membershipGid, bool $fullResponse = false): array
+    public function deleteMembership(string $membershipGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('DELETE', "memberships/$membershipGid", [], $fullResponse);
+        return $this->client->request('DELETE', "memberships/$membershipGid", [], $responseType);
     }
 }

@@ -3,6 +3,7 @@
 use BrightleafDigital\AsanaClient;
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Exceptions\TokenInvalidException;
+use BrightleafDigital\Http\AsanaApiClient;
 use Dotenv\Dotenv;
 
 require '../vendor/autoload.php';
@@ -27,7 +28,11 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $sections = $asanaClient->sections()->getSectionsForProject($_GET['project'], ['opt_pretty' => true], true);
+    $sections = $asanaClient->sections()->getSectionsForProject(
+        $_GET['project'],
+        ['opt_pretty' => true],
+        AsanaApiClient::RESPONSE_FULL
+    );
     echo '<pre>';
     print_r($sections['body']['data']);
     echo '</pre>';

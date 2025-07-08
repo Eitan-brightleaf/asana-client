@@ -55,21 +55,12 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty (bool): Returns prettier formatting in responses
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               List of tasks matching the filters. Each task contains:
-     *               - gid: Task's unique identifier
-     *               - name: Task name/title
-     *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid parameter values
@@ -77,9 +68,9 @@ class TaskApiService
      *                         - Rate limiting
      *                         - Network connectivity issues
      */
-    public function getTasks(array $options, bool $fullResponse = false): array
+    public function getTasks(array $options, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', 'tasks', ['query' => $options], $fullResponse);
+        return $this->client->request('GET', 'tasks', ['query' => $options], $responseType);
     }
 
     /**
@@ -115,21 +106,23 @@ class TaskApiService
      *                       (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Task data including at minimum:
-     *               - gid: Unique task identifier
-     *               - resource_type: Always "task"
-     *               - name: Task name/title
-     *               Additional fields as specified in opt_fields
-     *               If $fullResponse is true:
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
      *               - reason: Response status message
      *               - headers: Response headers
      *               - body: Decoded response body containing task data
      *               - raw_body: Raw response body
      *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created task
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Missing required fields
@@ -138,13 +131,13 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function createTask(array $data, array $options = [], bool $fullResponse = false): array
+    public function createTask(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             'tasks',
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -169,28 +162,19 @@ class TaskApiService
      *                        projects, tags, workspace
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      Example: ["opt_fields" => "name,assignee,completed"]
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Task record containing at minimum:
-     *               - gid: Unique task identifier
-     *               - resource_type: Always "task"
-     *               - name: Task name/title
-     *               Additional fields as specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTask(string $taskGid, array $options = [], bool $fullResponse = false): array
+    public function getTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $responseType);
     }
 
     /**
@@ -229,32 +213,23 @@ class TaskApiService
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
      *                      Example: ["opt_fields" => "name,assignee,completed"]
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data including:
-     *               - gid: Unique task identifier
-     *               - resource_type: Always "task"
-     *               - name: Updated task name
-     *               Additional fields as specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
      */
-    public function updateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
+    public function updateTask(string $taskGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'PUT',
             "tasks/$taskGid",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -270,21 +245,12 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/deletetask
      *
      * @param string $taskGid The unique global ID of the task to delete/trash.
-     *                        This identifier can be found in the task URL
-     *                        or returned from task-related API endpoints.
-     *                        Example: "12345"
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Empty data object containing only the HTTP status indicator:
-     *               - data: An empty JSON object {}
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -292,9 +258,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function deleteTask(string $taskGid, bool $fullResponse = false): array
+    public function deleteTask(string $taskGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('DELETE', "tasks/$taskGid", [], $fullResponse);
+        return $this->client->request('DELETE', "tasks/$taskGid", [], $responseType);
     }
 
     /**
@@ -318,33 +284,23 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                         (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Data about the duplication job in progress:
-     *               - gid: Unique identifier of the job
-     *               - resource_type: Always "job"
-     *               - resource_subtype: Type of job
-     *               - status: Current job status (e.g. "not_started", "in_progress", "succeeded")
-     *               - new_task: Contains the duplicated task data once job is complete
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing job data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException For invalid task GIDs, malformed data,
      *                          insufficient permissions, or network issues
      */
-    public function duplicateTask(string $taskGid, array $data, array $options = [], bool $fullResponse = false): array
+    public function duplicateTask(string $taskGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/duplicate",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -360,40 +316,20 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksforproject
      *
      * @param string $projectGid The unique global ID of the project to get tasks from.
-     *                          This identifier can be found in the project URL or
-     *                          returned from project-related API endpoints.
-     *                          Example: "12345"
-     * @param array $options Optional query parameters to customize the request:
-     *                      - completed_since (string): Only return tasks that are either incomplete or
-     *                        that have been completed since this time. Accepts a date-time string or the keyword "now".
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full API response details including headers and request info,
-     *                          or just the response body (default false - returns only body)
+     * @param array $options Optional query parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array List of tasks in the project containing:
-     *               If $fullResponse is false:
-     *               - gid: Task identifier
-     *               - name: Task name
-     *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid project GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksByProject(string $projectGid, array $options = [], bool $fullResponse = false): array
+    public function getTasksByProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options], $responseType);
     }
 
     /**
@@ -407,36 +343,20 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksforsection
      *
      * @param string $sectionGid The unique global ID of the section to query tasks from.
-     *                          Found in the URL or API responses for a section.
-     *                          Example: "12345"
-     * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param array $options Optional parameters for customizing the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               List of tasks containing at minimum:
-     *               - gid: Task identifier
-     *               - name: Task name
-     *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid section GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksBySection(string $sectionGid, array $options = [], bool $fullResponse = false): array
+    public function getTasksBySection(string $sectionGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options], $responseType);
     }
 
     /**
@@ -450,36 +370,20 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksfortag
      *
      * @param string $tagGid The global identifier for the tag to query tasks from.
-     *                       Found in the URL or API responses for a tag.
-     *                       Example: "12345"
-     * @param array $options Optional parameters for customizing the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param array $options Optional parameters for customizing the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               List of tasks containing at minimum:
-     *               - gid: Task identifier
-     *               - name: Task name
-     *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid tag GID is provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getTasksByTag(string $tagGid, array $options = [], bool $fullResponse = false): array
+    public function getTasksByTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
     /**
@@ -503,21 +407,12 @@ class TaskApiService
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - limit (int): Number of items to return per page (1-100)
      *                      - offset (string): Offset token for pagination
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of tasks in the user's My Tasks list. Each task contains:
-     *               - gid: Unique identifier of the task
-     *               - name: Name/title of the task
-     *               - resource_type: Always "task"
-     *               Additional fields as specified via opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid user task list GID
@@ -528,13 +423,13 @@ class TaskApiService
     public function getTasksByUserTaskList(
         string $userTaskListGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "user_task_lists/$userTaskListGid/tasks",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -557,21 +452,12 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of subtasks belonging to the specified parent task. Each subtask entry contains:
-     *               - gid: Unique identifier of the subtask
-     *               - name: Name of the subtask
-     *               - resource_type: Will be "task"
-     *               Additional fields as specified via opt_fields parameter
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -579,9 +465,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getSubtasksFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
+    public function getSubtasksFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options], $responseType);
     }
 
     /**
@@ -610,21 +496,12 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Return formatted JSON
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The created subtask data including:
-     *               - gid: Unique identifier of created subtask
-     *               - resource_type: Always "task"
-     *               - name: Name of the subtask
-     *               - Additional fields as specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing subtask data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to invalid task GID, malformed data,
      *                          insufficient permissions, or network issues
@@ -633,13 +510,13 @@ class TaskApiService
         string $taskGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/subtasks",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -669,21 +546,12 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Task data including:
-     *               - gid: Task identifier
-     *               - resource_type: Always "task"
-     *               - name: Task name
-     *               - parent: Parent task info if set
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid task GIDs provided, insufficient permissions,
      *                          network issues, or if attempting to create circular dependencies
@@ -692,13 +560,13 @@ class TaskApiService
         string $taskGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/setParent",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -722,21 +590,12 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of tasks that the specified task depends on. Each task entry contains:
-     *               - gid: Unique identifier of the dependency task
-     *               - name: Name of the dependency task
-     *               - resource_type: Will be "task"
-     *               Additional fields can be requested via opt_fields parameter
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -744,9 +603,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependenciesFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
+    public function getDependenciesFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options], $responseType);
     }
 
     /**
@@ -769,17 +628,12 @@ class TaskApiService
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
      *                    Note: There is a limit of 30 total dependencies and dependents combined per task.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with the list of current dependencies
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
@@ -788,13 +642,13 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependenciesForTask(string $taskGid, array $data, bool $fullResponse = false): array
+    public function setDependenciesForTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependencies",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -817,30 +671,25 @@ class TaskApiService
      *                    - dependencies (array): Array of task GIDs to remove as dependencies.
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with the list of current dependencies after removal
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependenciesFromTask(string $taskGid, array $data, bool $fullResponse = false): array
+    public function unlinkDependenciesFromTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependencies",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -865,21 +714,12 @@ class TaskApiService
      *                      - opt_pretty: Whether to return prettified JSON
      *                      - limit: The number of objects to return per page. Default: 20, Maximum: 100
      *                      - offset: Used for pagination, marks the beginning of page
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of tasks that depend on the specified task. Each task entry contains:
-     *               - gid: Unique identifier of the dependent task
-     *               - name: Name of the dependent task
-     *               - resource_type: Will be "task"
-     *               Additional fields can be requested via opt_fields parameter
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -887,9 +727,9 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependentsFromTask(string $taskGid, array $options = [], bool $fullResponse = false): array
+    public function getDependentsFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options], $responseType);
     }
 
     /**
@@ -913,17 +753,12 @@ class TaskApiService
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
      *                    Note: There is a limit of 30 total dependencies and dependents combined per task.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with the list of current dependent tasks
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependent task GIDs
@@ -932,13 +767,13 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependentsForTask(string $taskGid, array $data, bool $fullResponse = false): array
+    public function setDependentsForTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependents",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -961,17 +796,12 @@ class TaskApiService
      *                    - dependents (array): Array of task GIDs to remove as dependents.
      *                      Each GID must be a string representing a valid task.
      *                      Example: ['1234', '5678']
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with current list of dependent tasks after removal
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -979,13 +809,13 @@ class TaskApiService
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependentsFromTask(string $taskGid, array $data, bool $fullResponse = false): array
+    public function unlinkDependentsFromTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependents",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1011,17 +841,12 @@ class TaskApiService
      *                    - insert_after (string): A task gid within the project to
      *                      insert the task after or null to insert at the end of the list
      *                    - section (string): A section gid in the project to add the task to
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data showing current project associations
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                          insufficient permissions, or network issues
      */
@@ -1029,14 +854,14 @@ class TaskApiService
         string $taskGid,
         string $projectGid,
         array $data = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         $data['project'] = $projectGid;
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addProject",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1054,27 +879,22 @@ class TaskApiService
      *                        can be found in the task URL or returned from task-related API endpoints.
      * @param string $projectGid The unique global ID of the project to remove from the task. This identifier
      *                          can be found in the project URL or returned from project-related API endpoints.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data showing current project associations after removal
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
-    public function removeProjectFromTask(string $taskGid, string $projectGid, bool $fullResponse = false): array
+    public function removeProjectFromTask(string $taskGid, string $projectGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeProject",
             ['json' => ['data' => ['project' => $projectGid]]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1094,27 +914,22 @@ class TaskApiService
      * @param string $tagGid The unique global ID of the tag to add to the task.
      *                       This identifier can be found in the tag URL or returned from
      *                       tag-related API endpoints.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with the current tags after addition
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
      */
-    public function addTagToTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
+    public function addTagToTask(string $taskGid, string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addTag",
             ['json' => ['data' => ['tag' => $tagGid]]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1134,28 +949,23 @@ class TaskApiService
      * @param string $tagGid The unique global ID of the tag to remove from the task.
      *                       This identifier can be found in the tag URL or returned from
      *                       tag-related API endpoints.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data with the current tags after removal
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
      */
-    public function removeTagFromTask(string $taskGid, string $tagGid, bool $fullResponse = false): array
+    public function removeTagFromTask(string $taskGid, string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeTag",
             ['json' => ['data' => ['tag' => $tagGid]]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1178,17 +988,12 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data including information about the new followers
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
      *                          insufficient permissions, or network issues
      */
@@ -1196,14 +1001,14 @@ class TaskApiService
         string $taskGid,
         array $followers,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         $data = ['followers' => $followers];
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addFollowers",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1226,17 +1031,12 @@ class TaskApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,assignee.status,custom_fields.name")
      *                      - opt_pretty: Whether to return prettified JSON
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task data including information about the remaining followers
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
      *                          insufficient permissions, or network issues
      */
@@ -1244,14 +1044,14 @@ class TaskApiService
         string $taskGid,
         array $followers,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         $data = ['followers' => $followers];
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeFollowers",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -1268,23 +1068,18 @@ class TaskApiService
      *
      * @param string $workspaceGid The unique global ID of the workspace where the task is searched.
      * @param string $customId The custom task ID to retrieve.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               An associative array representing the task.
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails or no task with the provided custom ID is found.
      */
-    public function getTaskByCustomId(string $workspaceGid, string $customId, bool $fullResponse = false): array
+    public function getTaskByCustomId(string $workspaceGid, string $customId, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId", [], $fullResponse);
+        return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId", [], $responseType);
     }
 
     /**
@@ -1337,58 +1132,26 @@ class TaskApiService
      *     echo $task['name'] . " is due on " . $task['due_on'] . "\n";
      * }
      * ```
+     * @param int $responseType The type of response to return:
+     * - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     * - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     * - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
-     * @return array If $fullResponse is false:
-     *               An array of tasks matching the search criteria. Each task entry
-     *               includes fields specified in `opt_fields` or the default set by the Asana API.
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
-    public function searchTasks(string $workspaceGid, array $options = [], bool $fullResponse = false): array
+    public function searchTasks(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/tasks/search",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
-    /**
-     * Mark a task as complete.
-     *
-     * PUT /tasks/{task_gid}
-     *
-     * Updates the status of a task to mark it as completed.
-     *
-     * @param string $taskGid The unique global ID of the task to be marked as complete.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
-     *
-     * @return array If $fullResponse is false:
-     *               The updated task details returned from the Asana API.
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
-     * @throws AsanaApiException If the API request fails.
-     */
-    public function markTaskComplete(string $taskGid, bool $fullResponse = false): array
-    {
-        return $this->updateTask($taskGid, ['completed' => true], [], $fullResponse);
-    }
-
-    /**
+	/**
      * Reassign a task to a different user.
      *
      * PUT /tasks/{task_gid}
@@ -1397,22 +1160,18 @@ class TaskApiService
      *
      * @param string $taskGid The unique global ID of the task to be reassigned.
      * @param string $assigneeGid The unique global ID of the user to whom the task should be reassigned.
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated task details returned from the Asana API.
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
+     *
      * @throws AsanaApiException If the API request fails.
      */
-    public function reassignTask(string $taskGid, string $assigneeGid, bool $fullResponse = false): array
+    public function reassignTask(string $taskGid, string $assigneeGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->updateTask($taskGid, ['assignee' => $assigneeGid], [], $fullResponse);
+        return $this->updateTask($taskGid, ['assignee' => $assigneeGid], [], $responseType);
     }
 
     /**
@@ -1432,17 +1191,12 @@ class TaskApiService
      *   - `tags.any` (array): Filter tasks that have specific tag(s) (optional).
      *   - `opt_fields` (string): A comma-separated list of fields to include in the result (e.g., `name,due_on`).
      *
-     * @param bool $fullResponse Whether to return the full API response details or just the decoded response body.
-     * @return array If $fullResponse is false:
-     *               A list of overdue tasks matching the specified criteria. Each task entry includes fields
-     *               specified in `opt_fields` or defaults to Asana's standard fields.
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
@@ -1450,7 +1204,7 @@ class TaskApiService
         string $workspaceGid,
         ?array $assigneeGids = null,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         $options['due_on.before'] = date('c'); // Include tasks with a due date before now (ISO 8601 format)
         $options['completed'] = false; // Exclude completed tasks
@@ -1461,6 +1215,6 @@ class TaskApiService
         }
 
         // Ensure any other search filters are properly merged into the options array
-        return $this->searchTasks($workspaceGid, $options, $fullResponse);
+        return $this->searchTasks($workspaceGid, $options, $responseType);
     }
 }

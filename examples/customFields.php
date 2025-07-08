@@ -27,7 +27,9 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $custom_fields = $asanaClient->customFields()->getCustomFieldSettingsForProject($_GET['project'])['data'];
+    $custom_fields = $asanaClient->customFields()->getCustomFieldSettingsForProject(
+        $_GET['project']
+    );
     if (empty($custom_fields)) {
         echo "No custom fields found for project";
     }

@@ -4,7 +4,6 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
-use GuzzleHttp\Exception\RequestException;
 
 class TagsApiService
 {
@@ -49,20 +48,12 @@ class TagsApiService
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns prettier formatting in responses
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing:
-     *               - gid: Tag's unique identifier
-     *               - name: Tag name
-     *               - resource_type: Always "tag"
-     *               Additional fields if specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid parameter values
@@ -70,12 +61,12 @@ class TagsApiService
      *                          - Rate limiting
      *                          - Network connectivity issues
      */
-    public function getTags(string $workspace, array $options = [], bool $fullResponse = false): array
+    public function getTags(string $workspace, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         // Include workspace in options
         $options['workspace'] = $workspace;
 
-        return $this->client->request('GET', 'tags', ['query' => $options], $fullResponse);
+        return $this->client->request('GET', 'tags', ['query' => $options], $responseType);
     }
 
     /**
@@ -103,31 +94,23 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Tag's unique identifier
-     *               - resource_type: Always "tag"
-     *               - name: Tag name
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If missing required fields, invalid field values,
      *                          insufficient permissions, network issues, or rate limiting occurs
      */
-    public function createTag(array $data, array $options = [], bool $fullResponse = false): array
+    public function createTag(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'POST',
             'tags',
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -146,27 +129,19 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Tag's unique identifier
-     *               - resource_type: Always "tag"
-     *               - name: Tag name
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTag(string $tagGid, array $options = [], bool $fullResponse = false): array
+    public function getTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tags/$tagGid", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tags/$tagGid", ['query' => $options], $responseType);
     }
 
     /**
@@ -190,31 +165,23 @@ class TagsApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Tag's unique identifier
-     *               - resource_type: Always "tag"
-     *               - name: Updated tag name
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid tag GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
      */
-    public function updateTag(string $tagGid, array $data, array $options = [], bool $fullResponse = false): array
+    public function updateTag(string $tagGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
         return $this->client->request(
             'PUT',
             "tags/$tagGid",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -231,24 +198,19 @@ class TagsApiService
      *                       This identifier can be found in the tag URL
      *                       or returned from tag-related API endpoints.
      *                       Example: "12345"
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing:
-     *               - data: An empty JSON object {}
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function deleteTag(string $tagGid, bool $fullResponse = false): array
+    public function deleteTag(string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('DELETE', "tags/$tagGid", [], $fullResponse);
+        return $this->client->request('DELETE', "tags/$tagGid", [], $responseType);
     }
 
     /**
@@ -262,35 +224,20 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/gettasksfortag
      *
      * @param string $tagGid The unique global ID of the tag for which to get tasks.
-     *                       This identifier can be found in the tag URL or returned from
-     *                       tag-related API endpoints.
-     *                       Example: "12345"
-     * @param array $options Optional parameters to customize the request:
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Task's unique identifier
-     *               - name: Task name
-     *               - resource_type: Always "task"
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTasksForTag(string $tagGid, array $options = [], bool $fullResponse = false): array
+    public function getTasksForTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
     /**
@@ -304,35 +251,20 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/gettagsforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to get tags from.
-     *                             This identifier can be found in the workspace URL or returned from
-     *                             workspace-related API endpoints.
-     *                             Example: "12345"
-     * @param array $options Optional parameters to customize the request:
-     *                      - limit (int): Results to return per page (1-100)
-     *                      - offset (string): Pagination offset token
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Tag's unique identifier
-     *               - name: Tag name
-     *               - resource_type: Always "tag"
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTagsForWorkspace(string $workspaceGid, array $options = [], bool $fullResponse = false): array
+    public function getTagsForWorkspace(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options], $responseType);
     }
 
     /**
@@ -346,30 +278,14 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/createtagforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to create the tag in.
-     *                             This identifier can be found in the workspace URL or returned from
-     *                             workspace-related API endpoints.
-     * @param array $data Data for creating the tag. Supported fields include:
-     *                    Optional:
-     *                    - name (string): Name of the tag
-     *                    - color (string): Color of the tag. See createTag for allowed values
-     *                    - notes (string): Free-form textual information associated with the tag
-     * @param array $options Optional parameters to customize the request:
-     *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body
+     * @param array $data Data for creating the tag.
+     * @param array $options Optional parameters to customize the request.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is true, returns complete response details including:
-     *               - status: HTTP status code
-     *               - reason: Status reason phrase
-     *               - headers: Response headers
-     *               - body: Decoded response body
-     *               - raw_body: Raw response body string
-     *               - request: Original request details
-     *               Otherwise returns just the decoded response body containing at minimum:
-     *               - gid: Tag's unique identifier
-     *               - resource_type: Always "tag"
-     *               - name: Tag name
-     *               Additional fields as specified in opt_fields
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
@@ -378,13 +294,13 @@ class TagsApiService
         string $workspaceGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/tags",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 }

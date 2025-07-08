@@ -27,7 +27,9 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $projects = $asanaClient->projects()->getProjects($_GET['workspace'])['data'];
+    $projects = $asanaClient->projects()->getProjects(
+        $_GET['workspace']
+    );
 
     foreach ($projects as $project) {
         echo '<h3>' . $project['name'] . '</h3>';

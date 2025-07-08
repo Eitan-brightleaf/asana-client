@@ -49,27 +49,18 @@ class WorkspaceApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               List of workspaces containing at minimum:
-     *               - gid: Workspace identifier
-     *               - name: Workspace name
-     *               - resource_type: Always "workspace"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing workspace list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If permission errors, network issues, or rate limiting occurs
      */
-    public function getWorkspaces(array $options = [], bool $fullResponse = false): array
+    public function getWorkspaces(array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', 'workspaces', ['query' => $options], $fullResponse);
+        return $this->client->request('GET', 'workspaces', ['query' => $options], $responseType);
     }
 
     /**
@@ -88,28 +79,19 @@ class WorkspaceApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,email_domains,is_organization")
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Workspace data containing at minimum:
-     *               - gid: Workspace identifier
-     *               - name: Workspace name
-     *               - resource_type: Always "workspace"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing workspace data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getWorkspace(string $workspaceGid, array $options = [], bool $fullResponse = false): array
+    public function getWorkspace(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
-        return $this->client->request('GET', "workspaces/$workspaceGid", ['query' => $options], $fullResponse);
+        return $this->client->request('GET', "workspaces/$workspaceGid", ['query' => $options], $responseType);
     }
 
     /**
@@ -130,21 +112,12 @@ class WorkspaceApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,email_domains,is_organization")
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The updated workspace data including:
-     *               - gid: Unique identifier
-     *               - resource_type: Always "workspace"
-     *               - name: Updated workspace name
-     *               Additional fields as specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing workspace data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
@@ -153,13 +126,13 @@ class WorkspaceApiService
         string $workspaceGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'PUT',
             "workspaces/$workspaceGid",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -183,22 +156,12 @@ class WorkspaceApiService
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,email,photo")
      *                      - opt_pretty (bool): Returns formatted JSON if true
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               The full user record of the added user containing:
-     *               - gid: User identifier
-     *               - name: Username
-     *               - email: User email
-     *               - resource_type: Always "user"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing user data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, invalid user data,
      *                          insufficient permissions, or network issues occur
@@ -207,13 +170,13 @@ class WorkspaceApiService
         string $workspaceGid,
         array $data,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/addUser",
             ['json' => ['data' => $data], 'query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -234,18 +197,12 @@ class WorkspaceApiService
      * @param array $data Data for removing the user. Must include at least one of:
      *                    - user (string): GID of the user to remove from the workspace
      *                    - email (string): Email address of the user to remove from the workspace
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               Empty data object containing only the HTTP status indicator:
-     *               - data: An empty JSON object {}
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body (empty object)
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, invalid user data,
      *                          insufficient permissions, or network issues occur
@@ -253,13 +210,13 @@ class WorkspaceApiService
     public function removeUserFromWorkspace(
         string $workspaceGid,
         array $data,
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/removeUser",
             ['json' => ['data' => $data]],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -281,22 +238,12 @@ class WorkspaceApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of user records containing:
-     *               - gid: User identifier
-     *               - name: Username
-     *               - email: User email
-     *               - resource_type: Always "user"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing user list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -304,13 +251,13 @@ class WorkspaceApiService
     public function getUsersInWorkspace(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/users",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -332,21 +279,12 @@ class WorkspaceApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of team records containing:
-     *               - gid: Team identifier
-     *               - name: Team name
-     *               - resource_type: Always "team"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing team list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -354,13 +292,13 @@ class WorkspaceApiService
     public function getTeamsInWorkspace(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/teams",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -384,21 +322,12 @@ class WorkspaceApiService
      *                      - opt_pretty (bool): Returns formatted JSON if true
      *                      - limit (int): Results to return per page (1-100)
      *                      - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of project records containing:
-     *               - gid: Project identifier
-     *               - name: Project name
-     *               - resource_type: Always "project"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing project list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -406,13 +335,13 @@ class WorkspaceApiService
     public function getProjectsInWorkspace(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/projects",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -448,21 +377,12 @@ class WorkspaceApiService
      *   - opt_fields (string): Comma-separated fields to include in results
      *   - limit (int): Maximum number of results to return (1-100)
      *   - offset (string): Pagination offset token
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               A list of task records matching the search criteria:
-     *               - gid: Task identifier
-     *               - name: Task name
-     *               - resource_type: Always "task"
-     *               Additional fields if specified in opt_fields
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing task list
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, invalid search parameters,
      *                          permission errors, network issues, or rate limiting occurs
@@ -470,13 +390,13 @@ class WorkspaceApiService
     public function searchTasksInWorkspace(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/tasks/search",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 
@@ -501,18 +421,12 @@ class WorkspaceApiService
      *                      - sync (string): A sync token received from a previous call to this endpoint.
      *                                       If provided, only events since the token will be returned.
      *                      - opt_pretty (bool): Returns formatted JSON if true.
-     * @param bool $fullResponse Whether to return the full response details or just the decoded response body.
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array If $fullResponse is false:
-     *               - data: Array of event objects
-     *               - sync: Sync token to be used in subsequent requests
-     *               If $fullResponse is true:
-     *               - status: HTTP status code
-     *               - reason: Response status message
-     *               - headers: Response headers
-     *               - body: Decoded response body containing events data
-     *               - raw_body: Raw response body
-     *               - request: Original request details
+     * @return array The response data based on the specified response type.
      *
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -520,13 +434,13 @@ class WorkspaceApiService
     public function getWorkspaceEvents(
         string $workspaceGid,
         array $options = [],
-        bool $fullResponse = false
+        int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/events",
             ['query' => $options],
-            $fullResponse
+            $responseType
         );
     }
 }
