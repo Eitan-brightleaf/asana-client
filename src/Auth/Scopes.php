@@ -21,6 +21,21 @@ class Scopes
 	 */
 	public const ATTACHMENTS_DELETE = 'attachments:delete';
 
+	// 🔹 Custom Fields
+	/**
+	 * GET /custom_fields/{custom_field_gid}
+	 * GET /workspaces/{workspace_gid}/custom_fields
+	 */
+	public const CUSTOM_FIELDS_READ = 'custom_fields:read';
+	/**
+	 * POST /custom_fields
+	 * PUT /custom_fields/{custom_field_gid}
+	 * POST /custom_fields/{custom_field_gid}/enum_options
+	 * POST /custom_fields/{custom_field_gid}/enum_options/insert
+	 * PUT /enum_options/{enum_option_gid}
+	 */
+	public const CUSTOM_FIELDS_WRITE = 'custom_fields:write';
+
     /**
      * 🔹 Goals
      * GET /goals/{goal_gid}
@@ -81,6 +96,21 @@ class Scopes
      * GET /tasks/{task_gid}/stories
      */
     public const STORIES_READ = 'stories:read';
+
+	// 🔹 Tags
+	/**
+	 * GET /tags
+	 * GET /tags/{tag_gid}
+	 * GET /tasks/{task_gid}/tags
+	 * GET /workspaces/{workspace_gid}/tags
+	 */
+	public const TAGS_READ = 'tags:read';
+	/**
+	 * POST /tags
+	 * PUT /tags/{tag_gid}
+	 * POST /workspaces/{workspace_gid}/tags
+	 */
+	public const TAGS_WRITE = 'tags:write';
 
 	// 🔹 Task templates
 	/**
@@ -160,6 +190,12 @@ class Scopes
 	 * GET /webhooks/{webhook_gid}
 	 */
 	public const WEBHOOKS_READ = 'webhooks:read';
+	/**
+	 * POST /webhooks
+	 * PUT /webhooks/{webhook_gid}
+	 * DELETE /webhooks/{webhook_gid}
+	 */
+	public const WEBHOOKS_WRITE = 'webhooks:write';
 
     /**
      * 🔹 Workspaces
