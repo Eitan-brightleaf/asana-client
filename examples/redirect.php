@@ -12,7 +12,9 @@ $redirectUri = $_ENV['ASANA_REDIRECT_URI'];
 $password     = $_ENV['PASSWORD'];
 $asanaClient = new AsanaClient($clientId, $clientSecret, $redirectUri);
 
-/*if ( isset( $_GET['code'] ) ) {
+/*
+ * Example without state and PKCE
+ if ( isset( $_GET['code'] ) ) {
     try {
         $tokenData = $asanaClient->handleCallback( $_GET['code'] );
         if ( $tokenData ) {
