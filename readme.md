@@ -266,24 +266,24 @@ For example, creating a task in a specific section isn't documented in the API r
 2. Open an issue in this repository
 3. Feel free to link to relevant forum or Stack Overflow posts
 
-## Before Version 1.0.0
+## 📘 Project Planning and Improvements
 
-Before we can move to version 1.0.0, we need the following:
+This library is actively developed with long-term maintainability in mind.  
+For design decisions, planned features, and deferred items, see the following documentation:
 
-   **Expanded Test Coverage**
-  - Add more unit and integration tests
-  - Improve test documentation
-  - Improve existing tests
+- [Deferred Improvements](./docs/tasks/deferred.md) – Items considered but intentionally postponed
+- [Build & Deployment Improvements](./docs/tasks/build-deployment-improvements.md)
+- [Code Architecture Improvements](./docs/tasks/code-architecture-improvements.md)
+- [Code Quality Improvements](./docs/tasks/code-quality-improvements.md)
+- [Documentation Improvements](./docs/tasks/documentation-improvements.md)
+- [Feature Additions](./docs/tasks/feature-additions.md)
+- [Performance Improvements](./docs/tasks/performance-improvements.md)
+- [Security Improvements](./docs/tasks/security-improvements.md)
+- [Testing Improvements](./docs/tasks/testing-improvements.md)
+- See [Task Summary & Prioritization](docs/tasks/roadmap.md) for a categorized and ranked view of all planned improvements.
 
-   **Workflow Automation**
-  - Implement automated testing workflows
-  - Add security scanning and checks
-  - Add code quality checks
+Have an idea or want to help implement one of these? Open a [GitHub issue](https://github.com/Eitan-brightleaf/asana_client/issues/new) or submit a pull request.
 
-   **API Coverage Expansion**
-  - Implement additional Asana API endpoints
-  - Add support for missing resource types
-  - Ensure comprehensive coverage of core Asana features
 
 ## Contributing
 
