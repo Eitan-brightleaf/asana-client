@@ -70,20 +70,23 @@ class CustomFieldApiService
 	 *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
 	 *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
 	 *
-	 * @return array If $fullResponse is false:
-	 *               The created custom field data including:
-	 *               - gid: Unique identifier of the created custom field
-	 *               - resource_type: Always "custom_field"
-	 *               - name: Name of the custom field
-	 *               - resource_subtype: The type of the custom field
-	 *               Additional fields as specified in opt_fields
-	 *               If $fullResponse is true:
+	 * @return array The response data based on the specified response type:
+	 *               If $responseType is AsanaApiClient::RESPONSE_FULL:
 	 *               - status: HTTP status code
 	 *               - reason: Response status message
 	 *               - headers: Response headers
 	 *               - body: Decoded response body containing custom field data
 	 *               - raw_body: Raw response body
 	 *               - request: Original request details
+	 *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+	 *               - Complete decoded JSON response including data object and other metadata
+	 *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+	 *               - Just the data object containing the created custom field details including:
+	 *                 - gid: Unique identifier of the created custom field
+	 *                 - resource_type: Always "custom_field"
+	 *                 - name: Name of the custom field
+	 *                 - resource_subtype: The type of the custom field
+	 *                 Additional fields as specified in opt_fields
 	 *
 	 * @throws AsanaApiException If the API request fails due to invalid data, insufficient permissions,
 	 *                          network issues, or rate limiting
@@ -112,11 +115,11 @@ class CustomFieldApiService
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
      *                        (e.g., "name,created_by,workspace,enum_options")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
-     
      *
      * @return array The response data based on the specified response type:
      *               If $responseType is AsanaApiClient::RESPONSE_FULL:
@@ -367,6 +370,10 @@ class CustomFieldApiService
      *                    - after_enum_option (string, optional): GID of the enum option to place this one after
      *                    Note: You must specify exactly one of before_enum_option or after_enum_option
      *                    Example: ["enum_option" => "123", "before_enum_option" => "456"]
+     * @param array $options Optional parameters to customize the request:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,enum_options")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
@@ -389,12 +396,16 @@ class CustomFieldApiService
      *                          custom field is not of type enum, insufficient permissions,
      *                          or network issues occur
      */
-    public function reorderEnumOption(string $customFieldGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function reorderEnumOption(
+        string $customFieldGid,
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "custom_fields/$customFieldGid/enum_options/insert",
-            ['json' => ['data' => $data]],
+            ['json' => ['data' => $data], 'query' => $options],
             $responseType
         );
     }
