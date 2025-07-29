@@ -44,6 +44,14 @@ class Scopes
      */
     public const GOALS_READ = 'goals:read';
 
+	// 🔹 Portfolios
+	/**
+	 * GET /portfolios
+	 * GET /portfolios/{portfolio_gid}
+	 * GET /portfolios/{portfolio_gid}/items
+	 */
+	public const PORTFOLIOS_READ = 'portfolios:read';
+
 	/**
 	 * POST /portfolios
 	 * PUT /portfolios/{portfolio_gid}
@@ -90,12 +98,18 @@ class Scopes
      */
     public const PROJECTS_WRITE = 'projects:write';
 
-    /**
-     * 🔹 Stories
+    // 🔹 Stories
+	/**
      * GET /stories/{story_gid}
      * GET /tasks/{task_gid}/stories
      */
     public const STORIES_READ = 'stories:read';
+
+	/**
+	 * PUT /stories/{story_gid}
+	 * POST /tasks/{task_gid}/stories
+	 */
+	public const STORIES_WRITE = 'stories:write';
 
 	// 🔹 Tags
 	/**
@@ -185,6 +199,11 @@ class Scopes
     public const USERS_READ = 'users:read';
 
 	// 🔹 Webhooks
+	/**
+	 * DELETE /webhooks/{webhook_gid}
+	 */
+	public const WEBHOOKS_DELETE = 'webhooks:delete';
+
 	/**
 	 * GET /webhooks
 	 * GET /webhooks/{webhook_gid}
