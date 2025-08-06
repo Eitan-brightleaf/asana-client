@@ -44,20 +44,23 @@ class MembershipApiService
      * @param array $options Query parameters to filter and format results:
      *                      Required filtering parameters (at least one of):
      *                      - parent (string): A resource ID to filter memberships by parent
-     *                        (project, goal, portfolio, or custom_field)
-     *                      - portfolio (string): A portfolio ID to filter memberships by portfolio
+     *                        (project, goal, portfolio, or custom_field). Example: "12345"
+     *                      - portfolio (string): A portfolio ID to filter memberships by portfolio.
+     *                        Example: "67890"
      *                      Optional filtering parameters:
-     *                      - member (string): A team or user ID to filter memberships by member
-     *                      - limit (int): Maximum number of items to return. Default is 20
+     *                      - member (string): A team or user ID to filter memberships by member.
+     *                        Example: "11111"
+     *                      - limit (int): Maximum number of items to return. Default is 20, max is 100
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns prettier formatting in responses
+     *                        (e.g., "gid,resource_type,access_level,member,parent")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
- *
+     *
      * @return array The response data based on the specified response type:
      *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
@@ -69,7 +72,13 @@ class MembershipApiService
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
      *               - Complete decoded JSON response including data array and pagination info
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data array containing the list of memberships
+     *               - Just the data array containing the list of memberships with fields including:
+     *                 - gid: Unique identifier of the membership
+     *                 - resource_type: Always "membership"
+     *                 - access_level: The access level of the membership
+     *                 - member: Object containing member details (user or team)
+     *                 - parent: Object containing parent resource details
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Missing required parameters
@@ -96,22 +105,26 @@ class MembershipApiService
      *
      * @param array $data Data for creating the membership. Supported fields include:
      *                    Required:
-     *                    - parent (string): The parent id of the membership (goal, project, portfolio, or custom_field)
-     *                    - member (string): The gid of the user or team being added as a member
+     *                    - parent (string): The parent id of the membership (goal, project, portfolio, or custom_field).
+     *                      Example: "12345"
+     *                    - member (string): The gid of the user or team being added as a member.
+     *                      Example: "67890"
      *                    Optional:
      *                    - access_level (string): Sets the access level for the member.
-     *                         Goals can have access levels 'editor' or 'commenter'. Projects can have
-     *                         access levels 'admin', 'editor' or 'commenter'. Portfolios can have access
-     *                         levels 'admin', 'editor' or 'viewer'. Custom Fields can
-        *                      have access levels 'admin', 'editor' or 'user'.
+     *                      Goals can have access levels: "editor", "commenter"
+     *                      Projects can have access levels: "admin", "editor", "commenter"
+     *                      Portfolios can have access levels: "admin", "editor", "viewer"
+     *                      Custom Fields can have access levels: "admin", "editor", "user"
+     *                    Example: ["parent" => "12345", "member" => "67890", "access_level" => "editor"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "gid,resource_type,access_level,member,parent")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
- *
+     *
      * @return array The response data based on the specified response type:
      *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
@@ -123,7 +136,13 @@ class MembershipApiService
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
      *               - Complete decoded JSON response including data object and other metadata
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data object containing the created membership
+     *               - Just the data object containing the created membership details including:
+     *                 - gid: Unique identifier of the created membership
+     *                 - resource_type: Always "membership"
+     *                 - access_level: The access level assigned to the membership
+     *                 - member: Object containing member details (user or team)
+     *                 - parent: Object containing parent resource details
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Missing required fields
@@ -154,14 +173,16 @@ class MembershipApiService
      * @param string $membershipGid The unique global ID of the membership to retrieve.
      *                              This identifier can be found in the membership URL or
      *                              returned from membership-related API endpoints.
+     *                              Example: "12345"
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "gid,resource_type,access_level,member,parent")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
- *
+     *
      * @return array The response data based on the specified response type:
      *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
@@ -173,7 +194,13 @@ class MembershipApiService
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
      *               - Complete decoded JSON response including data object and other metadata
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data object containing the membership details
+     *               - Just the data object containing the membership details including:
+     *                 - gid: Unique identifier of the membership
+     *                 - resource_type: Always "membership"
+     *                 - access_level: The access level of the membership
+     *                 - member: Object containing member details (user or team)
+     *                 - parent: Object containing parent resource details
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid membership GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -196,21 +223,24 @@ class MembershipApiService
      * @param string $membershipGid The unique global ID of the membership to update.
      *                              This identifier can be found in the membership URL or
      *                              returned from membership-related API endpoints.
+     *                              Example: "12345"
      * @param array $data The properties of the membership to update. Can include:
      *                    - access_level (string): The updated access level for the membership.
      *                      Allowed values depend on the parent type:
-     *                      - Goals: 'editor', 'commenter'
-     *                      - Projects: 'admin', 'editor', 'commenter'
-     *                      - Portfolios: 'admin', 'editor', 'viewer'
-     *                      - Custom Fields: 'admin', 'editor', 'user'
+     *                      Goals: "editor", "commenter"
+     *                      Projects: "admin", "editor", "commenter"
+     *                      Portfolios: "admin", "editor", "viewer"
+     *                      Custom Fields: "admin", "editor", "user"
+     *                    Example: ["access_level" => "editor"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "gid,resource_type,access_level,member,parent")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
- *
+     *
      * @return array The response data based on the specified response type:
      *               If $responseType is AsanaApiClient::RESPONSE_FULL:
      *               - status: HTTP status code
@@ -222,7 +252,13 @@ class MembershipApiService
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
      *               - Complete decoded JSON response including data object and other metadata
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data object containing the updated membership
+     *               - Just the data object containing the updated membership details including:
+     *                 - gid: Unique identifier of the membership
+     *                 - resource_type: Always "membership"
+     *                 - access_level: The updated access level of the membership
+     *                 - member: Object containing member details (user or team)
+     *                 - parent: Object containing parent resource details
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid membership GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
@@ -254,6 +290,7 @@ class MembershipApiService
      * @param string $membershipGid The unique global ID of the membership to delete.
      *                              This identifier can be found in the membership URL or
      *                              returned from membership-related API endpoints.
+     *                              Example: "12345"
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
@@ -268,9 +305,9 @@ class MembershipApiService
      *               - raw_body: Raw response body
      *               - request: Original request details
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
-     *               - Complete decoded JSON response
+     *               - Complete decoded JSON response including empty data object
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data object (empty JSON object {})
+     *               - Just the data object (empty JSON object {}) indicating successful deletion
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid membership GID

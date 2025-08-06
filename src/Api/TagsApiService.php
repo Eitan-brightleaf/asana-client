@@ -40,20 +40,41 @@ class TagsApiService
      *
      * API Documentation: https://developers.asana.com/reference/gettags
      *
-     * @param string $workspace The unique identifier (GID) of the workspace to get tags from
+     * @param string $workspace The unique identifier (GID) of the workspace to get tags from.
+     *                          Example: "12345"
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - limit (int): Maximum number of tags to return. Default is 20
+     *                      - limit (int): Maximum number of tags to return. Default is 20, max is 100
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns prettier formatting in responses
+     *                        (e.g., "name,color,notes,workspace,created_at")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tags with fields including:
+     *                 - gid: Unique identifier of the tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Name of the tag
+     *                 - color: Color of the tag
+     *                 - notes: Notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                          - Invalid parameter values
@@ -99,7 +120,26 @@ class TagsApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created tag details including:
+     *                 - gid: Unique identifier of the created tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Name of the tag
+     *                 - color: Color of the tag
+     *                 - notes: Notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If missing required fields, invalid field values,
      *                          insufficient permissions, network issues, or rate limiting occurs
@@ -134,7 +174,26 @@ class TagsApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the tag details including:
+     *                 - gid: Unique identifier of the tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Name of the tag
+     *                 - color: Color of the tag
+     *                 - notes: Notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -170,7 +229,26 @@ class TagsApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing updated tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the updated tag details including:
+     *                 - gid: Unique identifier of the tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Updated name of the tag
+     *                 - color: Updated color of the tag
+     *                 - notes: Updated notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid tag GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
@@ -203,7 +281,18 @@ class TagsApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful deletion
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -224,13 +313,45 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/gettasksfortag
      *
      * @param string $tagGid The unique global ID of the tag for which to get tasks.
-     * @param array $options Optional parameters to customize the request.
+     *                       This identifier can be found in the tag URL or
+     *                       returned from tag-related API endpoints.
+     *                       Example: "12345"
+     * @param array $options Optional parameters to customize the request:
+     *                      Filtering parameters:
+     *                      - limit (int): Maximum number of tasks to return. Default is 20, max is 100
+     *                      - offset (string): Offset token for pagination
+     *                      Display parameters:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,assignee.name,completed,due_on,projects.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -251,13 +372,42 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/gettagsforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to get tags from.
-     * @param array $options Optional parameters to customize the request.
+     *                             This identifier can be found in the workspace URL or
+     *                             returned from workspace-related API endpoints.
+     *                             Example: "12345"
+     * @param array $options Optional parameters to customize the request:
+     *                      Filtering parameters:
+     *                      - limit (int): Maximum number of tags to return. Default is 20, max is 100
+     *                      - offset (string): Offset token for pagination
+     *                      Display parameters:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,color,notes,workspace,created_at")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tags with fields including:
+     *                 - gid: Unique identifier of the tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Name of the tag
+     *                 - color: Color of the tag
+     *                 - notes: Notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid workspace GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -278,14 +428,50 @@ class TagsApiService
      * API Documentation: https://developers.asana.com/reference/createtagforworkspace
      *
      * @param string $workspaceGid The unique global ID of the workspace to create the tag in.
-     * @param array $data Data for creating the tag.
-     * @param array $options Optional parameters to customize the request.
+     *                             This identifier can be found in the workspace URL or
+     *                             returned from workspace-related API endpoints.
+     *                             Example: "12345"
+     * @param array $data Data for creating the tag. Supported fields include:
+     *                    Optional:
+     *                    - name (string): Name of the tag.
+     *                      Example: "Priority"
+     *                    - color (string): Color of the tag. Either "dark-pink", "dark-green",
+     *                      "dark-blue", "dark-red", "dark-teal", "dark-brown", "dark-orange",
+     *                      "dark-purple", "dark-warm-gray", "light-pink", "light-green", "light-blue",
+     *                      "light-red", "light-teal", "light-brown", "light-orange", "light-purple",
+     *                      or "light-warm-gray"
+     *                    - notes (string): Free-form textual information associated with the tag.
+     *                      Example: "High priority tasks"
+     *                    Example: ["name" => "Urgent", "color" => "dark-red", "notes" => "Urgent tasks"]
+     * @param array $options Optional parameters to customize the request:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,color,notes,workspace,created_at")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing tag data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created tag details including:
+     *                 - gid: Unique identifier of the created tag
+     *                 - resource_type: Always "tag"
+     *                 - name: Name of the tag
+     *                 - color: Color of the tag
+     *                 - notes: Notes associated with the tag
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid workspace GID provided, malformed data,
      *                          insufficient permissions, or network issues occur

@@ -42,22 +42,43 @@ class UserApiService
      * API Documentation: https://developers.asana.com/reference/getusers
      *
      * @param string|null $workspace The unique global ID of the workspace to get users from.
-     *                    Either this or $team must have a value.
+     *                               Either this or $team must have a value.
+     *                               Example: "12345"
      * @param string|null $team The unique global ID of the team to get users from.
-     *                     Either this or $workspace must have a value.
+     *                          Either this or $workspace must have a value.
+     *                          Example: "67890"
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - limit (int): Maximum number of users to return. Default is 20
+     *                      - limit (int): Maximum number of users to return. Default is 20, max is 100
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                      - opt_pretty (bool): Returns prettier formatting in responses
+     *                        (e.g., "name,email,photo,workspaces")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing user data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of users with fields including:
+     *                 - gid: Unique identifier of the user
+     *                 - resource_type: Always "user"
+     *                 - name: Full name of the user
+     *                 - email: Email address of the user
+     *                 - photo: Object containing user's profile photo details
+     *                 - workspaces: Array of workspace objects the user belongs to
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -98,13 +119,33 @@ class UserApiService
      *                        Example: "12345" or "me" for the current user
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,email,photo,workspaces,teams")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing user data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the user details including:
+     *                 - gid: Unique identifier of the user
+     *                 - resource_type: Always "user"
+     *                 - name: Full name of the user
+     *                 - email: Email address of the user
+     *                 - photo: Object containing user's profile photo details
+     *                 - workspaces: Array of workspace objects the user belongs to
+     *                 - teams: Array of team objects the user belongs to
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -130,19 +171,39 @@ class UserApiService
      *                        Example: "12345" or "me"
      * @param array $options Parameters to customize the request:
      *                      Required:
-     *                      - workspace (string): The workspace in which to get favorites
+     *                      - workspace (string): The workspace in which to get favorites.
+     *                        Example: "12345"
      *                      - resource_type (string): The resource type of favorites to retrieve.
-     *                        Possible values: project, task, tag, user, portfolio, project_template
+     *                        Possible values: "project", "task", "tag", "user", "portfolio", "project_template"
+     *                        Example: "project"
      *                      Optional:
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
+     *                      - offset (string): Offset token for pagination
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,resource_type,resource_subtype")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing favorites data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of favorites with fields including:
+     *                 - gid: Unique identifier of the favorite resource
+     *                 - resource_type: Type of the favorite resource (project, task, tag, user, portfolio, etc.)
+     *                 - resource_subtype: Subtype of the resource if applicable
+     *                 - name: Name of the favorite resource
+     *                 Additional fields as specified in opt_fields and depending on resource type
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -170,13 +231,32 @@ class UserApiService
      *                      - offset (string): Pagination offset token
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,email,photo,workspaces")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing user data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of team users with fields including:
+     *                 - gid: Unique identifier of the user
+     *                 - resource_type: Always "user"
+     *                 - name: Full name of the user
+     *                 - email: Email address of the user
+     *                 - photo: Object containing user's profile photo details
+     *                 - workspaces: Array of workspace objects the user belongs to
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -205,13 +285,32 @@ class UserApiService
      *                      - offset (string): Pagination offset token
      *                      - limit (int): Maximum number of users to return. Default: 20, Maximum: 100
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,email,photo,workspaces")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing user data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of workspace users with fields including:
+     *                 - gid: Unique identifier of the user
+     *                 - resource_type: Always "user"
+     *                 - name: Full name of the user
+     *                 - email: Email address of the user
+     *                 - photo: Object containing user's profile photo details
+     *                 - workspaces: Array of workspace objects the user belongs to
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -233,13 +332,33 @@ class UserApiService
      *
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,email,photo,workspaces,teams")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing current user data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the current user details including:
+     *                 - gid: Unique identifier of the current user
+     *                 - resource_type: Always "user"
+     *                 - name: Full name of the current user
+     *                 - email: Email address of the current user
+     *                 - photo: Object containing current user's profile photo details
+     *                 - workspaces: Array of workspace objects the current user belongs to
+     *                 - teams: Array of team objects the current user belongs to
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
@@ -260,18 +379,40 @@ class UserApiService
      * API Documentation: https://developers.asana.com/reference/getfavoritesforuser
      *
      * @param array $options Optional parameters to customize the request:
-     *                      - workspace (string): The workspace in which to get favorites
+     *                      Required:
+     *                      - workspace (string): The workspace in which to get favorites.
+     *                        Example: "12345"
      *                      - resource_type (string): The resource type of favorites to retrieve.
-     *                        Possible values: project, task, tag, user, portfolio, goal
+     *                        Possible values: "project", "task", "tag", "user", "portfolio", "goal"
+     *                        Example: "project"
+     *                      Optional:
      *                      - limit (int): Results to return per page. Default: 20, Maximum: 100
+     *                      - offset (string): Offset token for pagination
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,resource_type,resource_subtype")
      *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                         - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                         - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                         - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing current user's favorites data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of current user's favorites with fields including:
+     *                 - gid: Unique identifier of the favorite resource
+     *                 - resource_type: Type of the favorite resource (project, task, tag, user, portfolio, etc.)
+     *                 - resource_subtype: Subtype of the resource if applicable
+     *                 - name: Name of the favorite resource
+     *                 Additional fields as specified in opt_fields and depending on resource type
      *
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors

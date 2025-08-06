@@ -43,30 +43,58 @@ class TaskApiService
      *
      * @param array $options Query parameters to filter and format results:
      *                      Filtering parameters:
-     *                      - assignee (string): Filter tasks by assignee. Can be 'me', a user ID, or null
-     *                      - project (string): Filter tasks by project. Can be project ID or null
-     *                      - section (string): Filter tasks by section. Can be section ID or null
-     *                      - workspace (string): Filter tasks by workspace. Can be workspace ID or null
-     *                      - completed_since (string): ISO 8601 timestamp or 'now' for recently completed tasks
-     *                      - modified_since (string): ISO 8601 timestamp for tasks modified after a time
-     *                      - limit (int): Maximum number of tasks to return. Default is 20
+     *                      - assignee (string): Filter tasks by assignee. Can be 'me', a user ID, or null.
+     *                        Example: "me" or "12345"
+     *                      - project (string): Filter tasks by project. Can be project ID or null.
+     *                        Example: "67890"
+     *                      - section (string): Filter tasks by section. Can be section ID or null.
+     *                        Example: "11111"
+     *                      - workspace (string): Filter tasks by workspace. Can be workspace ID or null.
+     *                        Example: "22222"
+     *                      - completed_since (string): ISO 8601 timestamp or 'now' for recently completed tasks.
+     *                        Example: "2024-01-01T00:00:00Z" or "now"
+     *                      - modified_since (string): ISO 8601 timestamp for tasks modified after a time.
+     *                        Example: "2024-01-01T00:00:00Z"
+     *                      - limit (int): Maximum number of tasks to return. Default is 20, max is 100
      *                      - offset (string): Offset token for pagination
      *                      Display parameters:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty (bool): Returns prettier formatting in responses
+     *                        (e.g., "name,assignee.name,completed,due_on,projects.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
-     *                         - Invalid parameter values
-     *                         - Insufficient permissions
-     *                         - Rate limiting
-     *                         - Network connectivity issues
+     *                          - Invalid parameter values
+     *                          - Insufficient permissions
+     *                          - Rate limiting
+     *                          - Network connectivity issues
      */
     public function getTasks(array $options, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
@@ -122,7 +150,19 @@ class TaskApiService
      *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
      *               - Complete decoded JSON response including data object and other metadata
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-     *               - Just the data object containing the created task
+     *               - Just the data object containing the created task details including:
+     *                 - gid: Unique identifier of the created task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - notes: Task description/notes
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Missing required fields
@@ -167,7 +207,33 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the task details including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - notes: Task description/notes
+     *                 - projects: Array of project objects this task belongs to
+     *                 - tags: Array of tag objects associated with the task
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 - custom_fields: Array of custom field values
+     *                 - followers: Array of follower objects
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
@@ -218,7 +284,30 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing updated task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the updated task details including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Updated name of the task
+     *                 - assignee: Updated assignee object or null if unassigned
+     *                 - completed: Updated completion status
+     *                 - due_on: Updated due date of the task
+     *                 - notes: Updated task description/notes
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp (updated)
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
@@ -245,12 +334,26 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/deletetask
      *
      * @param string $taskGid The unique global ID of the task to delete/trash.
+     *                         This identifier can be found in the task URL or
+     *                         returned from task-related API endpoints.
+     *                         Example: "12345"
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful deletion
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -276,20 +379,41 @@ class TaskApiService
      * @param string $taskGid The unique global ID of the task to duplicate.
      *                        This identifier can be found in the task URL or returned from task-related API endpoints.
      *                        Example: "12345"
-     * @param array $data Data for the duplicated task. Can include:
-     *                    - name: (string) Name of the new duplicated task
-     *                    - include: (string) Comma-separated list of fields to duplicate: assignee,attachments,
-     *                              dates,dependencies,followers,notes,parent,projects,subtasks,tags
+     * @param array $data Data for the duplicated task. Supported fields include:
+     *                    Optional:
+     *                    - name (string): Name of the new duplicated task.
+     *                      Example: "Duplicated Task Name"
+     *                    - include (string): Comma-separated list of fields to duplicate.
+     *                      Possible values: "assignee", "attachments", "dates", "dependencies",
+     *                      "followers", "notes", "parent", "projects", "subtasks", "tags"
+     *                      Example: "assignee,notes,projects"
+     *                    Example: ["name" => "Copy of Original Task", "include" => "assignee,notes,projects"]
      * @param array $options Optional parameters to customize the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                         (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty: Return formatted JSON
+     *                        (e.g., "gid,status,new_task.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing job data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the duplication job details including:
+     *                 - gid: Unique identifier of the duplication job
+     *                 - resource_type: Always "job"
+     *                 - status: Current status of the job ("not_started", "in_progress", "succeeded", "failed")
+     *                 - new_task: Object containing the new duplicated task details once duplication is complete
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException For invalid task GIDs, malformed data,
      *                          insufficient permissions, or network issues
@@ -316,13 +440,46 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksforproject
      *
      * @param string $projectGid The unique global ID of the project to get tasks from.
-     * @param array $options Optional query parameters to customize the request.
+     *                            This identifier can be found in the project URL or
+     *                            returned from project-related API endpoints.
+     *                            Example: "12345"
+     * @param array $options Optional query parameters to customize the request:
+     *                      Filtering parameters:
+     *                      - completed_since (string): ISO 8601 timestamp or 'now' for recently completed tasks
+     *                      - limit (int): Maximum number of tasks to return. Default is 20, max is 100
+     *                      - offset (string): Offset token for pagination
+     *                      Display parameters:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,assignee.name,completed,due_on,projects.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid project GID provided, permission errors,
      *                         network issues, or rate limiting occurs
@@ -343,13 +500,46 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksforsection
      *
      * @param string $sectionGid The unique global ID of the section to query tasks from.
-     * @param array $options Optional parameters for customizing the request.
+     *                           This identifier can be found in the section URL or
+     *                           returned from section-related API endpoints.
+     *                           Example: "12345"
+     * @param array $options Optional parameters to customize the request:
+     *                      Filtering parameters:
+     *                      - completed_since (string): ISO 8601 timestamp or 'now' for recently completed tasks
+     *                      - limit (int): Maximum number of tasks to return. Default is 20, max is 100
+     *                      - offset (string): Offset token for pagination
+     *                      Display parameters:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,assignee.name,completed,due_on,projects.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid section GID provided, permission errors,
      *                         network issues, or rate limiting occurs
@@ -370,13 +560,47 @@ class TaskApiService
      * API Documentation: https://developers.asana.com/reference/gettasksfortag
      *
      * @param string $tagGid The global identifier for the tag to query tasks from.
-     * @param array $options Optional parameters for customizing the request.
+     *                        This identifier can be found in the tag URL or
+     *                        returned from tag-related API endpoints.
+     *                        Example: "12345"
+     * @param array $options Optional parameters to customize the request:
+     *                      Filtering parameters:
+     *                      - completed_since (string): ISO 8601 timestamp or 'now' for recently completed tasks
+     *                      - limit (int): Maximum number of tasks to return. Default is 20, max is 100
+     *                      - offset (string): Offset token for pagination
+     *                      Display parameters:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,assignee.name,completed,due_on,projects.name")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - tags: Array of tag objects associated with the task
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid tag GID is provided, permission errors,
      *                          network issues, or rate limiting occurs
@@ -412,7 +636,29 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid user task list GID
@@ -457,7 +703,30 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing subtask data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of subtasks with fields including:
+     *                 - gid: Unique identifier of the subtask
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the subtask
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if subtask is completed
+     *                 - due_on: Due date of the subtask
+     *                 - parent: Object containing parent task details
+     *                 - projects: Array of project objects this subtask belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -484,24 +753,52 @@ class TaskApiService
      * @param string $taskGid The unique global ID of the parent task under which to create the subtask.
      *                        This identifier can be found in the task URL or via API responses.
      *                        Example: "12345"
-     * @param array $data The data for creating the subtask.
-     *                    Optional fields include but are not limited to:
-     *                     - name: The name/title of the subtask
-     *                    - assignee: GID of user to assign to
-     *                    - notes: Additional notes/description
-     *                    - due_on: Due date in YYYY-MM-DD format
-     *                    - completed: Boolean for completion status
-     *                    Example: ["name" => "My Subtask"]
+     * @param array $data The data for creating the subtask. Supported fields include:
+     *                    Optional:
+     *                    - name (string): The name/title of the subtask.
+     *                      Example: "My Subtask"
+     *                    - assignee (string): GID of user to assign to.
+     *                      Example: "67890"
+     *                    - notes (string): Additional notes/description for the subtask.
+     *                      Example: "Detailed subtask description"
+     *                    - due_on (string): Due date in YYYY-MM-DD format.
+     *                      Example: "2024-12-31"
+     *                    - completed (boolean): Boolean for completion status.
+     *                      Example: false
+     *                    Example: ["name" => "My Subtask", "assignee" => "67890", "due_on" => "2024-12-31"]
      * @param array $options Optional parameters to include with the request:
      *                      - opt_fields (string): A comma-separated list of fields to include in the response
-     *                        (e.g., "name,assignee.status,custom_fields.name")
-     *                      - opt_pretty: Return formatted JSON
+     *                        (e.g., "name,assignee.name,completed,due_on,parent")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
      * @param int $responseType The type of response to return:
      *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing subtask data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created subtask details including:
+     *                 - gid: Unique identifier of the created subtask
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the subtask
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if subtask is completed
+     *                 - due_on: Due date of the subtask
+     *                 - parent: Object containing parent task details
+     *                 - projects: Array of project objects this subtask belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to invalid task GID, malformed data,
      *                          insufficient permissions, or network issues
@@ -551,7 +848,29 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing updated task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the updated task details including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - parent: Object containing parent task details (or null if top-level)
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If invalid task GIDs provided, insufficient permissions,
      *                          network issues, or if attempting to create circular dependencies
@@ -595,7 +914,29 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing dependency data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of dependency tasks with fields including:
+     *                 - gid: Unique identifier of the dependency task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the dependency task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if dependency task is completed
+     *                 - due_on: Due date of the dependency task
+     *                 - projects: Array of project objects this dependency task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -633,7 +974,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful addition of dependencies
+     *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
@@ -676,7 +1029,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful removal of dependencies
+     *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependency task GIDs
@@ -719,7 +1084,29 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing dependent task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of dependent tasks with fields including:
+     *                 - gid: Unique identifier of the dependent task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the dependent task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if dependent task is completed
+     *                 - due_on: Due date of the dependent task
+     *                 - projects: Array of project objects this dependent task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -758,7 +1145,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful addition of dependents
+     *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
      *                         - Invalid dependent task GIDs
@@ -801,7 +1200,18 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful removal of dependents
      *
      * @throws AsanaApiException If the API request fails due to:
      *                         - Invalid task GID
@@ -846,7 +1256,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful addition of project to task
+     *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                          insufficient permissions, or network issues
      */
@@ -884,7 +1306,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful removal of project from task
+     *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
@@ -919,7 +1353,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful addition of tag to task
+     *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
      */
@@ -954,7 +1400,18 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful removal of tag from task
      *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
@@ -993,7 +1450,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful addition of followers to task
+     *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
      *                          insufficient permissions, or network issues
      */
@@ -1036,7 +1505,19 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body (empty data object)
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including empty data object
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object (empty JSON object {}) indicating successful removal of followers from task
+     *
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid user GIDs,
      *                          insufficient permissions, or network issues
      */
@@ -1073,7 +1554,33 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the task details including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - notes: Task description/notes
+     *                 - projects: Array of project objects this task belongs to
+     *                 - tags: Array of tag objects associated with the task
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 - custom_fields: Array of custom field values
+     *                 - followers: Array of follower objects
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails or no task with the provided custom ID is found.
      */
@@ -1137,7 +1644,30 @@ class TaskApiService
      * - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      * - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing task search results
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of matching tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - projects: Array of project objects this task belongs to
+     *                 - tags: Array of tag objects associated with the task
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
@@ -1165,7 +1695,30 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing updated task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the updated task details including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing updated assignee details
+     *                 - completed: Boolean indicating if task is completed
+     *                 - due_on: Due date of the task
+     *                 - notes: Task description/notes
+     *                 - projects: Array of project objects this task belongs to
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp (updated)
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails.
      */
@@ -1196,7 +1749,30 @@ class TaskApiService
      *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
      *
-     * @return array The response data based on the specified response type.
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing overdue task data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data array and pagination info
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data array containing the list of overdue tasks with fields including:
+     *                 - gid: Unique identifier of the task
+     *                 - resource_type: Always "task"
+     *                 - name: Name of the task
+     *                 - assignee: Object containing assignee details
+     *                 - completed: Boolean indicating if task is completed (always false for overdue tasks)
+     *                 - due_on: Due date of the task (past date)
+     *                 - projects: Array of project objects this task belongs to
+     *                 - tags: Array of tag objects associated with the task
+     *                 - workspace: Object containing workspace details
+     *                 - created_at: Creation timestamp
+     *                 - modified_at: Last modification timestamp
+     *                 Additional fields as specified in opt_fields
      *
      * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
