@@ -187,8 +187,11 @@ class ProjectApiService
      *                          - Network connectivity issues
      *                          - Rate limiting
      */
-    public function createProject(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function createProject(
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             'projects',
@@ -253,8 +256,11 @@ class ProjectApiService
      * @throws AsanaApiException If the API request fails due to invalid project GID, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getProject(
+        string $projectGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "projects/$projectGid", ['query' => $options], $responseType);
     }
 
@@ -408,7 +414,7 @@ class ProjectApiService
      *                      "task_subtasks", "task_attachments", "task_dates", "task_dependencies",
      *                      "task_followers", "task_tags", "task_projects"
      *                      Example: ["members", "notes", "task_assignee"]
-     *                    - schedule_dates (object): A mapping of date fields to their new values for the duplicated project.
+     *                    - schedule_dates (object): A mapping of date fields to new values for the duplicated project.
      *                      Example: {"due_date": "2024-12-31", "start_date": "2024-01-01"}
      *                    Example: ["name" => "New Project Copy", "include" => ["members", "notes"]]
      * @param int $responseType The type of response to return:
@@ -436,8 +442,11 @@ class ProjectApiService
      * @throws AsanaApiException If the API request fails due to invalid project GID, malformed data,
      *                          insufficient permissions, network issues, or rate limiting
      */
-    public function duplicateProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function duplicateProject(
+        string $projectGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/duplicate",
@@ -498,8 +507,11 @@ class ProjectApiService
      * @throws AsanaApiException If invalid task GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getProjectsForTask(
+        string $taskGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options], $responseType);
     }
 
@@ -557,8 +569,11 @@ class ProjectApiService
      * @throws AsanaApiException If invalid team GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getProjectsForTeam(string $teamGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getProjectsForTeam(
+        string $teamGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options], $responseType);
     }
 
@@ -831,8 +846,11 @@ class ProjectApiService
      * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
      *                          insufficient permissions, or network issues occur
      */
-    public function addCustomFieldToProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function addCustomFieldToProject(
+        string $projectGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/addCustomFieldSetting",
@@ -881,8 +899,11 @@ class ProjectApiService
      * @throws AsanaApiException If invalid project GID provided, invalid custom field GID,
      *                          insufficient permissions, or network issues occur
      */
-    public function removeCustomFieldFromProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function removeCustomFieldFromProject(
+        string $projectGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeCustomFieldSetting",
@@ -1001,8 +1022,11 @@ class ProjectApiService
      * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTaskCountsForProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTaskCountsForProject(
+        string $projectGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options], $responseType);
     }
 

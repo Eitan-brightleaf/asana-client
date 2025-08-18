@@ -4,12 +4,12 @@ namespace BrightleafDigital\Auth;
 
 class Scopes
 {
-	// 🔹 Attachments
+    // 🔹 Attachments
 
-	/**
-	 * DELETE /attachments/{attachment_gid}
-	 */
-	public const ATTACHMENTS_DELETE = 'attachments:delete';
+    /**
+     * DELETE /attachments/{attachment_gid}
+     */
+    public const ATTACHMENTS_DELETE = 'attachments:delete';
 
     /**
      * GET /attachments/{attachment_gid}
@@ -22,20 +22,20 @@ class Scopes
      */
     public const ATTACHMENTS_WRITE = 'attachments:write';
 
-	// 🔹 Custom Fields
-	/**
-	 * GET /custom_fields/{custom_field_gid}
-	 * GET /workspaces/{workspace_gid}/custom_fields
-	 */
-	public const CUSTOM_FIELDS_READ = 'custom_fields:read';
-	/**
-	 * POST /custom_fields
-	 * PUT /custom_fields/{custom_field_gid}
-	 * POST /custom_fields/{custom_field_gid}/enum_options
-	 * POST /custom_fields/{custom_field_gid}/enum_options/insert
-	 * PUT /enum_options/{enum_option_gid}
-	 */
-	public const CUSTOM_FIELDS_WRITE = 'custom_fields:write';
+    // 🔹 Custom Fields
+    /**
+     * GET /custom_fields/{custom_field_gid}
+     * GET /workspaces/{workspace_gid}/custom_fields
+     */
+    public const CUSTOM_FIELDS_READ = 'custom_fields:read';
+    /**
+     * POST /custom_fields
+     * PUT /custom_fields/{custom_field_gid}
+     * POST /custom_fields/{custom_field_gid}/enum_options
+     * POST /custom_fields/{custom_field_gid}/enum_options/insert
+     * PUT /enum_options/{enum_option_gid}
+     */
+    public const CUSTOM_FIELDS_WRITE = 'custom_fields:write';
 
     /**
      * 🔹 Goals
@@ -45,23 +45,23 @@ class Scopes
      */
     public const GOALS_READ = 'goals:read';
 
-	// 🔹 Portfolios
-	/**
-	 * GET /portfolios
-	 * GET /portfolios/{portfolio_gid}
-	 * GET /portfolios/{portfolio_gid}/items
-	 */
-	public const PORTFOLIOS_READ = 'portfolios:read';
+    // 🔹 Portfolios
+    /**
+     * GET /portfolios
+     * GET /portfolios/{portfolio_gid}
+     * GET /portfolios/{portfolio_gid}/items
+     */
+    public const PORTFOLIOS_READ = 'portfolios:read';
 
-	/**
-	 * POST /portfolios
-	 * PUT /portfolios/{portfolio_gid}
-	 * POST /portfolios/{portfolio_gid}/addItem
-	 * POST /portfolios/{portfolio_gid}/removeItem
-	 * POST /portfolios/{portfolio_gid}/addCustomFieldSetting
-	 * POST /portfolios/{portfolio_gid}/removeCustomFieldSetting
-	 */
-	public const PORTFOLIOS_WRITE = 'portfolios:write';
+    /**
+     * POST /portfolios
+     * PUT /portfolios/{portfolio_gid}
+     * POST /portfolios/{portfolio_gid}/addItem
+     * POST /portfolios/{portfolio_gid}/removeItem
+     * POST /portfolios/{portfolio_gid}/addCustomFieldSetting
+     * POST /portfolios/{portfolio_gid}/removeCustomFieldSetting
+     */
+    public const PORTFOLIOS_WRITE = 'portfolios:write';
 
     /**
      * 🔹 Project Templates
@@ -100,39 +100,39 @@ class Scopes
     public const PROJECTS_WRITE = 'projects:write';
 
     // 🔹 Stories
-	/**
+    /**
      * GET /stories/{story_gid}
      * GET /tasks/{task_gid}/stories
      */
     public const STORIES_READ = 'stories:read';
 
-	/**
-	 * PUT /stories/{story_gid}
-	 * POST /tasks/{task_gid}/stories
-	 */
-	public const STORIES_WRITE = 'stories:write';
+    /**
+     * PUT /stories/{story_gid}
+     * POST /tasks/{task_gid}/stories
+     */
+    public const STORIES_WRITE = 'stories:write';
 
-	// 🔹 Tags
-	/**
-	 * GET /tags
-	 * GET /tags/{tag_gid}
-	 * GET /tasks/{task_gid}/tags
-	 * GET /workspaces/{workspace_gid}/tags
-	 */
-	public const TAGS_READ = 'tags:read';
-	/**
-	 * POST /tags
-	 * PUT /tags/{tag_gid}
-	 * POST /workspaces/{workspace_gid}/tags
-	 */
-	public const TAGS_WRITE = 'tags:write';
+    // 🔹 Tags
+    /**
+     * GET /tags
+     * GET /tags/{tag_gid}
+     * GET /tasks/{task_gid}/tags
+     * GET /workspaces/{workspace_gid}/tags
+     */
+    public const TAGS_READ = 'tags:read';
+    /**
+     * POST /tags
+     * PUT /tags/{tag_gid}
+     * POST /workspaces/{workspace_gid}/tags
+     */
+    public const TAGS_WRITE = 'tags:write';
 
-	// 🔹 Task templates
-	/**
-	 * GET /task_templates
-	 * GET /task_templates/{task_template_gid}
-	 */
-	public const TASK_TEMPLATES_READ = 'task_templates:read';
+    // 🔹 Task templates
+    /**
+     * GET /task_templates
+     * GET /task_templates/{task_template_gid}
+     */
+    public const TASK_TEMPLATES_READ = 'task_templates:read';
 
     // 🔹 Tasks
     /**
@@ -199,23 +199,23 @@ class Scopes
      */
     public const USERS_READ = 'users:read';
 
-	// 🔹 Webhooks
-	/**
-	 * DELETE /webhooks/{webhook_gid}
-	 */
-	public const WEBHOOKS_DELETE = 'webhooks:delete';
+    // 🔹 Webhooks
+    /**
+     * DELETE /webhooks/{webhook_gid}
+     */
+    public const WEBHOOKS_DELETE = 'webhooks:delete';
 
-	/**
-	 * GET /webhooks
-	 * GET /webhooks/{webhook_gid}
-	 */
-	public const WEBHOOKS_READ = 'webhooks:read';
-	/**
-	 * POST /webhooks
-	 * PUT /webhooks/{webhook_gid}
-	 * DELETE /webhooks/{webhook_gid}
-	 */
-	public const WEBHOOKS_WRITE = 'webhooks:write';
+    /**
+     * GET /webhooks
+     * GET /webhooks/{webhook_gid}
+     */
+    public const WEBHOOKS_READ = 'webhooks:read';
+    /**
+     * POST /webhooks
+     * PUT /webhooks/{webhook_gid}
+     * DELETE /webhooks/{webhook_gid}
+     */
+    public const WEBHOOKS_WRITE = 'webhooks:write';
 
     /**
      * 🔹 Workspaces

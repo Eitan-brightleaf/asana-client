@@ -355,28 +355,28 @@ class AsanaClient
         return $this->customFields;
     }
 
-	/**
-	 * Get the authorization URL for OAuth flow
-	 *
-	 * @param array $scopes An array of requested scopes
-	 *
-	 * @return string
-	 */
+    /**
+     * Get the authorization URL for OAuth flow
+     *
+     * @param array $scopes An array of requested scopes
+     *
+     * @return string
+     */
     public function getAuthorizationUrl(array $scopes): string
     {
         $options['scope'] = implode(' ', $scopes);
         return $this->authHandler->getAuthorizationUrl($options);
     }
 
-	/**
-	 * Get authorization URL, state, and PKCE verifier
-	 *
-	 * @param array $scopes An array of requested scopes
-	 * @param bool $enableState A bool to indicate if you are using state
-	 * @param bool $enablePKCE A bool to indicate if you are using PKCE
-	 *
-	 * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
-	 */
+    /**
+     * Get authorization URL, state, and PKCE verifier
+     *
+     * @param array $scopes An array of requested scopes
+     * @param bool $enableState A bool to indicate if you are using state
+     * @param bool $enablePKCE A bool to indicate if you are using PKCE
+     *
+     * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
+     */
     public function getSecureAuthorizationUrl(array $scopes, bool $enableState = true, bool $enablePKCE = true): array
     {
         $options['scope'] = implode(' ', $scopes);
@@ -618,90 +618,90 @@ class AsanaClient
         return $this->apiClient;
     }
 
-	/**
-	 * Loads and decrypts the token stored in the specified path, initializing it for further use.
-	 * If the token file does not exist or an error occurs during the loading process, the method fails gracefully.
-	 *
-	 * @param string $password
-	 *
-	 * @return bool True if the token was successfully loaded and decrypted, false otherwise.
-	 */
-	public function loadToken(string $password): bool
-	{
-		if (file_exists($this->tokenStoragePath)) {
-			try {
-				$tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+    /**
+     * Loads and decrypts the token stored in the specified path, initializing it for further use.
+     * If the token file does not exist or an error occurs during the loading process, the method fails gracefully.
+     *
+     * @param string $password
+     *
+     * @return bool True if the token was successfully loaded and decrypted, false otherwise.
+     */
+    public function loadToken(string $password): bool
+    {
+        if (file_exists($this->tokenStoragePath)) {
+            try {
+                $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
 
-				// Decrypt sensitive fields
-				$tokenData['access_token'] = CryptoUtils::decrypt($tokenData['access_token'], $password);
-				if (isset($tokenData['refresh_token'])) {
-					$tokenData['refresh_token'] = CryptoUtils::decrypt($tokenData['refresh_token'], $password);
-				}
+                // Decrypt sensitive fields
+                $tokenData['access_token'] = CryptoUtils::decrypt($tokenData['access_token'], $password);
+                if (isset($tokenData['refresh_token'])) {
+                    $tokenData['refresh_token'] = CryptoUtils::decrypt($tokenData['refresh_token'], $password);
+                }
 
-				$this->accessToken = new AccessToken($tokenData);
-				return true;
-			} catch (Exception $e) {
-				$this->accessToken = null;
-				return false;
-			}
-		}
-		return false;
-	}
-
-
-	/**
-	 * Retrieves and decrypts a token from the specified storage path.
-	 * If no storage path is provided, it defaults to a file named 'token.json' in the current working directory.
-	 *
-	 * @param string $password
-	 * @param string|null $tokenStoragePath The path to the file where the token is stored. Optional.
-	 *
-	 * @return array The decrypted token data, including 'access_token' and optionally 'refresh_token'.
-	 * @throws JsonException If there is an error decoding the JSON from the token storage file.
-	 * @throws Exception If required OpenSSL functions are unavailable, data is invalid, or decryption fails.
-	 */
-	public static function retrieveToken(string $password, ?string $tokenStoragePath = null): array
-	{
-		if (is_null($tokenStoragePath)) {
-			$tokenStoragePath = getcwd() . '/token.json';
-		}
-
-		$token = json_decode(file_get_contents($tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
-		$token['access_token'] = CryptoUtils::decrypt($token['access_token'], $password);
-		if (isset($token['refresh_token'])) {
-			$token['refresh_token'] = CryptoUtils::decrypt($token['refresh_token'], $password);
-		}
-
-		return $token;
-	}
+                $this->accessToken = new AccessToken($tokenData);
+                return true;
+            } catch (Exception $e) {
+                $this->accessToken = null;
+                return false;
+            }
+        }
+        return false;
+    }
 
 
-	/**
-	 * Encrypts the current access token using the provided salt/key and saves it to the defined storage path.
-	 * If no access token is available, the method does nothing.
-	 *
-	 * @param string $password
-	 *
-	 * @return void
-	 * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
-	 */
-	public function saveToken(string $password): void
-	{
-		if ($this->accessToken) {
-			$token = $this->accessToken->jsonSerialize();
+    /**
+     * Retrieves and decrypts a token from the specified storage path.
+     * If no storage path is provided, it defaults to a file named 'token.json' in the current working directory.
+     *
+     * @param string $password
+     * @param string|null $tokenStoragePath The path to the file where the token is stored. Optional.
+     *
+     * @return array The decrypted token data, including 'access_token' and optionally 'refresh_token'.
+     * @throws JsonException If there is an error decoding the JSON from the token storage file.
+     * @throws Exception If required OpenSSL functions are unavailable, data is invalid, or decryption fails.
+     */
+    public static function retrieveToken(string $password, ?string $tokenStoragePath = null): array
+    {
+        if (is_null($tokenStoragePath)) {
+            $tokenStoragePath = getcwd() . '/token.json';
+        }
 
-			// Encrypt sensitive fields
-			$token['access_token'] = CryptoUtils::encrypt($token['access_token'], $password);
-			if (isset($token['refresh_token'])) {
-				$token['refresh_token'] = CryptoUtils::encrypt($token['refresh_token'], $password);
-			}
+        $token = json_decode(file_get_contents($tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+        $token['access_token'] = CryptoUtils::decrypt($token['access_token'], $password);
+        if (isset($token['refresh_token'])) {
+            $token['refresh_token'] = CryptoUtils::decrypt($token['refresh_token'], $password);
+        }
 
-			file_put_contents($this->tokenStoragePath, json_encode($token));
-		}
-	}
+        return $token;
+    }
 
 
-	/**
+    /**
+     * Encrypts the current access token using the provided salt/key and saves it to the defined storage path.
+     * If no access token is available, the method does nothing.
+     *
+     * @param string $password
+     *
+     * @return void
+     * @throws Exception If the OpenSSL extension is unavailable or encryption fails.
+     */
+    public function saveToken(string $password): void
+    {
+        if ($this->accessToken) {
+            $token = $this->accessToken->jsonSerialize();
+
+            // Encrypt sensitive fields
+            $token['access_token'] = CryptoUtils::encrypt($token['access_token'], $password);
+            if (isset($token['refresh_token'])) {
+                $token['refresh_token'] = CryptoUtils::encrypt($token['refresh_token'], $password);
+            }
+
+            file_put_contents($this->tokenStoragePath, json_encode($token));
+        }
+    }
+
+
+    /**
      * Clear stored token (logout)
      */
     public function logout(): void

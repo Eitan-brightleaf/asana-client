@@ -124,8 +124,11 @@ class WorkspaceApiService
      * @throws AsanaApiException If invalid workspace GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getWorkspace(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getWorkspace(
+        string $workspaceGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "workspaces/$workspaceGid", ['query' => $options], $responseType);
     }
 

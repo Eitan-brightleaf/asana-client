@@ -48,12 +48,16 @@ class AsanaApiClient
      *                              - RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - RESPONSE_DATA (3): Only the data subset (default)
-     * 
+     *
      * @return array The response data based on the specified response type.
      * @throws AsanaApiException If the response indicates an error or if the request fails.
      */
-    public function request(string $method, string $uri, array $options = [], int $responseType = self::RESPONSE_DATA): array
-    {
+    public function request(
+        string $method,
+        string $uri,
+        array $options = [],
+        int $responseType = self::RESPONSE_DATA
+    ): array {
         try {
             $response = $this->httpClient->request($method, $uri, $options);
             $decodedBody = json_decode($response->getBody(), true);

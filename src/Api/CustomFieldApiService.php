@@ -34,65 +34,68 @@ class CustomFieldApiService
         $this->client = $client;
     }
 
-	/**
-	 * Create a custom field
-	 *
-	 * POST /custom_fields
-	 *
-	 * Creates a new custom field in a workspace. Every custom field has a type, which determines how values
-	 * of the custom field are formatted. Custom fields can be simple types like text, number, or dates, or
-	 * complex types like enum, multi-enum, or people.
-	 *
-	 * API Documentation: https://developers.asana.com/reference/createcustomfield
-	 *
-	 * @param array $data The data for creating the custom field. Required fields include:
-	 *                    - workspace (string): The globally unique ID of the workspace the custom field will
-	 *                      be created in.
-	 *                    - name (string): The name of the custom field.
-	 *                    - resource_subtype (string): The type of the custom field. Must be one of: "text",
-	 *                      "enum", "multi_enum", "number", "date", or "people".
-	 *                    Optional fields include:
-	 *                    - type (string): *Deprecated: New integrations should prefer resource_subtype*
-	 *                    - enum_options (array): Array of objects with name and/or color keys. Required for
-	 *                      enum/multi_enum custom fields.
-	 *                    - enabled (boolean): Whether the custom field is enabled for all projects in workspace.
-	 *                    - description (string): Description of the custom field.
-	 *                    - precision (integer): For number custom fields, the number of decimal places to display.
-	 *                    - format (string): Text formatting option for custom text fields.
-	 *                    Example: ["workspace" => "12345", "name" => "Priority", "resource_subtype" => "enum",
-	 *                              "enum_options" => [["name" => "High", "color" => "red"], ["name" => "Medium"]]]
-	 * @param array $options Optional parameters to customize the request:
-	 *                      - opt_fields (string): A comma-separated list of fields to include in the response
-	 *                        (e.g., "name,created_by,workspace")
-	 *                      - opt_pretty (bool): Returns formatted JSON if true
-	 * @param int $responseType The type of response to return:
-	 *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
-	 *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
-	 *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
-	 *
-	 * @return array The response data based on the specified response type:
-	 *               If $responseType is AsanaApiClient::RESPONSE_FULL:
-	 *               - status: HTTP status code
-	 *               - reason: Response status message
-	 *               - headers: Response headers
-	 *               - body: Decoded response body containing custom field data
-	 *               - raw_body: Raw response body
-	 *               - request: Original request details
-	 *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
-	 *               - Complete decoded JSON response including data object and other metadata
-	 *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
-	 *               - Just the data object containing the created custom field details including:
-	 *                 - gid: Unique identifier of the created custom field
-	 *                 - resource_type: Always "custom_field"
-	 *                 - name: Name of the custom field
-	 *                 - resource_subtype: The type of the custom field
-	 *                 Additional fields as specified in opt_fields
-	 *
-	 * @throws AsanaApiException If the API request fails due to invalid data, insufficient permissions,
-	 *                          network issues, or rate limiting
-	 */
-    public function createCustomField(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    /**
+     * Create a custom field
+     *
+     * POST /custom_fields
+     *
+     * Creates a new custom field in a workspace. Every custom field has a type, which determines how values
+     * of the custom field are formatted. Custom fields can be simple types like text, number, or dates, or
+     * complex types like enum, multi-enum, or people.
+     *
+     * API Documentation: https://developers.asana.com/reference/createcustomfield
+     *
+     * @param array $data The data for creating the custom field. Required fields include:
+     *                    - workspace (string): The globally unique ID of the workspace the custom field will
+     *                      be created in.
+     *                    - name (string): The name of the custom field.
+     *                    - resource_subtype (string): The type of the custom field. Must be one of: "text",
+     *                      "enum", "multi_enum", "number", "date", or "people".
+     *                    Optional fields include:
+     *                    - type (string): *Deprecated: New integrations should prefer resource_subtype*
+     *                    - enum_options (array): Array of objects with name and/or color keys. Required for
+     *                      enum/multi_enum custom fields.
+     *                    - enabled (boolean): Whether the custom field is enabled for all projects in workspace.
+     *                    - description (string): Description of the custom field.
+     *                    - precision (integer): For number custom fields, the number of decimal places to display.
+     *                    - format (string): Text formatting option for custom text fields.
+     *                    Example: ["workspace" => "12345", "name" => "Priority", "resource_subtype" => "enum",
+     *                              "enum_options" => [["name" => "High", "color" => "red"], ["name" => "Medium"]]]
+     * @param array $options Optional parameters to customize the request:
+     *                      - opt_fields (string): A comma-separated list of fields to include in the response
+     *                        (e.g., "name,created_by,workspace")
+     *                      - opt_pretty (bool): Returns formatted JSON if true
+     * @param int $responseType The type of response to return:
+     *                              - AsanaApiClient::RESPONSE_FULL (1): Full response with status, headers, etc.
+     *                              - AsanaApiClient::RESPONSE_NORMAL (2): Complete decoded JSON body
+     *                              - AsanaApiClient::RESPONSE_DATA (3): Only the data subset (default)
+     *
+     * @return array The response data based on the specified response type:
+     *               If $responseType is AsanaApiClient::RESPONSE_FULL:
+     *               - status: HTTP status code
+     *               - reason: Response status message
+     *               - headers: Response headers
+     *               - body: Decoded response body containing custom field data
+     *               - raw_body: Raw response body
+     *               - request: Original request details
+     *               If $responseType is AsanaApiClient::RESPONSE_NORMAL:
+     *               - Complete decoded JSON response including data object and other metadata
+     *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
+     *               - Just the data object containing the created custom field details including:
+     *                 - gid: Unique identifier of the created custom field
+     *                 - resource_type: Always "custom_field"
+     *                 - name: Name of the custom field
+     *                 - resource_subtype: The type of the custom field
+     *                 Additional fields as specified in opt_fields
+     *
+     * @throws AsanaApiException If the API request fails due to invalid data, insufficient permissions,
+     *                          network issues, or rate limiting
+     */
+    public function createCustomField(
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             'custom_fields',
@@ -137,8 +140,11 @@ class CustomFieldApiService
      * @throws AsanaApiException If invalid custom field GID provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getCustomField(string $customFieldGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getCustomField(
+        string $customFieldGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "custom_fields/$customFieldGid", ['query' => $options], $responseType);
     }
 

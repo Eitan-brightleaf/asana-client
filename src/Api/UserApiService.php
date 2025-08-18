@@ -150,8 +150,11 @@ class UserApiService
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
      */
-    public function getUser(string $userGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getUser(
+        string $userGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "users/$userGid", ['query' => $options], $responseType);
     }
 
@@ -208,8 +211,11 @@ class UserApiService
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
      */
-    public function getUserFavorites(string $userGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getUserFavorites(
+        string $userGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "users/$userGid/favorites", ['query' => $options], $responseType);
     }
 
@@ -261,8 +267,11 @@ class UserApiService
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
      */
-    public function getUsersForTeam(string $teamGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getUsersForTeam(
+        string $teamGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "teams/$teamGid/users", ['query' => $options], $responseType);
     }
 
@@ -315,8 +324,11 @@ class UserApiService
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
      */
-    public function getUsersForWorkspace(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getUsersForWorkspace(
+        string $workspaceGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "workspaces/$workspaceGid/users", ['query' => $options], $responseType);
     }
 
@@ -417,8 +429,10 @@ class UserApiService
      * @throws AsanaApiException If the API request fails due to authentication, validation,
      *                          network issues, or other API-related errors
      */
-    public function getCurrentUserFavorites(array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getCurrentUserFavorites(
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->getUserFavorites('me', $options, $responseType);
     }
 }

@@ -171,8 +171,11 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function createTask(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function createTask(
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             'tasks',
@@ -238,8 +241,11 @@ class TaskApiService
      * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTask(
+        string $taskGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $responseType);
     }
 
@@ -312,8 +318,12 @@ class TaskApiService
      * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
      */
-    public function updateTask(string $taskGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function updateTask(
+        string $taskGid,
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'PUT',
             "tasks/$taskGid",
@@ -418,8 +428,12 @@ class TaskApiService
      * @throws AsanaApiException For invalid task GIDs, malformed data,
      *                          insufficient permissions, or network issues
      */
-    public function duplicateTask(string $taskGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function duplicateTask(
+        string $taskGid,
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/duplicate",
@@ -484,8 +498,11 @@ class TaskApiService
      * @throws AsanaApiException If invalid project GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksByProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTasksByProject(
+        string $projectGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -544,8 +561,11 @@ class TaskApiService
      * @throws AsanaApiException If invalid section GID provided, permission errors,
      *                         network issues, or rate limiting occurs
      */
-    public function getTasksBySection(string $sectionGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTasksBySection(
+        string $sectionGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -605,8 +625,11 @@ class TaskApiService
      * @throws AsanaApiException If invalid tag GID is provided, permission errors,
      *                          network issues, or rate limiting occurs
      */
-    public function getTasksByTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTasksByTag(
+        string $tagGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -734,8 +757,11 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getSubtasksFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getSubtasksFromTask(
+        string $taskGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options], $responseType);
     }
 
@@ -944,8 +970,11 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependenciesFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getDependenciesFromTask(
+        string $taskGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options], $responseType);
     }
 
@@ -995,8 +1024,11 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependenciesForTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function setDependenciesForTask(
+        string $taskGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependencies",
@@ -1048,8 +1080,11 @@ class TaskApiService
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependenciesFromTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function unlinkDependenciesFromTask(
+        string $taskGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependencies",
@@ -1114,8 +1149,11 @@ class TaskApiService
      *                         - Network connectivity issues
      *                         - Rate limiting
      */
-    public function getDependentsFromTask(string $taskGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getDependentsFromTask(
+        string $taskGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options], $responseType);
     }
 
@@ -1166,8 +1204,11 @@ class TaskApiService
      *                         - Circular dependencies
      *                         - Exceeding the 30 total dependencies/dependents limit
      */
-    public function setDependentsForTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function setDependentsForTask(
+        string $taskGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependents",
@@ -1219,8 +1260,11 @@ class TaskApiService
      *                         - Insufficient permissions
      *                         - Network connectivity issues
      */
-    public function unlinkDependentsFromTask(string $taskGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function unlinkDependentsFromTask(
+        string $taskGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependents",
@@ -1322,8 +1366,11 @@ class TaskApiService
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid project GID,
      *                         insufficient permissions, or network issues
      */
-    public function removeProjectFromTask(string $taskGid, string $projectGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function removeProjectFromTask(
+        string $taskGid,
+        string $projectGid,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeProject",
@@ -1369,8 +1416,11 @@ class TaskApiService
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
      */
-    public function addTagToTask(string $taskGid, string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function addTagToTask(
+        string $taskGid,
+        string $tagGid,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addTag",
@@ -1416,8 +1466,11 @@ class TaskApiService
      * @throws AsanaApiException If the API request fails due to invalid task GID, invalid tag GID,
      *                          insufficient permissions, or network issues
      */
-    public function removeTagFromTask(string $taskGid, string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function removeTagFromTask(
+        string $taskGid,
+        string $tagGid,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeTag",
@@ -1584,8 +1637,11 @@ class TaskApiService
      *
      * @throws AsanaApiException If the API request fails or no task with the provided custom ID is found.
      */
-    public function getTaskByCustomId(string $workspaceGid, string $customId, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTaskByCustomId(
+        string $workspaceGid,
+        string $customId,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId", [], $responseType);
     }
 
@@ -1671,8 +1727,11 @@ class TaskApiService
      *
      * @throws AsanaApiException If the API request fails due to connectivity issues or invalid query parameters.
      */
-    public function searchTasks(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function searchTasks(
+        string $workspaceGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/tasks/search",
@@ -1681,7 +1740,7 @@ class TaskApiService
         );
     }
 
-	/**
+    /**
      * Reassign a task to a different user.
      *
      * PUT /tasks/{task_gid}
@@ -1722,8 +1781,11 @@ class TaskApiService
      *
      * @throws AsanaApiException If the API request fails.
      */
-    public function reassignTask(string $taskGid, string $assigneeGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function reassignTask(
+        string $taskGid,
+        string $assigneeGid,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->updateTask($taskGid, ['assignee' => $assigneeGid], [], $responseType);
     }
 

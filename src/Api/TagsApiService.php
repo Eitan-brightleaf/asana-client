@@ -82,8 +82,11 @@ class TagsApiService
      *                          - Rate limiting
      *                          - Network connectivity issues
      */
-    public function getTags(string $workspace, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTags(
+        string $workspace,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         // Include workspace in options
         $options['workspace'] = $workspace;
 
@@ -144,8 +147,11 @@ class TagsApiService
      * @throws AsanaApiException If missing required fields, invalid field values,
      *                          insufficient permissions, network issues, or rate limiting occurs
      */
-    public function createTag(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function createTag(
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             'tags',
@@ -198,8 +204,11 @@ class TagsApiService
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTag(
+        string $tagGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tags/$tagGid", ['query' => $options], $responseType);
     }
 
@@ -253,8 +262,12 @@ class TagsApiService
      * @throws AsanaApiException If invalid tag GID provided, malformed data,
      *                          insufficient permissions, or network issues occur
      */
-    public function updateTag(string $tagGid, array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function updateTag(
+        string $tagGid,
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'PUT',
             "tags/$tagGid",
@@ -356,8 +369,11 @@ class TagsApiService
      * @throws AsanaApiException If invalid tag GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTasksForTag(string $tagGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTasksForTag(
+        string $tagGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -412,8 +428,11 @@ class TagsApiService
      * @throws AsanaApiException If invalid workspace GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getTagsForWorkspace(string $workspaceGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getTagsForWorkspace(
+        string $workspaceGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options], $responseType);
     }
 

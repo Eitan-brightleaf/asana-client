@@ -68,8 +68,11 @@ class AttachmentApiService
      * @throws AsanaApiException If the API request fails due to invalid attachment GID,
      *                          insufficient permissions, network issues, or rate limiting
      */
-    public function getAttachment(string $attachmentGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getAttachment(
+        string $attachmentGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "attachments/$attachmentGid", ['query' => $options], $responseType);
     }
 
@@ -152,8 +155,11 @@ class AttachmentApiService
      * @throws AsanaApiException If invalid parent GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getAttachmentsForObject(string $parentGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getAttachmentsForObject(
+        string $parentGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         $queryParams = array_merge(['parent' => $parentGid], $options);
         return $this->client->request('GET', 'attachments', ['query' => $queryParams], $responseType);
     }
@@ -263,7 +269,7 @@ class AttachmentApiService
      *               If $responseType is AsanaApiClient::RESPONSE_DATA (default):
      *               - Just the data object containing the created attachment
      *
-     * @throws AsanaApiException If the file is too large, invalid parent GID, insufficient permissions, or network issues occur
+     * @throws AsanaApiException If the file is too large, invalid parent GID, or network issues occur, etc.
      * @throws RuntimeException If the stream cannot be created or written to or if the stream is not writable
      */
     public function uploadAttachmentFromContents(

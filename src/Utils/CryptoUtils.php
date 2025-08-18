@@ -31,7 +31,8 @@ class CryptoUtils
      * @param string $plaintext The data to be encrypted.
      * @param string $password The password used to derive the encryption key.
      *
-     * @return string The base64-encoded encrypted string containing salt, IV, ciphertext, and authentication tag. Format: [salt (16 bytes)] [IV (variable)] [ciphertext] [tag (16 bytes)]
+     * @return string The base64-encoded encrypted string containing salt, IV, ciphertext, and authentication tag.
+     * Format: [salt (16 bytes)] [IV (variable)] [ciphertext] [tag (16 bytes)]
 
      * @throws Exception If required OpenSSL functions are unavailable or encryption fails.
      */

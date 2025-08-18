@@ -105,7 +105,7 @@ class MembershipApiService
      *
      * @param array $data Data for creating the membership. Supported fields include:
      *                    Required:
-     *                    - parent (string): The parent id of the membership (goal, project, portfolio, or custom_field).
+     *                    - parent (string): The parent id of the membership (goal, project, portfolio, or custom_field)
      *                      Example: "12345"
      *                    - member (string): The gid of the user or team being added as a member.
      *                      Example: "67890"
@@ -151,8 +151,11 @@ class MembershipApiService
      *                          - Network connectivity issues
      *                          - Rate limiting
      */
-    public function createMembership(array $data, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function createMembership(
+        array $data,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             'memberships',
@@ -205,8 +208,11 @@ class MembershipApiService
      * @throws AsanaApiException If invalid membership GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getMembership(string $membershipGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getMembership(
+        string $membershipGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options], $responseType);
     }
 

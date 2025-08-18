@@ -105,11 +105,11 @@ class AsanaOAuthHandler
         $newToken = $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $token->getRefreshToken(),
         ]);
-    
+
         // Ensure the new token retains the current refresh token
         $tokenData = $newToken->jsonSerialize();
         $tokenData['refresh_token'] = $token->getRefreshToken();
-    
+
         // Return a new AccessToken instance with the updated data
         return new AccessToken($tokenData);
     }

@@ -76,8 +76,11 @@ class SectionApiService
      * @throws AsanaApiException If invalid section GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getSection(string $sectionGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getSection(
+        string $sectionGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "sections/$sectionGid", ['query' => $options], $responseType);
     }
 
@@ -241,8 +244,11 @@ class SectionApiService
      * @throws AsanaApiException If invalid project GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
      */
-    public function getSectionsForProject(string $projectGid, array $options = [], int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function getSectionsForProject(
+        string $projectGid,
+        array $options = [],
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request('GET', "projects/$projectGid/sections", ['query' => $options], $responseType);
     }
 
@@ -361,8 +367,11 @@ class SectionApiService
      * @throws AsanaApiException If the task doesn't exist, section doesn't exist, insufficient permissions,
      *                          task already in section, or network issues occur
      */
-    public function addTaskToSection(string $sectionGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function addTaskToSection(
+        string $sectionGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "sections/$sectionGid/addTask",
@@ -416,8 +425,11 @@ class SectionApiService
      * @throws AsanaApiException If the project doesn't exist, sections don't exist, invalid positioning,
      *                          insufficient permissions, or network issues occur
      */
-    public function insertSectionForProject(string $projectGid, array $data, int $responseType = AsanaApiClient::RESPONSE_DATA): array
-    {
+    public function insertSectionForProject(
+        string $projectGid,
+        array $data,
+        int $responseType = AsanaApiClient::RESPONSE_DATA
+    ): array {
         return $this->client->request(
             'POST',
             "projects/$projectGid/sections/insert",
