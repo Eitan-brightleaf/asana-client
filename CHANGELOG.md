@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
-## [Unreleased]
+## v.0.1.2 - 2025-08-18
 
 ### Changed
 - Re-ordered and expanded OAuth scopes for consistency and coverage (commits: 5847f9b, e890ebe, 42e26f8, 515548b).
@@ -16,16 +16,17 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added new folders scaffolding (59e28dd).
 - Improved CryptoUtils utility class (2f056dc).
 - Example clarifications in code comments (b8301f6).
+- Added this changelog (20e2720).
 
 ### Documentation
 - Misc documentation updates (1da2a38).
 
-## [v0.1.1] - 2025-06-24
+## v0.1.1 - 2025-06-24
 
 ### Added
 - API endpoint and HTTP method information included in API method doc blocks (b18ceef).
 
-## [v0.1.0] - 2025-05-08
+## v0.1.0 - 2025-05-08
 
 ### Added
 - New static constructor for OAuth flows (e1364a2).
@@ -43,12 +44,12 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Documentation
 - Updated README (ef74633).
 
-## [v0.0.4] - 2025-05-01
+## v0.0.4 - 2025-05-01
 
 ### Changed
 - Refresh token method now includes the refresh token in the returned token payload (a609608).
 
-## [v0.0.3] - 2025-04-30
+## v0.0.3 - 2025-04-30
 
 ### Added
 - Callback hooks to token refresh flow (f6a170f).
@@ -68,7 +69,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Chore
 - Ignore VSCode files (d79c6af).
 
-## [v0.0.2] - 2025-04-22
+## v0.0.2 - 2025-04-22
 
 ### Added
 - Support for OAuth scopes (ee4f031).
@@ -86,7 +87,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Chore
 - Added .aiignore to .gitignore (3a1aacc).
 
-## [v0.0.1] - 2025-04-03
+## v0.0.1 - 2025-04-03
 
 Initial tagged release.
 
@@ -95,12 +96,3 @@ Initial tagged release.
 - Multiple API service classes (Tasks, Projects, Workspaces, Users, Tags, etc.).
 - Examples for common workflows.
 - Error handling improvements and custom exceptions.
-
-
-[Unreleased]: https://github.com/brightleaf-digital/asana-client/compare/v0.1.1...HEAD
-[v0.1.1]: https://github.com/brightleaf-digital/asana-client/releases/tag/v0.1.1
-[v0.1.0]: https://github.com/brightleaf-digital/asana-client/compare/v0.0.4...v0.1.0
-[v0.0.4]: https://github.com/brightleaf-digital/asana-client/compare/v0.0.3...v0.0.4
-[v0.0.3]: https://github.com/brightleaf-digital/asana-client/compare/v0.0.2...v0.0.3
-[v0.0.2]: https://github.com/brightleaf-digital/asana-client/compare/v0.0.1...v0.0.2
-[v0.0.1]: https://github.com/brightleaf-digital/asana-client/releases/tag/v0.0.1
