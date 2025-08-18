@@ -5,6 +5,12 @@ namespace BrightleafDigital\Auth;
 class Scopes
 {
 	// 🔹 Attachments
+
+	/**
+	 * DELETE /attachments/{attachment_gid}
+	 */
+	public const ATTACHMENTS_DELETE = 'attachments:delete';
+
     /**
      * GET /attachments/{attachment_gid}
      * GET /tasks/{task_gid}/attachments
@@ -15,11 +21,6 @@ class Scopes
      * POST /attachments
      */
     public const ATTACHMENTS_WRITE = 'attachments:write';
-
-	/**
-	 * DELETE /attachments/{attachment_gid}
-	 */
-	public const ATTACHMENTS_DELETE = 'attachments:delete';
 
 	// 🔹 Custom Fields
 	/**
