@@ -18,6 +18,7 @@ use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Exceptions\OAuthCallbackException;
 use BrightleafDigital\Exceptions\TokenInvalidException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\CryptoUtils;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -32,23 +33,65 @@ use ReflectionException;
 
 class AsanaClientTest extends TestCase
 {
+    private string $tempDir;
+
+    protected function setUp(): void
+    {
+        $this->tempDir = sys_get_temp_dir() . '/asana_client_tests_' . uniqid('', true);
+        if (!is_dir($this->tempDir)) {
+            mkdir($this->tempDir, 0700, true);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        if (isset($this->tempDir) && is_dir($this->tempDir)) {
+            $this->deleteDir($this->tempDir);
+        }
+    }
+
+    private function deleteDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->deleteDir($path);
+            } else {
+                @unlink($path);
+            }
+        }
+        @rmdir($dir);
+    }
     /**
      * Test that loadToken returns true when a valid token file exists and can be loaded.
      */
     public function testLoadTokenReturnsTrueWhenTokenExists()
     {
-        $tokenStoragePath = __DIR__ . '/valid_token.json';
-        $tokenData = json_encode([
+        $password = 'test_password';
+        $tokenStoragePath = $this->tempDir . '/valid_token.json';
+        $plainToken = [
             'access_token' => 'test-access-token',
             'refresh_token' => 'test-refresh-token',
             'expires' => time() + 3600,
-        ]);
-        file_put_contents($tokenStoragePath, $tokenData);
+        ];
+        $encrypted = [
+            'access_token' => CryptoUtils::encrypt($plainToken['access_token'], $password),
+            'refresh_token' => CryptoUtils::encrypt($plainToken['refresh_token'], $password),
+            'expires' => $plainToken['expires'],
+        ];
+        file_put_contents($tokenStoragePath, json_encode($encrypted));
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
-        $this->assertTrue($client->loadToken());
-        unlink($tokenStoragePath); // Clean up
+        $this->assertTrue($client->loadToken($password));
+        $this->assertEquals($plainToken, $client->getAccessToken());
     }
 
     /**
@@ -56,11 +99,12 @@ class AsanaClientTest extends TestCase
      */
     public function testLoadTokenReturnsFalseWhenTokenDoesNotExist()
     {
-        $tokenStoragePath = __DIR__ . '/non_existent_token.json';
+        $password = 'test_password';
+        $tokenStoragePath = $this->tempDir . '/non_existent_token.json';
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
-        $this->assertFalse($client->loadToken());
+        $this->assertFalse($client->loadToken($password));
     }
 
     /**
@@ -68,13 +112,13 @@ class AsanaClientTest extends TestCase
      */
     public function testLoadTokenHandlesInvalidFileGracefully()
     {
-        $tokenStoragePath = __DIR__ . '/invalid_token.json';
+        $password = 'test_password';
+        $tokenStoragePath = $this->tempDir . '/invalid_token.json';
         file_put_contents($tokenStoragePath, 'Not a valid JSON');
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
-        $this->assertFalse($client->loadToken());
-        unlink($tokenStoragePath); // Clean up
+        $this->assertFalse($client->loadToken($password));
     }
     /**
      * Test that refreshToken() successfully refreshes an expired token.
@@ -108,7 +152,7 @@ class AsanaClientTest extends TestCase
 
         $result = $client->refreshToken();
 
-        $this->assertSame($newAccessToken, $result);
+        $this->assertEquals($newAccessToken->jsonSerialize(), $result);
     }
 
     /**
@@ -198,10 +242,17 @@ class AsanaClientTest extends TestCase
      * Test that refreshToken() returns null if the token is not expired.
      * @throws MockException|TokenInvalidException
      */
-    public function testRefreshTokenReturnsNullIfTokenNotExpired()
+    public function testRefreshTokenReturnsArrayEvenIfTokenNotExpired()
     {
         $validToken = $this->createMock(AccessToken::class);
         $validToken->method('hasExpired')->willReturn(false);
+
+        $newAccessToken = new AccessToken(['access_token' => 'refreshed-token']);
+        $mockAuthHandler = $this->createMock(AsanaOAuthHandler::class);
+        $mockAuthHandler->expects($this->once())
+            ->method('refreshToken')
+            ->with($validToken)
+            ->willReturn($newAccessToken);
 
         $client = $this->getMockBuilder(AsanaClient::class)
             ->disableOriginalConstructor()
@@ -209,13 +260,17 @@ class AsanaClientTest extends TestCase
             ->getMock();
 
         $reflection = new ReflectionClass(AsanaClient::class);
+        $authHandlerProperty = $reflection->getProperty('authHandler');
+        $authHandlerProperty->setAccessible(true);
+        $authHandlerProperty->setValue($client, $mockAuthHandler);
+
         $accessTokenProperty = $reflection->getProperty('accessToken');
         $accessTokenProperty->setAccessible(true);
         $accessTokenProperty->setValue($client, $validToken);
 
         $result = $client->refreshToken();
 
-        $this->assertNull($result);
+        $this->assertEquals($newAccessToken->jsonSerialize(), $result);
     }
     /**
      * Test handleGuzzleException method with a Guzzle exception having a valid response.
@@ -281,10 +336,13 @@ class AsanaClientTest extends TestCase
      */
     public function testGetSecureAuthorizationUrlWithAllOptions()
     {
+        $scopes = ['tasks:read', 'projects:write'];
+        $expectedOptions = ['scope' => implode(' ', $scopes)];
+
         $mockedAuthHandler = $this->createMock(AsanaOAuthHandler::class);
         $mockedAuthHandler->expects($this->once())
             ->method('getSecureAuthorizationUrl')
-            ->with(true, true)
+            ->with($expectedOptions, true, true)
             ->willReturn(['url' => 'https://example.com/auth', 'state' => 'test-state', 'codeVerifier' => 'test-pkce']);
 
         $client = $this->getMockBuilder(AsanaClient::class)
@@ -297,7 +355,7 @@ class AsanaClientTest extends TestCase
         $authHandlerProperty->setAccessible(true);
         $authHandlerProperty->setValue($client, $mockedAuthHandler);
 
-        $result = $client->getSecureAuthorizationUrl();
+        $result = $client->getSecureAuthorizationUrl($scopes);
 
         $this->assertSame('https://example.com/auth', $result['url']);
         $this->assertSame('test-state', $result['state']);
@@ -310,10 +368,13 @@ class AsanaClientTest extends TestCase
      */
     public function testGetSecureAuthorizationUrlWithoutState()
     {
+        $scopes = ['tasks:read'];
+        $expectedOptions = ['scope' => implode(' ', $scopes)];
+
         $mockedAuthHandler = $this->createMock(AsanaOAuthHandler::class);
         $mockedAuthHandler->expects($this->once())
             ->method('getSecureAuthorizationUrl')
-            ->with(false, true)
+            ->with($expectedOptions, false, true)
             ->willReturn(['url' => 'https://example.com/auth', 'state' => null, 'codeVerifier' => 'test-pkce']);
 
         $client = $this->getMockBuilder(AsanaClient::class)
@@ -326,7 +387,7 @@ class AsanaClientTest extends TestCase
         $authHandlerProperty->setAccessible(true);
         $authHandlerProperty->setValue($client, $mockedAuthHandler);
 
-        $result = $client->getSecureAuthorizationUrl(false);
+        $result = $client->getSecureAuthorizationUrl($scopes, false);
 
         $this->assertSame('https://example.com/auth', $result['url']);
         $this->assertNull($result['state']);
@@ -339,10 +400,13 @@ class AsanaClientTest extends TestCase
      */
     public function testGetSecureAuthorizationUrlWithoutPKCE()
     {
+        $scopes = ['projects:read'];
+        $expectedOptions = ['scope' => implode(' ', $scopes)];
+
         $mockedAuthHandler = $this->createMock(AsanaOAuthHandler::class);
         $mockedAuthHandler->expects($this->once())
             ->method('getSecureAuthorizationUrl')
-            ->with(true, false)
+            ->with($expectedOptions, true, false)
             ->willReturn(['url' => 'https://example.com/auth', 'state' => 'test-state', 'codeVerifier' => null]);
 
         $client = $this->getMockBuilder(AsanaClient::class)
@@ -355,7 +419,7 @@ class AsanaClientTest extends TestCase
         $authHandlerProperty->setAccessible(true);
         $authHandlerProperty->setValue($client, $mockedAuthHandler);
 
-        $result = $client->getSecureAuthorizationUrl(true, false);
+        $result = $client->getSecureAuthorizationUrl($scopes, true, false);
 
         $this->assertSame('https://example.com/auth', $result['url']);
         $this->assertSame('test-state', $result['state']);
@@ -368,10 +432,13 @@ class AsanaClientTest extends TestCase
      */
     public function testGetSecureAuthorizationUrlWithoutStateAndPKCE()
     {
+        $scopes = ['users:read'];
+        $expectedOptions = ['scope' => implode(' ', $scopes)];
+
         $mockedAuthHandler = $this->createMock(AsanaOAuthHandler::class);
         $mockedAuthHandler->expects($this->once())
             ->method('getSecureAuthorizationUrl')
-            ->with(false, false)
+            ->with($expectedOptions, false, false)
             ->willReturn(['url' => 'https://example.com/auth', 'state' => null, 'codeVerifier' => null]);
 
         $client = $this->getMockBuilder(AsanaClient::class)
@@ -384,7 +451,7 @@ class AsanaClientTest extends TestCase
         $authHandlerProperty->setAccessible(true);
         $authHandlerProperty->setValue($client, $mockedAuthHandler);
 
-        $result = $client->getSecureAuthorizationUrl(false, false);
+        $result = $client->getSecureAuthorizationUrl($scopes, false, false);
 
         $this->assertSame('https://example.com/auth', $result['url']);
         $this->assertNull($result['state']);
@@ -470,7 +537,7 @@ class AsanaClientTest extends TestCase
     {
         $client = new AsanaClient();
 
-        $expectedPath = __DIR__ . '/token.json';
+        $expectedPath = getcwd() . '/token.json';
         $this->assertSame($expectedPath, $this->getPrivateProperty($client, 'tokenStoragePath'));
     }
 
@@ -503,41 +570,45 @@ class AsanaClientTest extends TestCase
      */
     public function testSaveTokenWritesAccessTokenToFile()
     {
+        $password = 'test_password';
         $tokenData = [
             'access_token' => 'test-access-token',
             'refresh_token' => 'test-refresh-token',
             'expires' => time() + 3600,
         ];
-        $tokenStoragePath = __DIR__ . '/saved_token.json';
+        $tokenStoragePath = $this->tempDir . '/saved_token.json';
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
-        // Replace this line
-        // $this->getPrivateProperty($client, 'accessToken')->set($client, new AccessToken($tokenData));
-
-        // With direct use of Reflection
+        // Set access token via reflection
         $reflection = new ReflectionClass(AsanaClient::class);
         $accessTokenProperty = $reflection->getProperty('accessToken');
         $accessTokenProperty->setAccessible(true);
         $accessTokenProperty->setValue($client, new AccessToken($tokenData));
 
-        $client->saveToken();
+        $client->saveToken($password);
 
         $this->assertFileExists($tokenStoragePath);
         $storedTokenData = json_decode(file_get_contents($tokenStoragePath), true);
-        $this->assertSame($tokenData, $storedTokenData);
 
-        unlink($tokenStoragePath);
+        // Decrypt for verification
+        $decrypted = [
+            'access_token' => CryptoUtils::decrypt($storedTokenData['access_token'], $password),
+            'refresh_token' => CryptoUtils::decrypt($storedTokenData['refresh_token'], $password),
+            'expires' => $storedTokenData['expires'],
+        ];
+        $this->assertSame($tokenData, $decrypted);
     }
     /**
      * Test that saveToken does not create or write to a file when accessToken is null.
      */
     public function testSaveTokenDoesNothingIfTokenIsNull()
     {
-        $tokenStoragePath = __DIR__ . '/null_token.json';
+        $password = 'test_password';
+        $tokenStoragePath = $this->tempDir . '/null_token.json';
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
-        $client->saveToken();
+        $client->saveToken($password);
 
         $this->assertFileDoesNotExist($tokenStoragePath);
     }
@@ -547,12 +618,13 @@ class AsanaClientTest extends TestCase
      */
     public function testSaveTokenMatchesAccessTokenAttributes()
     {
+        $password = 'test_password';
         $tokenData = [
             'access_token' => 'sample-access-token',
             'refresh_token' => 'sample-refresh-token',
             'expires' => time() + 7200,
         ];
-        $tokenStoragePath = __DIR__ . '/match_token.json';
+        $tokenStoragePath = $this->tempDir . '/match_token.json';
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 
@@ -562,15 +634,16 @@ class AsanaClientTest extends TestCase
         $accessTokenProperty->setAccessible(true);
         $accessTokenProperty->setValue($client, new AccessToken($tokenData));
 
-        $client->saveToken();
+        $client->saveToken($password);
 
         $this->assertFileExists($tokenStoragePath);
         $storedTokenData = json_decode(file_get_contents($tokenStoragePath), true);
-        $this->assertSame($tokenData['access_token'], $storedTokenData['access_token']);
-        $this->assertSame($tokenData['refresh_token'], $storedTokenData['refresh_token']);
-        $this->assertSame($tokenData['expires'], $storedTokenData['expires']);
-
-        unlink($tokenStoragePath);
+        $decrypted = [
+            'access_token' => CryptoUtils::decrypt($storedTokenData['access_token'], $password),
+            'refresh_token' => CryptoUtils::decrypt($storedTokenData['refresh_token'], $password),
+            'expires' => $storedTokenData['expires'],
+        ];
+        $this->assertSame($tokenData, $decrypted);
     }
 
     /**
@@ -582,10 +655,14 @@ class AsanaClientTest extends TestCase
      */
     public function testGetAuthorizationUrlReturnsCorrectUrl()
     {
+        $scopes = ['openid', 'profile'];
+        $expectedOptions = ['scope' => implode(' ', $scopes)];
+
         // Create mock auth handler that will return a specific URL
         $mockedAuthHandler = $this->createMock(AsanaOAuthHandler::class);
         $mockedAuthHandler->expects($this->once())
             ->method('getAuthorizationUrl')
+            ->with($expectedOptions)
             ->willReturn('https://example.com/oauth/authorize');
 
         // Create a partial mock of AsanaClient, with real implementation of getAuthorizationUrl
@@ -601,7 +678,7 @@ class AsanaClientTest extends TestCase
         $authHandlerProperty->setValue($client, $mockedAuthHandler);
 
         // Call the method we're testing
-        $result = $client->getAuthorizationUrl();
+        $result = $client->getAuthorizationUrl($scopes);
 
         // Assert the result
         $this->assertSame('https://example.com/oauth/authorize', $result);
@@ -1161,7 +1238,7 @@ class AsanaClientTest extends TestCase
      */
     public function testLogoutDeletesTokenFile()
     {
-        $tokenStoragePath = __DIR__ . '/test_token.json';
+        $tokenStoragePath = $this->tempDir . '/test_token.json';
         file_put_contents($tokenStoragePath, json_encode(['test' => 'data']));
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
@@ -1178,7 +1255,7 @@ class AsanaClientTest extends TestCase
      */
     public function testLogoutDoesNotThrowErrorIfTokenFileDoesNotExist()
     {
-        $tokenStoragePath = __DIR__ . '/non_existing_token.json';
+        $tokenStoragePath = $this->tempDir . '/non_existing_token.json';
 
         $client = new AsanaClient(null, null, null, $tokenStoragePath);
 

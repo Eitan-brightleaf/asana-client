@@ -7,3 +7,4 @@ token.json
 .vscode
 .junie
 docs/openapi
+.phpunit.result.cache
