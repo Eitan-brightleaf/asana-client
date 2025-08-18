@@ -7,7 +7,7 @@ Thank you for considering contributing to the Asana Client PHP library! This doc
 1. Fork and Clone the Repository
 
    ```bash
-   git clone https://github.com/Eitan-brightleaf/asana_client.git
+   git clone https://github.com/brightleaf-digital/asana-client.git
    cd asana-client
    ```
 
@@ -36,7 +36,12 @@ Thank you for considering contributing to the Asana Client PHP library! This doc
 4. Run Tests
 
    ```bash
-   ./vendor/bin/phpunit
+   composer test
+   ```
+
+   To generate a local coverage report:
+   ```bash
+   composer test:coverage
    ```
 
    To run a specific test or method, see examples below in the Testing section.
@@ -137,10 +142,11 @@ class TaskApiServiceTest extends TestCase
 
 3. Run Tests and Linting
 
-   ```bash
-   ./vendor/bin/phpunit
-   ./vendor/bin/phpcs --standard=PSR12 src tests
-   ```
+  ```bash
+  composer check
+  # Optional: generate coverage locally
+  composer test:coverage
+  ```
 
 4. Commit Your Changes
 
@@ -194,3 +200,20 @@ This project follows Semantic Versioning. When proposing changes, consider wheth
 If you have any questions about contributing, please open an issue or contact the maintainers.
 
 Thank you for your contributions!
+
+
+## Continuous Integration (CI)
+
+This project uses GitHub Actions for CI. On every push and pull request to `main`:
+- PHP matrix: 7.4, 8.0, 8.1, 8.2, 8.3
+- Steps: `composer validate`, dependency install, `composer audit` (non-blocking), code style check (PSR-12), and PHPUnit tests with coverage
+- Artifacts: coverage reports (clover.xml, junit.xml) are uploaded per PHP version
+- Optimizations: docs-only changes may skip CI via paths-ignore, and in-progress runs on the same ref may be cancelled
+
+Before opening a PR, please run locally:
+
+```bash
+composer check
+# Optional: generate coverage locally
+composer test:coverage
+```

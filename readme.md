@@ -1,6 +1,15 @@
 # Brightleaf Digital Asana API Client for PHP
 
+[![CI](https://github.com/brightleaf-digital/asana-client/actions/workflows/ci.yml/badge.svg)](https://github.com/brightleaf-digital/asana-client/actions/workflows/ci.yml)
+
 A modern, maintained PHP client library for the Asana API.
+
+## Common development commands
+
+- Lint: `composer lint`
+- Auto-fix: `composer lint:fix`
+- Test: `composer test`
+- Coverage (outputs to build/logs): `composer test:coverage`
 
 ## Motivation
 

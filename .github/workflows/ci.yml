@@ -1,0 +1,148 @@
+# GitHub Actions workflow for Continuous Integration (CI)
+# This pipeline validates Composer config, installs dependencies, audits for vulnerabilities,
+# enforces PSR-12 coding standards via PHPCS (lint job), runs PHPUnit tests with coverage (tests job),
+# and verifies compatibility with the lowest allowed dependency versions (lowest-deps job).
+# Tests run on multiple PHP versions to ensure broad compatibility.
+name: CI
+
+# Concurrency prevents duplicate runs on the same branch/PR by cancelling in-progress runs.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  # Trigger on pushes to main, but ignore docs/markdown-only changes to save CI minutes.
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'readme.md'
+      - 'CHANGELOG.md'
+      - 'docs/**'
+  # Trigger on PRs targeting the main with the same path ignores.
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'readme.md'
+      - 'CHANGELOG.md'
+      - 'docs/**'
+  # Allow manual runs from the Actions UI.
+  workflow_dispatch:
+
+jobs:
+  # Fast linting feedback on a single (latest) PHP version
+  # This job handles validation, security audit, and code style checks
+  lint:
+    name: Lint (PHP 8.3)
+    runs-on: ubuntu-latest
+    steps:
+      # Download the repository source code to the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install PHP with required extensions and configure memory limit
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring  # Required extensions for the project
+          coverage: none  # No coverage needed for linting job
+          ini-values: memory_limit=-1  # Remove memory limit for Composer operations
+
+      # Verify that composer.json and composer.lock are valid and in sync
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      # Install project dependencies using cached composer packages for speed
+      - name: Install dependencies (with cache)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress --no-interaction
+
+      # Check for known security vulnerabilities in dependencies (non-blocking)
+      - name: Composer audit (non-blocking)
+        run: composer audit --no-interaction --format plain
+
+      # Enforce PSR-12 coding standards on source and test files
+      - name: Run PHP CodeSniffer (PSR-12)
+        run: ./vendor/bin/phpcs --standard=PSR12 src tests
+
+  # Test matrix across all supported PHP versions (no lint here)
+  # Validation and audit are handled in the lint job to avoid duplication
+  tests:
+    name: Tests (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    needs: lint  # Wait for lint job to complete successfully
+    strategy:
+      # Continue running all matrix jobs even if one fails to get full coverage of results.
+      fail-fast: false
+      matrix:
+        # Test across all supported PHP versions.
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+
+    steps:
+      # Download the repository source code to the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install PHP with Xdebug for coverage generation
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: openssl, mbstring  # Required extensions for the project
+          coverage: xdebug  # Enable Xdebug for code coverage collection
+          ini-values: memory_limit=-1  # Remove memory limit for Composer operations
+
+      # Install project dependencies using cached composer packages for speed
+      - name: Install dependencies (with cache)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress --no-interaction
+
+      # Create directory structure for coverage and test result files
+      - name: Prepare coverage directory
+        run: mkdir -p build/logs
+
+      # Execute PHPUnit test suite with coverage and XML reporting
+      - name: Run PHPUnit with coverage
+        run: ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml --colors=always
+
+      # Upload test results and coverage data as artifacts for later analysis
+      - name: Upload coverage artifacts
+        if: always()  # Upload even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-php-${{ matrix.php-version }}
+          path: |
+            build/logs/clover.xml
+            build/logs/junit.xml
+
+  # Ensure package works with the lowest versions allowed by composer constraints
+  # This helps catch issues with version compatibility
+  lowest-deps:
+    name: Lowest Deps (PHP 8.3)
+    runs-on: ubuntu-latest
+    needs: lint  # Wait for lint job to complete successfully
+    steps:
+      # Download the repository source code to the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install PHP without coverage since we only need basic functionality testing
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring  # Required extensions for the project
+          coverage: none  # No coverage needed for dependency compatibility testing
+          ini-values: memory_limit=-1  # Remove memory limit for Composer operations
+
+      # Install the lowest allowed versions of all dependencies to test compatibility
+      - name: Update to lowest dependencies
+        run: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
+
+      # Run tests without coverage to verify functionality with minimum dependency versions
+      - name: Run PHPUnit (no coverage)
+        run: ./vendor/bin/phpunit --configuration phpunit.xml --colors=always
