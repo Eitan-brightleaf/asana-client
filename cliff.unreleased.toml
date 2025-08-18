@@ -1,0 +1,74 @@
+[git]
+conventional_commits = true
+filter_commits = true
+tag_pattern = "v?\\d+\\.\\d+\\.\\d+"
+
+# Order matters; first match wins
+[[git.commit_parsers]]
+message = "^feat"
+group   = "Added"
+
+[[git.commit_parsers]]
+message = "^fix"
+group   = "Fixed"
+
+[[git.commit_parsers]]
+message = "^perf"
+group   = "Changed"
+
+[[git.commit_parsers]]
+message = "^refactor"
+group   = "Changed"
+
+[[git.commit_parsers]]
+message = "^style"
+group   = "Changed"
+
+[[git.commit_parsers]]
+message = "^docs"
+group   = "Documentation"
+
+[[git.commit_parsers]]
+message = "^chore"
+group   = "Chore"
+
+[[git.commit_parsers]]
+message = "^test"
+group   = "Tests"
+
+[[git.commit_parsers]]
+message = "^revert"
+group   = "Removed"
+
+[[git.commit_parsers]]
+message = "^security"
+group   = "Security"
+
+# Catch-all
+[[git.commit_parsers]]
+message = ".*"
+group   = "Changed"
+
+[changelog]
+# No header/footer here because we are NOT writing to the real file.
+# We just want to preview the Unreleased section content.
+header = ""
+footer = ""
+
+body = """
+## [Unreleased]
+
+{% if commits | length > 0 -%}
+{%- for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{%- for commit in commits %}
+- {{ commit.message | first_line | trim }} ({{ commit.id | truncate(length=7, end="") }})
+{%- endfor %}
+
+{%- endfor -%}
+{%- else -%}
+{# Keep the Unreleased heading even when empty #}
+{%- endif -%}
+"""
+
+trim = true

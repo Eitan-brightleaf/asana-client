@@ -1,0 +1,63 @@
+[git]
+conventional_commits = true
+filter_commits = true
+tag_pattern = "v?\\d+\\.\\d+\\.\\d+"
+
+# same parsers as above
+[[git.commit_parsers]]
+message = "^feat"
+group   = "Added"
+[[git.commit_parsers]]
+message = "^fix"
+group   = "Fixed"
+[[git.commit_parsers]]
+message = "^perf"
+group   = "Changed"
+[[git.commit_parsers]]
+message = "^refactor"
+group   = "Changed"
+[[git.commit_parsers]]
+message = "^style"
+group   = "Changed"
+[[git.commit_parsers]]
+message = "^docs"
+group   = "Documentation"
+[[git.commit_parsers]]
+message = "^chore"
+group   = "Chore"
+[[git.commit_parsers]]
+message = "^test"
+group   = "Tests"
+[[git.commit_parsers]]
+message = "^revert"
+group   = "Removed"
+[[git.commit_parsers]]
+message = "^security"
+group   = "Security"
+[[git.commit_parsers]]
+message = ".*"
+group   = "Changed"
+
+[changelog]
+# No header/footer so it can be cleanly prepended without duplicating your file header or link refs
+header = ""
+footer = ""
+
+# Render only the release(s) in the current range (usually a single tag when you pass --tag)
+body = """
+{%- if releases is defined -%}
+{%- for release in releases | filter(attribute="version") %}
+## [{{ release.version }}]{%- if release.timestamp %} - {{ release.timestamp | date(format="%Y-%m-%d") }}{%- endif %}
+
+{%- for group, commits in release.commits | group_by(attribute="group") %}
+### {{ group }}
+{%- for commit in commits %}
+- {{ commit.message | first_line | trim }} ({{ commit.id | truncate(length=7, end="") }})
+{%- endfor %}
+
+{%- endfor -%}
+{%- endfor -%}
+{%- endif -%}
+"""
+
+trim = true
