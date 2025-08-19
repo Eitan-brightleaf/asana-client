@@ -1,0 +1,32 @@
+name: semgrep (php)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1'   # Every Monday at 03:00 UTC
+  workflow_dispatch:       # Manual trigger from the Actions tab
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (PHP rules)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/php
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
