@@ -86,13 +86,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install PHP with Xdebug for coverage generation
-      - name: Setup PHP
+      # Install PHP with conditional coverage (Xdebug only on PHP 8.3)
+      - name: Setup PHP (no coverage)
+        if: ${{ matrix.php-version != '8.3' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: openssl, mbstring  # Required extensions for the project
-          coverage: xdebug  # Enable Xdebug for code coverage collection
+          coverage: none  # Disable coverage for non-8.3 versions
+          ini-values: memory_limit=-1  # Remove memory limit for Composer operations
+
+      - name: Setup PHP (with Xdebug)
+        if: ${{ matrix.php-version == '8.3' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: openssl, mbstring  # Required extensions for the project
+          coverage: xdebug  # Enable Xdebug for code coverage collection on 8.3 only
           ini-values: memory_limit=-1  # Remove memory limit for Composer operations
 
       # Install project dependencies using cached composer packages for speed
@@ -101,17 +111,24 @@ jobs:
         with:
           composer-options: --prefer-dist --no-progress --no-interaction
 
-      # Create directory structure for coverage and test result files
+      # Create directory structure for coverage and test result files (only for PHP 8.3)
       - name: Prepare coverage directory
+        if: ${{ matrix.php-version == '8.3' }}
         run: mkdir -p build/logs
 
-      # Execute PHPUnit test suite with coverage and XML reporting
+      # Execute PHPUnit for non-coverage PHP versions
+      - name: Run PHPUnit (no coverage)
+        if: ${{ matrix.php-version != '8.3' }}
+        run: ./vendor/bin/phpunit --configuration phpunit.xml --colors=always
+
+      # Execute PHPUnit with coverage and XML reporting (PHP 8.3 only)
       - name: Run PHPUnit with coverage
+        if: ${{ matrix.php-version == '8.3' }}
         run: ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml --colors=always
 
-      # Upload test results and coverage data as artifacts for later analysis
+      # Upload test results and coverage data as artifacts (PHP 8.3 only)
       - name: Upload coverage artifacts
-        if: always()  # Upload even if tests fail
+        if: ${{ always() && matrix.php-version == '8.3' }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-php-${{ matrix.php-version }}
