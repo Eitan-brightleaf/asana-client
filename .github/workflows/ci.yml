@@ -36,6 +36,7 @@ jobs:
   lint:
     name: Lint (PHP 8.3)
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
@@ -73,6 +74,7 @@ jobs:
   tests:
     name: Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     needs: lint  # Wait for lint job to complete successfully
     strategy:
       # Continue running all matrix jobs even if one fails to get full coverage of results.
@@ -141,6 +143,7 @@ jobs:
   lowest-deps:
     name: Lowest Deps (PHP 8.3)
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     needs: lint  # Wait for lint job to complete successfully
     steps:
       # Download the repository source code to the runner
