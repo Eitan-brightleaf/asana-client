@@ -31,12 +31,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Fast linting feedback on a single (latest) PHP version
-  # This job handles validation, security audit, and code style checks
+  # Fast linting feedback - run on ALL PRs including Dependabot
   lint:
     name: Lint (PHP 8.3)
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    # Remove the dependabot exclusion - we want basic validation on all PRs
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
@@ -69,13 +68,19 @@ jobs:
       - name: Run PHP CodeSniffer (PSR-12)
         run: ./vendor/bin/phpcs --standard=PSR12 src tests
 
-  # Test matrix across all supported PHP versions (no lint here)
-  # Validation and audit are handled in the lint job to avoid duplication
+  # Full test matrix - conditional based on PR type
   tests:
     name: Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
-    needs: lint  # Wait for lint job to complete successfully
+    # Run full tests on:
+    # 1. Non-Dependabot PRs
+    # 2. Dependabot PRs with "major-update" or "production" labels (production deps)
+    # Skip full tests on dev-only and ci updates to save resources
+    if: |
+      github.actor != 'dependabot[bot]' || 
+      contains(github.event.pull_request.labels.*.name, 'major-update') ||
+      contains(github.event.pull_request.labels.*.name, 'production')
+    needs: lint
     strategy:
       # Continue running all matrix jobs even if one fails to get full coverage of results.
       fail-fast: false
@@ -138,13 +143,15 @@ jobs:
             build/logs/clover.xml
             build/logs/junit.xml
 
-  # Ensure package works with the lowest versions allowed by composer constraints
-  # This helps catch issues with version compatibility
+  # Lowest deps - only for production dependency updates
   lowest-deps:
     name: Lowest Deps (PHP 8.3)
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
-    needs: lint  # Wait for lint job to complete successfully
+    # Only run on non-Dependabot or production dependency updates
+    if: |
+      github.actor != 'dependabot[bot]' || 
+      contains(github.event.pull_request.labels.*.name, 'production')
+    needs: lint
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
@@ -165,4 +172,35 @@ jobs:
 
       # Run tests without coverage to verify functionality with minimum dependency versions
       - name: Run PHPUnit (no coverage)
+        run: ./vendor/bin/phpunit --configuration phpunit.xml --colors=always
+
+  # Lightweight check for dev-only and CI updates
+  quick-check:
+    name: Quick Check (Dev/CI Updates)
+    runs-on: ubuntu-latest
+    # Only run on Dependabot PRs that are dev-only or ci updates
+    if: |
+      github.actor == 'dependabot[bot]' && 
+      (contains(github.event.pull_request.labels.*.name, 'dev-only') || 
+       contains(github.event.pull_request.labels.*.name, 'ci'))
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring
+          coverage: none
+          ini-values: memory_limit=-1
+
+      - name: Install dependencies (with cache)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress --no-interaction
+
+      # Just run tests on latest PHP - no coverage needed
+      - name: Run PHPUnit (quick check)
         run: ./vendor/bin/phpunit --configuration phpunit.xml --colors=always
