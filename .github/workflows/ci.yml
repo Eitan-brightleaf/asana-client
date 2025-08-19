@@ -40,7 +40,7 @@ jobs:
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Install PHP with required extensions and configure memory limit
       - name: Setup PHP
@@ -86,7 +86,7 @@ jobs:
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Install PHP with conditional coverage (Xdebug only on PHP 8.3)
       - name: Setup PHP (no coverage)
@@ -148,7 +148,7 @@ jobs:
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Install PHP without coverage since we only need basic functionality testing
       - name: Setup PHP
