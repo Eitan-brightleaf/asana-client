@@ -21,10 +21,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Run Semgrep (PHP rules)
-        uses: returntocorp/semgrep-action@v1
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          config: p/php
+          python-version: '3.x'
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep and generate SARIF
+        run: |
+          semgrep --config=p/php --sarif --output=semgrep.sarif .
 
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
