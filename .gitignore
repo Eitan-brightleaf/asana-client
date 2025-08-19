@@ -8,3 +8,4 @@ token.json
 .junie
 docs/openapi
 .phpunit.result.cache
+build
