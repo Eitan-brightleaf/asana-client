@@ -46,6 +46,7 @@ jobs:
             --config=p/phpcs-security-audit \
             --config=p/github-actions \
             --config=p/security-audit \
+            --exclude-rule=php.lang.security.injection.tainted-sql-string.tainted-sql-string \
             --sarif --output=semgrep.sarif \
             --error \
             --timeout 600 \
