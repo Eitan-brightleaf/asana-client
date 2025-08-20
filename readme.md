@@ -1,7 +1,7 @@
 # Brightleaf Digital Asana API Client for PHP
 
-[![CI](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/ci.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/ci.yml)
-[![semgrep (php)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/semgrep.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/semgrep.yml)
+[![CI](https://github.com/Eitan-brightleaf/asana-client/actions/workflows/ci.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana-client/actions/workflows/ci.yml)
+[![semgrep (php)](https://github.com/Eitan-brightleaf/asana-client/actions/workflows/semgrep.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana-client/actions/workflows/semgrep.yml)
 
 A modern, maintained PHP client library for the Asana API.
 
@@ -292,7 +292,7 @@ For design decisions, planned features, and deferred items, see the following do
 - [Testing Improvements](./docs/tasks/testing-improvements.md)
 - See [Task Summary & Prioritization](docs/tasks/roadmap.md) for a categorized and ranked view of all planned improvements.
 
-Have an idea or want to help implement one of these? Open a [GitHub issue](https://github.com/Eitan-brightleaf/asana_client/issues/new) or submit a pull request.
+Have an idea or want to help implement one of these? Open a [GitHub issue](https://github.com/Eitan-brightleaf/asana-client/issues/new) or submit a pull request.
 
 
 ## Contributing
