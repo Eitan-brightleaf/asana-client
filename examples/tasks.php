@@ -49,7 +49,7 @@ try {
     echo '<ol start="' . htmlspecialchars($startNumber) . '">';
     foreach ($tasks as $task) {
         $href = 'viewTask.php?task=' . urlencode($task['gid']);
-        echo '<li><a href="' . htmlspecialchars($href) . '">' . $task['name'] . '</a></li>';
+        echo '<li><a href="' . htmlspecialchars($href) . '">' . htmlspecialchars($task['name']) . '</a></li>';
     }
     echo '</ol>';
     $project = $asanaClient->projects()->getProject($_GET['project'], ['opt_fields' => 'workspace.gid'])['data'];
