@@ -46,9 +46,10 @@ try {
     // Set the starting number where the list should begin
     $startNumber = $_GET['start'] ?? 1; // Use a GET parameter or default to 1
 
-    echo '<ol start="' . $startNumber . '">';
+    echo '<ol start="' . htmlspecialchars($startNumber) . '">';
     foreach ($tasks as $task) {
-        echo '<li><a href="viewTask.php?task=' . $task['gid'] . '">' . $task['name'] . '</a></li>';
+        $href = 'viewTask.php?task=' . urlencode($task['gid']);
+        echo '<li><a href="' . htmlspecialchars($href) . '">' . $task['name'] . '</a></li>';
     }
     echo '</ol>';
     $project = $asanaClient->projects()->getProject($_GET['project'], ['opt_fields' => 'workspace.gid'])['data'];
@@ -56,11 +57,15 @@ try {
 
     if (isset($nextPage['offset'])) {
         $currentPageStart = $startNumber + count($tasks); // Calculate the next page's start number
-        echo '<a href="tasks.php?project=' . $_GET['project'] . '&offset=' . $nextPage['offset'] . '
-        &start=' . $currentPageStart . '">Next page</a><br>';
+        $href = 'tasks.php?project=' . urlencode($_GET['project'] ?? '')
+            . '&offset=' . urlencode($nextPage['offset'])
+            . '&start=' . urlencode($currentPageStart);
+
+        echo '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">Next page</a><br>';
     }
 
-    echo '<a href="projects.php?workspace=' . $workspace . '">Back to projects</a>';
+    $href = 'projects.php?workspace=' . urlencode($workspace);
+    echo '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">Back to projects</a>';
 } catch (AsanaApiException | TokenInvalidException $e) {
     echo 'Error: ' . $e->getMessage();
 }

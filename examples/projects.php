@@ -32,12 +32,24 @@ try {
     );
 
     foreach ($projects as $project) {
-        echo '<h3>' . $project['name'] . '</h3>';
-        echo '<a href="tasks.php?project=' . $project['gid'] . '">Tasks</a><br>';
-        echo '<a href="sections.php?project=' . $project['gid'] . '">Sections</a><br>';
-        echo '<a href="memberships.php?project=' . $project['gid'] . '">Memberships</a><br>';
-        echo '<a href="createTask.php?project=' . $project['gid'] . '">Create Task</a><br>';
-        echo '<a href="customFields.php?project=' . $project['gid'] . '">Custom Fields</a><br>';
+        echo '<h3>' . htmlspecialchars($project['name']) . '</h3>';
+
+        $urlEncodedGid = urlencode($project['gid']);
+
+        $href = "tasks.php?project=$urlEncodedGid";
+        echo '<a href="' . htmlspecialchars($href) . '">Tasks</a><br>';
+
+        $href = "sections.php?project=$urlEncodedGid";
+        echo '<a href="' . htmlspecialchars($href) . '">Sections</a><br>';
+
+        $href = "memberships.php?project=$urlEncodedGid";
+        echo '<a href="' . htmlspecialchars($href) . '">Memberships</a><br>';
+
+        $href = "createTask.php?project=$urlEncodedGid";
+        echo '<a href="' . htmlspecialchars($href) . '">Create Task</a><br>';
+
+        $href = "customFields.php?project=$urlEncodedGid";
+        echo '<a href="' . htmlspecialchars($href) . '">Custom Fields</a><br>';
         echo '<hr>';
     }
 } catch (AsanaApiException | TokenInvalidException $e) {

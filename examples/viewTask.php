@@ -52,7 +52,7 @@ try {
         style="display: inline-block; margin-right: 10px;">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="task_gid" value="' . htmlspecialchars($task['gid']) . '">
-        <input type="hidden" name="project_gid" value="' . $task['projects'][0]['gid'] . '">
+        <input type="hidden" name="project_gid" value="' . htmlspecialchars($task['projects'][0]['gid']) . '">
         <button type="submit" 
         onclick="return confirm(\'Are you sure you want to delete this task?\')">Delete Task</button>
     </form>';
@@ -60,7 +60,7 @@ try {
     echo '<form method="POST" style="display: inline-block; margin-right: 10px;">
         <input type="hidden" name="action" value="complete">
         <input type="hidden" name="task_gid" value="' . htmlspecialchars($task['gid']) . '">
-        <input type="hidden" name="project_gid" value="' . $task['projects'][0]['gid'] . '">
+        <input type="hidden" name="project_gid" value="' . htmlspecialchars($task['projects'][0]['gid']) . '">
         <button type="submit">Complete Task</button>
     </form>';
 

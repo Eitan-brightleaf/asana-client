@@ -122,7 +122,7 @@ try {
             <select id="projects" name="projects[]" multiple required>
                 <?php foreach ($projects as $project) : ?>
                     <option
-                        value="<?php echo $project['gid']; ?>">
+                        value="<?php echo htmlspecialchars($project['gid']); ?>">
                         <?php echo htmlspecialchars($project['name']); ?></option>
                 <?php endforeach; ?>
             </select>
@@ -132,7 +132,7 @@ try {
             <select id="assignee" name="assignee">
                 <option value="">Select assignee</option>
                 <?php foreach ($users as $user) : ?>
-                    <option value="<?php echo $user['gid']; ?>"><?php echo htmlspecialchars($user['name']); ?></option>
+                    <option value="<?php echo htmlspecialchars($user['gid']); ?>"><?php echo htmlspecialchars($user['name']); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
