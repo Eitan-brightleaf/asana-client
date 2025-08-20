@@ -1,6 +1,7 @@
 # Brightleaf Digital Asana API Client for PHP
 
 [![CI](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/ci.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/ci.yml)
+[![semgrep (php)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/semgrep.yml/badge.svg)](https://github.com/Eitan-brightleaf/asana_client/actions/workflows/semgrep.yml)
 
 A modern, maintained PHP client library for the Asana API.
 

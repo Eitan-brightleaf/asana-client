@@ -3,8 +3,18 @@ name: semgrep (php)
 on:
   push:
     branches: [ main ]
+    paths:
+      - "**/*.php"
+      - "composer.*"
+      - ".semgrep*"
+      - ".github/workflows/**/*.yml"
   pull_request:
     branches: [ main ]
+    paths:
+      - "**/*.php"
+      - "composer.*"
+      - ".semgrep*"
+      - ".github/workflows/**/*.yml"
   schedule:
     - cron: '0 3 * * 1'   # Every Monday at 03:00 UTC
   workflow_dispatch:       # Manual trigger from the Actions tab
@@ -25,13 +35,22 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
+          cache: "pip"
 
       - name: Install Semgrep
         run: pip install semgrep
 
       - name: Run Semgrep and generate SARIF
         run: |
-          semgrep --config=p/php --sarif --output=semgrep.sarif .
+          semgrep scan \
+            --config=p/php \
+            --config=p/phpcs-security-audit \
+            --config=p/github-actions \
+            --config=p/security-audit \
+            --sarif --output=semgrep.sarif \
+            --error \
+            --timeout 600 \
+            .
 
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
