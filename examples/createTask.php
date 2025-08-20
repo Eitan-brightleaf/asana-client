@@ -88,7 +88,7 @@ try {
                 <input type="hidden" name="task_gid" value="' . htmlspecialchars($task['gid']) . '">
                 <button type="submit" 
                 onclick="return confirm(\'Are you sure you want to delete this task?\')">Delete Task</button>
-            </form>';
+            </form>'; // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string
 
             echo '<form method="POST" style="display: inline-block; margin-right: 10px;">
                 <input type="hidden" name="action" value="complete">
