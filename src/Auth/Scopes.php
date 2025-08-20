@@ -176,6 +176,15 @@ class Scopes
     public const TASKS_WRITE = 'tasks:write';
 
     /**
+     * 🔹 Team Memberships
+     * GET /team_memberships/{team_membership_gid}
+     * GET /team_memberships
+     * GET /teams/{team_gid}/team_memberships
+     * GET /users/{user_gid}/team_memberships
+     */
+    public const TEAM_MEMBERSHIPS_READ = 'team_memberships:read';
+
+    /**
      * 🔹 Teams
      * GET /teams/{team_gid}
      * GET /workspaces/{workspace_gid}/teams
