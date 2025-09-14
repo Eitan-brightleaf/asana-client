@@ -13,7 +13,7 @@ class Scopes
 
     /**
      * GET /attachments/{attachment_gid}
-     * GET /tasks/{task_gid}/attachments
+     * GET /attachments
      */
     public const ATTACHMENTS_READ = 'attachments:read';
 
@@ -152,6 +152,8 @@ class Scopes
      * GET /tasks/{task_gid}/dependents
      * GET /workspaces/{workspace_gid}/tasks/custom_id/{custom_id}
      * GET /workspaces/{workspace_gid}/tasks/search
+     * GET /user_task_lists/{user_task_list_gid}
+     * GET /users/{user_gid}/user_task_list
      */
     public const TASKS_READ = 'tasks:read';
 
@@ -222,7 +224,6 @@ class Scopes
     /**
      * POST /webhooks
      * PUT /webhooks/{webhook_gid}
-     * DELETE /webhooks/{webhook_gid}
      */
     public const WEBHOOKS_WRITE = 'webhooks:write';
 
