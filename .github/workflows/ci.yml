@@ -60,8 +60,8 @@ jobs:
         with:
           composer-options: --prefer-dist --no-progress --no-interaction
 
-      # Check for known security vulnerabilities in dependencies (non-blocking)
-      - name: Composer audit (non-blocking)
+      # Check for known security vulnerabilities in dependencies
+      - name: Composer audit
         run: composer audit --no-interaction --format plain
 
       # Enforce PSR-12 coding standards on source and test files
