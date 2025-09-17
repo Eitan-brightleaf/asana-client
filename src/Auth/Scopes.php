@@ -195,6 +195,14 @@ class Scopes
     public const TEAMS_READ = 'teams:read';
 
     /**
+     * 🔹Time tracking entries
+     * GET /tasks/{task_gid}/time_tracking_entries
+     * GET /time_tracking_entries/{time_tracking_entry_gid}
+     * GET /time_tracking_entries
+     */
+    public const TIME_TRACKING_READ = 'time_tracking_entries:read';
+
+    /**
      * 🔹 Typeahead
      * GET /workspaces/{workspace_gid}/typeahead
      */
