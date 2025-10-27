@@ -136,7 +136,7 @@ jobs:
       # Upload test results and coverage data as artifacts (PHP 8.3 only)
       - name: Upload coverage artifacts
         if: ${{ always() && matrix.php-version == '8.3' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-php-${{ matrix.php-version }}
           path: |
