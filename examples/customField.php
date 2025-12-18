@@ -27,19 +27,10 @@ $asanaClient->onTokenRefresh(function ($token) use ($asanaClient, $password) {
 });
 
 try {
-    $custom_fields = $asanaClient->customFields()->getCustomFieldSettingsForProject(
-        $_GET['project']
-    );
-    if (empty($custom_fields)) {
-        echo "No custom fields found for project";
-    }
-    foreach ($custom_fields as $custom_field) {
-        echo "<pre>";
-        var_dump($custom_field);
-        echo "</pre>";
-        $gid = urlencode($custom_field['custom_field']['gid']);
-        echo "<a href='customField.php?gid=$gid'>View Custom field</a>";
-    }
-} catch (AsanaApiException | TokenInvalidException $e) {
-    echo 'Error: ' . $e->getMessage();
+    $field = $asanaClient->customFields()->getCustomField($_GET['gid']);
+    echo '<pre>';
+    var_dump($field);
+    echo '</pre>';
+} catch (TokenInvalidException | AsanaApiException $e) {
+    echo $e->getMessage();
 }
