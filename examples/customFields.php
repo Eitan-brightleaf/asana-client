@@ -38,7 +38,8 @@ try {
         var_dump($custom_field);
         echo "</pre>";
         $gid = urlencode($custom_field['custom_field']['gid']);
-        echo "<a href='customField.php?gid=$gid'>View Custom field</a>";
+        $href = "customField.php?gid=$gid";
+        echo '<a href="' . htmlspecialchars($href) . '">View Custom field</a>';
     }
 } catch (AsanaApiException | TokenInvalidException $e) {
     echo 'Error: ' . $e->getMessage();
