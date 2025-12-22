@@ -3,6 +3,8 @@
 namespace BrightleafDigital\Auth;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\GenericResourceOwner;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -71,11 +73,12 @@ class OAuth2Provider extends AbstractProvider
      *
      * @param array $response The response data retrieved from the resource server.
      * @param AccessToken $token The access token associated with the resource owner.
-     * @return array The processed resource owner data.
+     * @return ResourceOwnerInterface The processed resource owner data.
      */
-    protected function createResourceOwner(array $response, AccessToken $token): array
+    protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
-        return $response;
+        $ownerData = $response['data'] ?? $response;
+        return new GenericResourceOwner($ownerData, 'gid');
     }
 
     /**

@@ -1,0 +1,11 @@
+parameters:
+  level: 6
+  phpVersion: 70400
+  paths:
+    - src
+    - tests
+  tmpDir: build/phpstan
+  bootstrapFiles:
+    - vendor/autoload.php
+  ignoreErrors:
+    - identifier: missingType.iterableValue

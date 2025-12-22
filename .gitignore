@@ -9,3 +9,4 @@ token.json
 docs/openapi
 .phpunit.result.cache
 build
+.output.txt

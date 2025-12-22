@@ -44,7 +44,7 @@ class AsanaApiClient
      * @param string $method The HTTP method to use (e.g., 'GET', 'POST', etc.).
      * @param string $uri The URI to make the request to.
      * @param array $options Additional options for the request, such as headers, body, and query parameters.
-     * @param int|bool $responseType The type of response to return:
+     * @param int $responseType The type of response to return:
      *                              - RESPONSE_FULL (1): Full response with status, headers, etc.
      *                              - RESPONSE_NORMAL (2): Complete decoded JSON body
      *                              - RESPONSE_DATA (3): Only the data subset (default)
@@ -60,7 +60,11 @@ class AsanaApiClient
     ): array {
         try {
             $response = $this->httpClient->request($method, $uri, $options);
-            $decodedBody = json_decode($response->getBody(), true);
+            $decodedBody = json_decode((string) $response->getBody(), true);
+
+            if (!is_array($decodedBody)) {
+                throw new AsanaApiException('Invalid JSON response from Asana API.', $response->getStatusCode());
+            }
 
             switch ($responseType) {
                 case self::RESPONSE_FULL:
@@ -86,35 +90,30 @@ class AsanaApiClient
                     return $decodedBody['data'] ?? $decodedBody;
             }
         } catch (GuzzleException $e) {
-            $message = '';
+            $message = $e->getMessage();
             $details = [];
+            $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
 
-            if (method_exists($e, 'hasResponse') && $e->hasResponse() && method_exists($e, 'getResponse')) {
-                $response = $e->getResponse();
+            if ($response) {
                 $body = (string) $response->getBody();
 
                 // Try to decode it as JSON (Asana usually returns structured errors)
                 $decoded = json_decode($body, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    if (isset($decoded['errors'][0]['message'])) {
-                        if (method_exists($e, 'getRequest')) {
-                            $request = $e->getRequest();
-                            $uri = $request->getUri();
-                            $uri = $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() .
-                                ($uri->getQuery() ? '?' . $uri->getQuery() : '');
-                            $message = $request->getMethod() . ' ' . $uri . PHP_EOL . 'resulted in a ' .
-                                $e->getCode() . ' ' . $response->getReasonPhrase() . '  : ' . PHP_EOL;
-                        }
-                        $message .= $decoded['errors'][0]['message'] . PHP_EOL . $decoded['errors'][0]['help'];
+                if (is_array($decoded) && isset($decoded['errors'][0]['message'])) {
+                    if (method_exists($e, 'getRequest')) {
+                        $request = $e->getRequest();
+                        $uri = $request->getUri();
+                        $uri = $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() .
+                            ($uri->getQuery() ? '?' . $uri->getQuery() : '');
+                        $message = $request->getMethod() . ' ' . $uri . PHP_EOL . 'resulted in a ' .
+                            $e->getCode() . ' ' . $response->getReasonPhrase() . '  : ' . PHP_EOL;
                     }
+                    $message .= $decoded['errors'][0]['message'] . PHP_EOL . ($decoded['errors'][0]['help'] ?? '');
                     $details = $decoded;
-                } else {
+                } elseif ($body !== '') {
                     // If the body isn’t JSON, fall back to plain string
                     $message = $body;
                 }
-            } else {
-                // Fall back to the short Guzzle error if no response
-                $message = $e->getMessage();
             }
 
             throw new AsanaApiException($message, $e->getCode(), $details, $e);

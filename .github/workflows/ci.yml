@@ -68,6 +68,30 @@ jobs:
       - name: Run PHP CodeSniffer (PSR-12)
         run: ./vendor/bin/phpcs --standard=PSR12 src tests
 
+  # Static analysis - catch potential bugs and type mismatches
+  analyse:
+    name: Analyse (PHP 8.3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring
+          coverage: none
+          ini-values: memory_limit=-1
+
+      - name: Install dependencies (with cache)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M
+
   # Full test matrix - conditional based on PR type
   tests:
     name: Tests (PHP ${{ matrix.php-version }})
@@ -80,7 +104,7 @@ jobs:
       github.actor != 'dependabot[bot]' || 
       contains(github.event.pull_request.labels.*.name, 'major-update') ||
       contains(github.event.pull_request.labels.*.name, 'production')
-    needs: lint
+    needs: [lint, analyse]
     strategy:
       # Continue running all matrix jobs even if one fails to get full coverage of results.
       fail-fast: false

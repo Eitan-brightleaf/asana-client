@@ -46,6 +46,9 @@ class CryptoUtils
         $salt = random_bytes(self::SALT_BYTES);
         // Derive a symmetric encryption key from the password and salt.
         $encKey = openssl_pbkdf2($password, $salt, self::KEY_LENGTH, self::PBKDF2_ITERS, 'sha256');
+        if ($encKey === false) {
+            throw new Exception('Encryption key derivation failed.');
+        }
         // Generate a random IV (nonce) for AES-GCM.
         $iv = random_bytes(openssl_cipher_iv_length(self::DEFAULT_CIPHER));
         $tag = '';
@@ -104,6 +107,9 @@ class CryptoUtils
         $ciphertext = substr($decoded, self::SALT_BYTES + $ivLen, -self::TAG_LENGTH);
         // Derive the decryption key using PBKDF2.
         $encKey = openssl_pbkdf2($password, $salt, self::KEY_LENGTH, self::PBKDF2_ITERS, 'sha256');
+        if ($encKey === false) {
+            throw new Exception('Encryption key derivation failed.');
+        }
         // Attempt to decrypt the ciphertext.
         $plaintext = openssl_decrypt(
             $ciphertext,

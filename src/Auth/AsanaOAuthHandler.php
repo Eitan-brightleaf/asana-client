@@ -58,10 +58,12 @@ class AsanaOAuthHandler
      */
     public function handleCallback(string $authorizationCode, ?string $codeVerifier = null): AccessToken
     {
-        return $this->provider->getAccessToken('authorization_code', [
+        $token = $this->provider->getAccessToken('authorization_code', [
             'code' => $authorizationCode,
             'code_verifier' => $codeVerifier, // Optional for PKCE
         ]);
+
+        return new AccessToken($token->jsonSerialize());
     }
 
     /**
@@ -85,9 +87,11 @@ class AsanaOAuthHandler
      */
     public function getAccessToken(string $authorizationCode): AccessToken
     {
-        return $this->provider->getAccessToken('authorization_code', [
+        $token = $this->provider->getAccessToken('authorization_code', [
             'code' => $authorizationCode,
         ]);
+
+        return new AccessToken($token->jsonSerialize());
     }
 
     /**

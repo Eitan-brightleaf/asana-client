@@ -72,7 +72,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that loadToken returns true when a valid token file exists and can be loaded.
      */
-    public function testLoadTokenReturnsTrueWhenTokenExists()
+    public function testLoadTokenReturnsTrueWhenTokenExists(): void
     {
         $password = 'test_password';
         $tokenStoragePath = $this->tempDir . '/valid_token.json';
@@ -97,7 +97,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that loadToken returns false when the token file does not exist.
      */
-    public function testLoadTokenReturnsFalseWhenTokenDoesNotExist()
+    public function testLoadTokenReturnsFalseWhenTokenDoesNotExist(): void
     {
         $password = 'test_password';
         $tokenStoragePath = $this->tempDir . '/non_existent_token.json';
@@ -110,7 +110,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that loadToken handles invalid token file gracefully.
      */
-    public function testLoadTokenHandlesInvalidFileGracefully()
+    public function testLoadTokenHandlesInvalidFileGracefully(): void
     {
         $password = 'test_password';
         $tokenStoragePath = $this->tempDir . '/invalid_token.json';
@@ -124,7 +124,7 @@ class AsanaClientTest extends TestCase
      * Test that refreshToken() successfully refreshes an expired token.
      * @throws MockException|TokenInvalidException
      */
-    public function testRefreshTokenSuccessfullyRefreshesToken()
+    public function testRefreshTokenSuccessfullyRefreshesToken(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -158,7 +158,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that refreshToken() throws TokenInvalidException if no token exists.
      */
-    public function testRefreshTokenThrowsExceptionIfNoToken()
+    public function testRefreshTokenThrowsExceptionIfNoToken(): void
     {
         $client = new AsanaClient();
 
@@ -172,7 +172,7 @@ class AsanaClientTest extends TestCase
      * Test that refreshToken() throws TokenInvalidException on a GuzzleException.
      * @throws MockException
      */
-    public function testRefreshTokenThrowsExceptionOnGuzzleException()
+    public function testRefreshTokenThrowsExceptionOnGuzzleException(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -207,7 +207,7 @@ class AsanaClientTest extends TestCase
      * Test that refreshToken() throws TokenInvalidException on an IdentityProviderException.
      * @throws MockException
      */
-    public function testRefreshTokenThrowsExceptionOnIdentityProviderException()
+    public function testRefreshTokenThrowsExceptionOnIdentityProviderException(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -242,7 +242,7 @@ class AsanaClientTest extends TestCase
      * Test that refreshToken() returns null if the token is not expired.
      * @throws MockException|TokenInvalidException
      */
-    public function testRefreshTokenReturnsArrayEvenIfTokenNotExpired()
+    public function testRefreshTokenReturnsArrayEvenIfTokenNotExpired(): void
     {
         $validToken = $this->createMock(AccessToken::class);
         $validToken->method('hasExpired')->willReturn(false);
@@ -276,7 +276,7 @@ class AsanaClientTest extends TestCase
      * Test handleGuzzleException method with a Guzzle exception having a valid response.
      * @throws ReflectionException|MockException
      */
-    public function testHandleGuzzleExceptionWithResponse()
+    public function testHandleGuzzleExceptionWithResponse(): void
     {
         // Create a mock stream that will return the JSON string when cast to string
         $mockStream = $this->createMock(StreamInterface::class);
@@ -310,7 +310,7 @@ class AsanaClientTest extends TestCase
      * Test handleGuzzleException method with a Guzzle exception without a response.
      * @throws ReflectionException|MockException
      */
-    public function testHandleGuzzleExceptionWithoutResponse()
+    public function testHandleGuzzleExceptionWithoutResponse(): void
     {
         $mockGuzzleException = $this->createMock(RequestException::class);
         $mockGuzzleException->method('getResponse')->willReturn(null);
@@ -334,7 +334,7 @@ class AsanaClientTest extends TestCase
      * Test that getSecureAuthorizationUrl() generates a URL with state and PKCE enabled.
      * @throws MockException
      */
-    public function testGetSecureAuthorizationUrlWithAllOptions()
+    public function testGetSecureAuthorizationUrlWithAllOptions(): void
     {
         $scopes = ['tasks:read', 'projects:write'];
         $expectedOptions = ['scope' => implode(' ', $scopes)];
@@ -366,7 +366,7 @@ class AsanaClientTest extends TestCase
      * Test that getSecureAuthorizationUrl() generates a URL without state.
      * @throws MockException
      */
-    public function testGetSecureAuthorizationUrlWithoutState()
+    public function testGetSecureAuthorizationUrlWithoutState(): void
     {
         $scopes = ['tasks:read'];
         $expectedOptions = ['scope' => implode(' ', $scopes)];
@@ -398,7 +398,7 @@ class AsanaClientTest extends TestCase
      * Test that getSecureAuthorizationUrl() generates a URL without PKCE.
      * @throws MockException
      */
-    public function testGetSecureAuthorizationUrlWithoutPKCE()
+    public function testGetSecureAuthorizationUrlWithoutPKCE(): void
     {
         $scopes = ['projects:read'];
         $expectedOptions = ['scope' => implode(' ', $scopes)];
@@ -430,7 +430,7 @@ class AsanaClientTest extends TestCase
      * Test that getSecureAuthorizationUrl() generates a URL without state and PKCE.
      * @throws MockException
      */
-    public function testGetSecureAuthorizationUrlWithoutStateAndPKCE()
+    public function testGetSecureAuthorizationUrlWithoutStateAndPKCE(): void
     {
         $scopes = ['users:read'];
         $expectedOptions = ['scope' => implode(' ', $scopes)];
@@ -460,7 +460,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that the withPAT method correctly initializes an AsanaClient instance with a personal access token.
      */
-    public function testWithPATInitialization()
+    public function testWithPATInitialization(): void
     {
         $personalAccessToken = 'test-pat';
         $client = AsanaClient::withPAT($personalAccessToken);
@@ -470,7 +470,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that hasToken returns true when accessToken is not null.
      */
-    public function testHasTokenReturnsTrue()
+    public function testHasTokenReturnsTrue(): void
     {
         $client = AsanaClient::withPAT('test-pat');
         $this->assertTrue($client->hasToken());
@@ -479,7 +479,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that hasToken returns false when accessToken is null.
      */
-    public function testHasTokenReturnsFalse()
+    public function testHasTokenReturnsFalse(): void
     {
         $client = new AsanaClient();
         $this->assertFalse($client->hasToken());
@@ -489,7 +489,7 @@ class AsanaClientTest extends TestCase
      * Test that the withPAT method correctly sets the access token.
      * @throws ReflectionException
      */
-    public function testWithPATAccessToken()
+    public function testWithPATAccessToken(): void
     {
         $personalAccessToken = 'test-pat';
 
@@ -503,7 +503,7 @@ class AsanaClientTest extends TestCase
      * Test that the withPAT method does not initialize authHandler.
      * @throws ReflectionException
      */
-    public function testWithPATNoAuthHandler()
+    public function testWithPATNoAuthHandler(): void
     {
         $personalAccessToken = 'test-pat';
 
@@ -516,7 +516,7 @@ class AsanaClientTest extends TestCase
      * Test that the __construct method initializes authHandler and tokenStoragePath correctly.
      * @throws ReflectionException
      */
-    public function testConstructorInitializesAuthHandlerAndTokenStoragePath()
+    public function testConstructorInitializesAuthHandlerAndTokenStoragePath(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -533,7 +533,7 @@ class AsanaClientTest extends TestCase
      * Test that the default tokenStoragePath is set to "token.json" when none is provided.
      * @throws ReflectionException
      */
-    public function testConstructorSetsDefaultTokenStoragePath()
+    public function testConstructorSetsDefaultTokenStoragePath(): void
     {
         $client = new AsanaClient();
 
@@ -545,7 +545,7 @@ class AsanaClientTest extends TestCase
      * Test that authHandler is not initialized when clientId and clientSecret are not provided.
      * @throws ReflectionException
      */
-    public function testConstructorNoAuthWhenClientIdAndSecretNotProvided()
+    public function testConstructorNoAuthWhenClientIdAndSecretNotProvided(): void
     {
         $client = new AsanaClient();
 
@@ -554,6 +554,10 @@ class AsanaClientTest extends TestCase
 
     /**
      * Helper method to access private/protected properties via reflection.
+     *
+     * @param object $object
+     * @param string $propertyName
+     * @return mixed
      * @throws ReflectionException
      */
     private function getPrivateProperty(object $object, string $propertyName)
@@ -568,7 +572,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that saveToken writes the access token to the specified storage file.
      */
-    public function testSaveTokenWritesAccessTokenToFile()
+    public function testSaveTokenWritesAccessTokenToFile(): void
     {
         $password = 'test_password';
         $tokenData = [
@@ -602,7 +606,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that saveToken does not create or write to a file when accessToken is null.
      */
-    public function testSaveTokenDoesNothingIfTokenIsNull()
+    public function testSaveTokenDoesNothingIfTokenIsNull(): void
     {
         $password = 'test_password';
         $tokenStoragePath = $this->tempDir . '/null_token.json';
@@ -616,7 +620,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that the token stored by saveToken matches the attributes of the access token.
      */
-    public function testSaveTokenMatchesAccessTokenAttributes()
+    public function testSaveTokenMatchesAccessTokenAttributes(): void
     {
         $password = 'test_password';
         $tokenData = [
@@ -653,7 +657,7 @@ class AsanaClientTest extends TestCase
      * @return void
      * @throws MockException
      */
-    public function testGetAuthorizationUrlReturnsCorrectUrl()
+    public function testGetAuthorizationUrlReturnsCorrectUrl(): void
     {
         $scopes = ['openid', 'profile'];
         $expectedOptions = ['scope' => implode(' ', $scopes)];
@@ -688,7 +692,7 @@ class AsanaClientTest extends TestCase
      * Test that withAccessToken() correctly initializes an AsanaClient instance with the provided access token.
      * @throws ReflectionException
      */
-    public function testWithAccessTokenInitializesAccessTokenCorrectly()
+    public function testWithAccessTokenInitializesAccessTokenCorrectly(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -708,7 +712,7 @@ class AsanaClientTest extends TestCase
      * Test that the withAccessToken method initializes the authHandler correctly.
      * @throws ReflectionException
      */
-    public function testWithAccessTokenInitializesAuthHandler()
+    public function testWithAccessTokenInitializesAuthHandler(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -726,7 +730,7 @@ class AsanaClientTest extends TestCase
      * Test that the tasks() method initializes and returns the TaskApiService instance.
      * @throws TokenInvalidException
      */
-    public function testTasksMethodInitializesTaskApiService()
+    public function testTasksMethodInitializesTaskApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -745,7 +749,7 @@ class AsanaClientTest extends TestCase
      * Test that the tasks() method stores the initialized TaskApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testTasksMethodStoresInitializedTaskApiService()
+    public function testTasksMethodStoresInitializedTaskApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -767,7 +771,7 @@ class AsanaClientTest extends TestCase
      * Test that the projects() method initializes and returns the ProjectApiService instance.
      * @throws TokenInvalidException
      */
-    public function testProjectsMethodInitializesProjectApiService()
+    public function testProjectsMethodInitializesProjectApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -786,7 +790,7 @@ class AsanaClientTest extends TestCase
      * Test that the projects() method stores the initialized ProjectApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testProjectsMethodStoresInitializedProjectApiService()
+    public function testProjectsMethodStoresInitializedProjectApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -808,7 +812,7 @@ class AsanaClientTest extends TestCase
      * Test that the users() method initializes and returns the UserApiService instance.
      * @throws TokenInvalidException
      */
-    public function testUsersMethodInitializesUserApiService()
+    public function testUsersMethodInitializesUserApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -827,7 +831,7 @@ class AsanaClientTest extends TestCase
      * Test that the tags() method initializes and returns the TagsApiService instance.
      * @throws TokenInvalidException
      */
-    public function testTagsMethodInitializesTagsApiService()
+    public function testTagsMethodInitializesTagsApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -846,7 +850,7 @@ class AsanaClientTest extends TestCase
      * Test that the tags() method stores the initialized TagsApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testTagsMethodStoresInitializedTagsApiService()
+    public function testTagsMethodStoresInitializedTagsApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -868,7 +872,7 @@ class AsanaClientTest extends TestCase
      * Test that the users() method stores the initialized UserApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testUsersMethodStoresInitializedUserApiService()
+    public function testUsersMethodStoresInitializedUserApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -890,7 +894,7 @@ class AsanaClientTest extends TestCase
      * Test that the sections() method initializes and returns the SectionApiService instance.
      * @throws TokenInvalidException
      */
-    public function testSectionsMethodInitializesSectionApiService()
+    public function testSectionsMethodInitializesSectionApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -909,7 +913,7 @@ class AsanaClientTest extends TestCase
      * Test that the sections() method stores the initialized SectionApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testSectionsMethodStoresInitializedSectionApiService()
+    public function testSectionsMethodStoresInitializedSectionApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -931,7 +935,7 @@ class AsanaClientTest extends TestCase
      * Test that the memberships() method initializes and returns the MembershipApiService instance.
      * @throws TokenInvalidException
      */
-    public function testMembershipsMethodInitializesMembershipApiService()
+    public function testMembershipsMethodInitializesMembershipApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -950,7 +954,7 @@ class AsanaClientTest extends TestCase
      * Test that the customFields() method initializes and returns the CustomFieldApiService instance.
      * @throws TokenInvalidException
      */
-    public function testCustomFieldsMethodInitializesCustomFieldApiService()
+    public function testCustomFieldsMethodInitializesCustomFieldApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -969,7 +973,7 @@ class AsanaClientTest extends TestCase
      * Test that the customFields() method stores the initialized CustomFieldApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testCustomFieldsMethodStoresInitializedCustomFieldApiService()
+    public function testCustomFieldsMethodStoresInitializedCustomFieldApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -991,7 +995,7 @@ class AsanaClientTest extends TestCase
      * Test that the memberships() method stores the initialized MembershipApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testMembershipsMethodStoresInitializedMembershipApiService()
+    public function testMembershipsMethodStoresInitializedMembershipApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -1013,7 +1017,7 @@ class AsanaClientTest extends TestCase
      * Test that the attachments() method initializes and returns the AttachmentApiService instance.
      * @throws TokenInvalidException
      */
-    public function testAttachmentsMethodInitializesAttachmentApiService()
+    public function testAttachmentsMethodInitializesAttachmentApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -1032,7 +1036,7 @@ class AsanaClientTest extends TestCase
      * Test that the attachments() method stores the initialized AttachmentApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testAttachmentsMethodStoresInitializedAttachmentApiService()
+    public function testAttachmentsMethodStoresInitializedAttachmentApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -1054,7 +1058,7 @@ class AsanaClientTest extends TestCase
      * Test that the workspaces() method initializes and returns the WorkspaceApiService instance.
      * @throws TokenInvalidException
      */
-    public function testWorkspacesMethodInitializesWorkspaceApiService()
+    public function testWorkspacesMethodInitializesWorkspaceApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -1073,7 +1077,7 @@ class AsanaClientTest extends TestCase
      * Test that the workspaces() method stores the initialized WorkspaceApiService instance for subsequent calls.
      * @throws TokenInvalidException
      */
-    public function testWorkspacesMethodStoresInitializedWorkspaceApiService()
+    public function testWorkspacesMethodStoresInitializedWorkspaceApiService(): void
     {
         $clientId = 'test-client-id';
         $clientSecret = 'test-client-secret';
@@ -1096,7 +1100,7 @@ class AsanaClientTest extends TestCase
      * @throws OAuthCallbackException
      * @throws MockException
      */
-    public function testHandleCallbackSuccessful()
+    public function testHandleCallbackSuccessful(): void
     {
         $authorizationCode = 'auth-code';
         $codeVerifier = 'pkce-verifier';
@@ -1127,7 +1131,7 @@ class AsanaClientTest extends TestCase
      * Test handleCallback method throws OAuthCallbackException on GuzzleException.
      * @throws MockException
      */
-    public function testHandleCallbackWithGuzzleException()
+    public function testHandleCallbackWithGuzzleException(): void
     {
         $authorizationCode = 'auth-code';
         $codeVerifier = 'pkce-verifier';
@@ -1155,7 +1159,7 @@ class AsanaClientTest extends TestCase
      * Test handleCallback method throws OAuthCallbackException on general exceptions.
      * @throws MockException
      */
-    public function testHandleCallbackWithGeneralException()
+    public function testHandleCallbackWithGeneralException(): void
     {
         $authorizationCode = 'auth-code';
         $codeVerifier = 'pkce-verifier';
@@ -1184,7 +1188,7 @@ class AsanaClientTest extends TestCase
      *
      * @throws ReflectionException
      */
-    public function testHandleGeneralExceptionWithCustomException()
+    public function testHandleGeneralExceptionWithCustomException(): void
     {
         $mockException = new Exception('Test exception message', 500);
 
@@ -1213,7 +1217,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that logout clears accessToken and apiClient.
      */
-    public function testLogoutClearsAccessTokenAndApiClient()
+    public function testLogoutClearsAccessTokenAndApiClient(): void
     {
         $client = AsanaClient::withPAT('test-pat');
 
@@ -1236,7 +1240,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that logout deletes the token storage file if it exists.
      */
-    public function testLogoutDeletesTokenFile()
+    public function testLogoutDeletesTokenFile(): void
     {
         $tokenStoragePath = $this->tempDir . '/test_token.json';
         file_put_contents($tokenStoragePath, json_encode(['test' => 'data']));
@@ -1253,7 +1257,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that logout does not throw an error if the token file does not exist.
      */
-    public function testLogoutDoesNotThrowErrorIfTokenFileDoesNotExist()
+    public function testLogoutDoesNotThrowErrorIfTokenFileDoesNotExist(): void
     {
         $tokenStoragePath = $this->tempDir . '/non_existing_token.json';
 
@@ -1272,7 +1276,7 @@ class AsanaClientTest extends TestCase
     /**
      * Test that ensureValidToken throws TokenInvalidException if no access token is available.
      */
-    public function testEnsureValidTokenThrowsExceptionIfNoToken()
+    public function testEnsureValidTokenThrowsExceptionIfNoToken(): void
     {
         $client = new AsanaClient();
 
@@ -1286,7 +1290,7 @@ class AsanaClientTest extends TestCase
      * Test that getApiClient initializes AsanaApiClient when it does not exist.
      * @throws ReflectionException
      */
-    public function testGetApiClientInitializesApiClient()
+    public function testGetApiClientInitializesApiClient(): void
     {
         $token = 'test-access-token';
         $client = AsanaClient::withPAT($token);
@@ -1311,7 +1315,7 @@ class AsanaClientTest extends TestCase
      * Test that getApiClient returns existing AsanaApiClient instance if one already exists.
      * @throws ReflectionException|MockException
      */
-    public function testGetApiClientReturnsExistingApiClient()
+    public function testGetApiClientReturnsExistingApiClient(): void
     {
         $token = 'test-access-token';
         $mockApiClient = $this->createMock(AsanaApiClient::class);
@@ -1334,7 +1338,7 @@ class AsanaClientTest extends TestCase
      * Test that getApiClient throws TokenInvalidException when access token is invalid.
      * @throws ReflectionException
      */
-    public function testGetApiClientThrowsTokenInvalidExceptionWithoutToken()
+    public function testGetApiClientThrowsTokenInvalidExceptionWithoutToken(): void
     {
         $client = new AsanaClient();
 
@@ -1352,7 +1356,7 @@ class AsanaClientTest extends TestCase
      * Test that ensureValidToken returns true if token has no expiration (e.g., PAT).
      * @throws TokenInvalidException
      */
-    public function testEnsureValidTokenReturnsTrueForNonExpiringToken()
+    public function testEnsureValidTokenReturnsTrueForNonExpiringToken(): void
     {
         $client = AsanaClient::withPAT('test-pat');
 
@@ -1364,7 +1368,7 @@ class AsanaClientTest extends TestCase
      * and cannot be refreshed due to a GuzzleException.
      * @throws MockException
      */
-    public function testEnsureValidTokenThrowsExceptionOnGuzzleErrorDuringRefresh()
+    public function testEnsureValidTokenThrowsExceptionOnGuzzleErrorDuringRefresh(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -1400,7 +1404,7 @@ class AsanaClientTest extends TestCase
      * Test that ensureValidToken throws TokenInvalidException if a general exception occurs during token refresh.
      * @throws MockException
      */
-    public function testEnsureValidTokenThrowsExceptionOnGeneralErrorDuringRefresh()
+    public function testEnsureValidTokenThrowsExceptionOnGeneralErrorDuringRefresh(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -1437,7 +1441,7 @@ class AsanaClientTest extends TestCase
      * @throws TokenInvalidException
      * @throws MockException
      */
-    public function testEnsureValidTokenReturnsTrueForOAuthTokenWithNoExpiration()
+    public function testEnsureValidTokenReturnsTrueForOAuthTokenWithNoExpiration(): void
     {
         $tokenWithoutExpiration = $this->createMock(AccessToken::class);
         $tokenWithoutExpiration->method('getExpires')->willReturn(null);
@@ -1459,7 +1463,7 @@ class AsanaClientTest extends TestCase
      * Test that ensureValidToken refreshes the token if expired.
      * @throws TokenInvalidException|MockException
      */
-    public function testEnsureValidTokenSuccessfullyRefreshesToken()
+    public function testEnsureValidTokenSuccessfullyRefreshesToken(): void
     {
         $expiredToken = $this->createMock(AccessToken::class);
         $expiredToken->method('hasExpired')->willReturn(true);
@@ -1494,7 +1498,7 @@ class AsanaClientTest extends TestCase
      *
      * @throws ReflectionException|MockException
      */
-    public function testHandleGeneralExceptionWithThrowable()
+    public function testHandleGeneralExceptionWithThrowable(): void
     {
         $mockException = new Exception('Throwable exception message', 404);
 

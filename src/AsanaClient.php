@@ -361,10 +361,15 @@ class AsanaClient
      * @param array $scopes An array of requested scopes
      *
      * @return string
+     * @throws TokenInvalidException
      */
     public function getAuthorizationUrl(array $scopes): string
     {
-        $options['scope'] = implode(' ', $scopes);
+        if ($this->authHandler === null) {
+            throw new TokenInvalidException('OAuth handler is not configured.');
+        }
+
+        $options = ['scope' => implode(' ', $scopes)];
         return $this->authHandler->getAuthorizationUrl($options);
     }
 
@@ -376,10 +381,15 @@ class AsanaClient
      * @param bool $enablePKCE A bool to indicate if you are using PKCE
      *
      * @return array ['url' => string, 'state' => string|null, 'codeVerifier' => string|null]
+     * @throws TokenInvalidException
      */
     public function getSecureAuthorizationUrl(array $scopes, bool $enableState = true, bool $enablePKCE = true): array
     {
-        $options['scope'] = implode(' ', $scopes);
+        if ($this->authHandler === null) {
+            throw new TokenInvalidException('OAuth handler is not configured.');
+        }
+
+        $options = ['scope' => implode(' ', $scopes)];
         return $this->authHandler->getSecureAuthorizationUrl($options, $enableState, $enablePKCE);
     }
 
@@ -396,6 +406,10 @@ class AsanaClient
     */
     public function handleCallback(string $authorizationCode, ?string $codeVerifier = null): ?array
     {
+        if ($this->authHandler === null) {
+            throw new OAuthCallbackException('OAuth handler is not configured.');
+        }
+
         try {
             $this->accessToken = $this->authHandler->handleCallback($authorizationCode, $codeVerifier);
             return $this->accessToken->jsonSerialize();
@@ -495,6 +509,10 @@ class AsanaClient
             throw new TokenInvalidException('No access token is available.');
         }
 
+        if ($this->accessToken === null) {
+            throw new TokenInvalidException('No access token is available.');
+        }
+
         // If token has no expiration (e.g., PAT), it is considered valid
         if (!$this->accessToken->getExpires()) {
             return true;
@@ -502,6 +520,10 @@ class AsanaClient
 
         // Handle OAuth tokens that may need refreshing
         if ($this->accessToken->hasExpired()) {
+            if ($this->authHandler === null) {
+                throw new TokenInvalidException('OAuth handler is not configured.');
+            }
+
             try {
                 $this->accessToken = $this->authHandler->refreshToken($this->accessToken);
                 $this->notifyTokenRefreshSubscribers($this->accessToken);
@@ -523,6 +545,10 @@ class AsanaClient
      */
     public function getAccessToken(): ?array
     {
+        if ($this->accessToken === null) {
+            return null;
+        }
+
         return $this->accessToken->jsonSerialize();
     }
 
@@ -537,6 +563,14 @@ class AsanaClient
     {
         if (!$this->hasToken()) {
             throw new TokenInvalidException('No access token is available.');
+        }
+
+        if ($this->accessToken === null) {
+            throw new TokenInvalidException('No access token is available.');
+        }
+
+        if ($this->authHandler === null) {
+            throw new TokenInvalidException('OAuth handler is not configured.');
         }
 
         try {
@@ -611,6 +645,10 @@ class AsanaClient
     {
         $this->ensureValidToken();
 
+        if ($this->accessToken === null) {
+            throw new TokenInvalidException('No access token is available.');
+        }
+
         if ($this->apiClient === null) {
             $this->apiClient = new AsanaApiClient($this->accessToken->getToken());
         }
@@ -630,7 +668,15 @@ class AsanaClient
     {
         if (file_exists($this->tokenStoragePath)) {
             try {
-                $tokenData = json_decode(file_get_contents($this->tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+                $tokenFile = file_get_contents($this->tokenStoragePath);
+                if ($tokenFile === false) {
+                    throw new Exception('Unable to read token storage file.');
+                }
+
+                $tokenData = json_decode($tokenFile, true, 512, JSON_THROW_ON_ERROR);
+                if (!is_array($tokenData)) {
+                    throw new Exception('Invalid token data structure.');
+                }
 
                 // Decrypt sensitive fields
                 $tokenData['access_token'] = CryptoUtils::decrypt($tokenData['access_token'], $password);
@@ -666,7 +712,15 @@ class AsanaClient
             $tokenStoragePath = getcwd() . '/token.json';
         }
 
-        $token = json_decode(file_get_contents($tokenStoragePath), true, 512, JSON_THROW_ON_ERROR);
+        $tokenFile = file_get_contents($tokenStoragePath);
+        if ($tokenFile === false) {
+            throw new Exception('Unable to read token storage file.');
+        }
+
+        $token = json_decode($tokenFile, true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($token)) {
+            throw new Exception('Invalid token data structure.');
+        }
         $token['access_token'] = CryptoUtils::decrypt($token['access_token'], $password);
         if (isset($token['refresh_token'])) {
             $token['refresh_token'] = CryptoUtils::decrypt($token['refresh_token'], $password);
@@ -696,7 +750,12 @@ class AsanaClient
                 $token['refresh_token'] = CryptoUtils::encrypt($token['refresh_token'], $password);
             }
 
-            file_put_contents($this->tokenStoragePath, json_encode($token));
+            $encodedToken = json_encode($token);
+            if ($encodedToken === false) {
+                throw new Exception('Failed to encode token for storage.');
+            }
+
+            file_put_contents($this->tokenStoragePath, $encodedToken);
         }
     }
 
