@@ -1269,7 +1269,8 @@ class AsanaClientTest extends TestCase
         try {
             $client->logout();
             $success = true; // Logout succeeded without throwing
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         $this->assertTrue($success, 'Logout should not throw for non-existing token file');
     }
