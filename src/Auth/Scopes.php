@@ -202,6 +202,19 @@ class Scopes
      */
     public const TIME_TRACKING_READ = 'time_tracking_entries:read';
 
+    // 🔹 Timesheet approval statuses
+    /**
+     * - GET /timesheet_approval_statuses/{timesheet_approval_status_gid}
+     * - GET /timesheet_approval_statuses
+     */
+    public const TIMESHEET_APPROVAL_STATUSES_READ = 'timesheet_approval_statuses:read';
+
+    /**
+     * - PUT /timesheet_approval_statuses/{timesheet_approval_status_gid}
+     * - POST /timesheet_approval_statuses
+     */
+    public const TIMESHEET_APPROVAL_STATUSES_WRITE = 'timesheet_approval_statuses:write';
+
     /**
      * 🔹 Typeahead
      * GET /workspaces/{workspace_gid}/typeahead
