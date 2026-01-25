@@ -1,3 +1,6 @@
+includes:
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+
 parameters:
   level: 6
   phpVersion: 70400
@@ -9,6 +12,3 @@ parameters:
     - vendor/autoload.php
   ignoreErrors:
     - identifier: missingType.iterableValue
-  includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-
