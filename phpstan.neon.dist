@@ -9,3 +9,6 @@ parameters:
     - vendor/autoload.php
   ignoreErrors:
     - identifier: missingType.iterableValue
+  includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+
