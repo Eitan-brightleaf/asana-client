@@ -15,8 +15,11 @@ use ReflectionClass;
 
 class AsanaApiClientTest extends TestCase
 {
-    private GuzzleClient $mockHttpClient;
-    private AsanaApiClient $apiClient;
+    /** @var GuzzleClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockHttpClient;
+
+    /** @var AsanaApiClient */
+    private $apiClient;
 
     /**
      * @throws MockException

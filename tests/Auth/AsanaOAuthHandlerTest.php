@@ -11,8 +11,11 @@ use ReflectionClass;
 
 class AsanaOAuthHandlerTest extends TestCase
 {
-    private AsanaOAuthHandler $handler;
-    private OAuth2Provider $mockProvider;
+    /** @var AsanaOAuthHandler */
+    private $handler;
+
+    /** @var OAuth2Provider&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockProvider;
 
     /**
      * @throws MockException

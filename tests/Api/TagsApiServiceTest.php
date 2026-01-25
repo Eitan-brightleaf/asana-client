@@ -9,8 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 class TagsApiServiceTest extends TestCase
 {
-    private AsanaApiClient $mockClient;
-    private TagsApiService $service;
+    /** @var AsanaApiClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockClient;
+
+    /** @var TagsApiService */
+    private $service;
 
     /**
      * @throws MockException
