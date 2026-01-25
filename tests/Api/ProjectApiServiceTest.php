@@ -10,8 +10,11 @@ use PHPUnit\Framework\TestCase;
 
 class ProjectApiServiceTest extends TestCase
 {
-    private AsanaApiClient $mockClient;
-    private ProjectApiService $service;
+    /** @var AsanaApiClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockClient;
+
+    /** @var ProjectApiService */
+    private $service;
 
     /**
      * @throws MockException

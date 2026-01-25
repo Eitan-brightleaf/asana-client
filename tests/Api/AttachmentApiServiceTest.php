@@ -10,9 +10,14 @@ use RuntimeException;
 
 class AttachmentApiServiceTest extends TestCase
 {
-    private AsanaApiClient $mockClient;
-    private AttachmentApiService $service;
-    private string $tempDir;
+    /** @var AsanaApiClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockClient;
+
+    /** @var AttachmentApiService */
+    private $service;
+
+    /** @var string */
+    private $tempDir;
 
     /**
      * @throws MockException

@@ -9,8 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 class CustomFieldApiServiceTest extends TestCase
 {
-    private AsanaApiClient $mockClient;
-    private CustomFieldApiService $service;
+    /** @var AsanaApiClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockClient;
+
+    /** @var CustomFieldApiService */
+    private $service;
 
     /**
      * @throws MockException

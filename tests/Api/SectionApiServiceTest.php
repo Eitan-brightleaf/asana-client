@@ -9,8 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 class SectionApiServiceTest extends TestCase
 {
-    private AsanaApiClient $mockClient;
-    private SectionApiService $service;
+    /** @var AsanaApiClient&\PHPUnit\Framework\MockObject\MockObject */
+    private $mockClient;
+
+    /** @var SectionApiService */
+    private $service;
 
     /**
      * @throws MockException

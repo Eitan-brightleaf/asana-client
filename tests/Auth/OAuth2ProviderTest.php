@@ -9,7 +9,8 @@ use RuntimeException;
 
 class OAuth2ProviderTest extends TestCase
 {
-    private OAuth2Provider $provider;
+    /** @var OAuth2Provider */
+    private $provider;
 
     protected function setUp(): void
     {
