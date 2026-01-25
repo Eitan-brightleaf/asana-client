@@ -16,7 +16,7 @@ class AttachmentApiServiceTest extends TestCase
     /** @var AttachmentApiService */
     private $service;
 
-    /** @var string */
+    /** @var string|null */
     private $tempDir;
 
     /**
