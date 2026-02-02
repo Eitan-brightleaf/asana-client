@@ -12,13 +12,15 @@
   "require": {
     "php": "^7.4 || ^8.0",
     "league/oauth2-client": "^2.4",
-    "guzzlehttp/guzzle": "^7"
+    "guzzlehttp/guzzle": "^7",
+    "psr/log": "^1.1 || ^2.0 || ^3.0"
   },
   "require-dev": {
     "vlucas/phpdotenv": ">=v5.6.2",
     "squizlabs/php_codesniffer": "^3.13.2 || ^4.0.0",
     "phpunit/phpunit": "^9.6",
-    "phpstan/phpstan": "^1.12 || ^2.0"
+    "phpstan/phpstan": "^1.12 || ^2.0",
+    "phpstan/phpstan-phpunit": "^2.0"
   },
   "autoload": {
     "psr-4": {
