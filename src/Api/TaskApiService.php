@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class TaskApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -240,12 +244,15 @@ class TaskApiService
      *
      * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function getTask(
         string $taskGid,
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $responseType);
     }
 
@@ -317,6 +324,7 @@ class TaskApiService
      *
      * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function updateTask(
         string $taskGid,
@@ -324,6 +332,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'PUT',
             "tasks/$taskGid",
@@ -370,9 +380,12 @@ class TaskApiService
      *                         - Insufficient permissions to delete/trash the task
      *                         - Network connectivity issues
      *                         - Rate limiting
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function deleteTask(string $taskGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('DELETE', "tasks/$taskGid", [], $responseType);
     }
 

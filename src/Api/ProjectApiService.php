@@ -4,10 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
 use InvalidArgumentException;
 
 class ProjectApiService
 {
+    use ValidationTrait;
+
     /**
      * The Asana API client instance
      *
@@ -255,12 +258,15 @@ class ProjectApiService
      *
      * @throws AsanaApiException If the API request fails due to invalid project GID, insufficient permissions,
      *                          network issues, or rate limiting occurs
+     * @throws InvalidArgumentException If project GID is empty
      */
     public function getProject(
         string $projectGid,
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request('GET', "projects/$projectGid", ['query' => $options], $responseType);
     }
 
