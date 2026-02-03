@@ -43,6 +43,28 @@ class ValidationTraitTest extends TestCase
     }
 
     /**
+     * Test validateGid throws for non-numeric string.
+     */
+    public function testValidateGidThrowsForNonNumericString(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Task GID must be a numeric string.');
+
+        $this->validateGid('abc123', 'Task GID');
+    }
+
+    /**
+     * Test validateGid throws for string with special characters.
+     */
+    public function testValidateGidThrowsForSpecialCharacters(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Project GID must be a numeric string.');
+
+        $this->validateGid('123-456', 'Project GID');
+    }
+
+    /**
      * Test validateRequiredFields passes when all fields present.
      */
     public function testValidateRequiredFieldsPassesWhenPresent(): void
@@ -215,5 +237,16 @@ class ValidationTraitTest extends TestCase
         $this->expectExceptionMessage('members[1] must be a non-empty string.');
 
         $this->validateGidArray(['12345', ''], 'members');
+    }
+
+    /**
+     * Test validateGidArray throws for non-numeric element.
+     */
+    public function testValidateGidArrayThrowsForNonNumericElement(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('followers[1] must be a numeric string.');
+
+        $this->validateGidArray(['12345', 'abc'], 'followers');
     }
 }

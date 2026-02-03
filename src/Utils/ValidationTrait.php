@@ -14,18 +14,28 @@ use InvalidArgumentException;
 trait ValidationTrait
 {
     /**
-     * Validate that a GID parameter is a non-empty string.
+     * Validate that a GID parameter is a non-empty numeric string.
+     *
+     * Asana GIDs are always numeric strings (e.g., "12345678901234").
      *
      * @param string $gid The GID to validate.
      * @param string $parameterName The name of the parameter for the error message.
      *
-     * @throws InvalidArgumentException If the GID is empty or not a valid format.
+     * @throws InvalidArgumentException If the GID is empty or not numeric.
      */
     protected function validateGid(string $gid, string $parameterName): void
     {
-        if (trim($gid) === '') {
+        $trimmedGid = trim($gid);
+
+        if ($trimmedGid === '') {
             throw new InvalidArgumentException(
                 sprintf('%s must be a non-empty string.', $parameterName)
+            );
+        }
+
+        if (!ctype_digit($trimmedGid)) {
+            throw new InvalidArgumentException(
+                sprintf('%s must be a numeric string.', $parameterName)
             );
         }
     }
@@ -169,6 +179,12 @@ trait ValidationTrait
             if (!is_string($gid) || trim($gid) === '') {
                 throw new InvalidArgumentException(
                     sprintf('%s[%d] must be a non-empty string.', $parameterName, $index)
+                );
+            }
+
+            if (!ctype_digit(trim($gid))) {
+                throw new InvalidArgumentException(
+                    sprintf('%s[%d] must be a numeric string.', $parameterName, $index)
                 );
             }
         }

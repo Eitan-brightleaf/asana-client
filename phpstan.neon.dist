@@ -1,3 +1,6 @@
+includes:
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+
 parameters:
   level: 6
   phpVersion: 70400
@@ -9,3 +12,8 @@ parameters:
     - vendor/autoload.php
   ignoreErrors:
     - identifier: missingType.iterableValue
+    # PHPUnit assertions on constants/literals in tests are intentional for documentation
+    -
+      message: '#Call to method PHPUnit\\Framework\\Assert::\w+\(\) .* will always evaluate to true#'
+      paths:
+        - tests/*

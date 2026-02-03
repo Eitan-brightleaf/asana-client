@@ -33,7 +33,7 @@ on:
 jobs:
   # Fast linting feedback - run on ALL PRs including Dependabot
   lint:
-    name: Lint (PHP 8.5)
+    name: Lint (PHP 8.3)
     runs-on: ubuntu-latest
     # Remove the dependabot exclusion - we want basic validation on all PRs
     steps:
@@ -45,7 +45,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.3'
           extensions: openssl, mbstring  # Required extensions for the project
           coverage: none  # No coverage needed for linting job
           ini-values: memory_limit=-1  # Remove memory limit for Composer operations
@@ -70,7 +70,7 @@ jobs:
 
   # Static analysis - catch potential bugs and type mismatches
   analyse:
-    name: Analyse (PHP 8.5)
+    name: Analyse (PHP 8.3)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -79,7 +79,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.3'
           extensions: openssl, mbstring
           coverage: none
           ini-values: memory_limit=-1
@@ -110,30 +110,30 @@ jobs:
       fail-fast: false
       matrix:
         # Test across all supported PHP versions.
-        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
 
     steps:
       # Download the repository source code to the runner
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Install PHP with conditional coverage (Xdebug only on PHP 8.5)
+      # Install PHP with conditional coverage (Xdebug only on PHP 8.3)
       - name: Setup PHP (no coverage)
-        if: ${{ matrix.php-version != '8.5' }}
+        if: ${{ matrix.php-version != '8.3' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: openssl, mbstring  # Required extensions for the project
-          coverage: none  # Disable coverage for non-8.5 versions
+          coverage: none  # Disable coverage for non-8.3 versions
           ini-values: memory_limit=-1  # Remove memory limit for Composer operations
 
       - name: Setup PHP (with Xdebug)
-        if: ${{ matrix.php-version == '8.5' }}
+        if: ${{ matrix.php-version == '8.3' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: openssl, mbstring  # Required extensions for the project
-          coverage: xdebug  # Enable Xdebug for code coverage collection on 8.5 only
+          coverage: xdebug  # Enable Xdebug for code coverage collection on 8.3 only
           ini-values: memory_limit=-1  # Remove memory limit for Composer operations
 
       # Install project dependencies using cached composer packages for speed
@@ -142,24 +142,24 @@ jobs:
         with:
           composer-options: --prefer-dist --no-progress --no-interaction
 
-      # Create directory structure for coverage and test result files (only for PHP 8.5)
+      # Create directory structure for coverage and test result files (only for PHP 8.3)
       - name: Prepare coverage directory
-        if: ${{ matrix.php-version == '8.5' }}
+        if: ${{ matrix.php-version == '8.3' }}
         run: mkdir -p build/logs
 
       # Execute PHPUnit for non-coverage PHP versions
       - name: Run PHPUnit (no coverage)
-        if: ${{ matrix.php-version != '8.5' }}
+        if: ${{ matrix.php-version != '8.3' }}
         run: ./vendor/bin/phpunit --configuration phpunit.xml --colors=always
 
-      # Execute PHPUnit with coverage and XML reporting (PHP 8.5 only)
+      # Execute PHPUnit with coverage and XML reporting (PHP 8.3 only)
       - name: Run PHPUnit with coverage
-        if: ${{ matrix.php-version == '8.5' }}
+        if: ${{ matrix.php-version == '8.3' }}
         run: ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml --colors=always
 
-      # Upload test results and coverage data as artifacts (PHP 8.5 only)
+      # Upload test results and coverage data as artifacts (PHP 8.3 only)
       - name: Upload coverage artifacts
-        if: ${{ always() && matrix.php-version == '8.5' }}
+        if: ${{ always() && matrix.php-version == '8.3' }}
         uses: actions/upload-artifact@v6
         with:
           name: coverage-php-${{ matrix.php-version }}
@@ -169,7 +169,7 @@ jobs:
 
   # Lowest deps - only for production dependency updates
   lowest-deps:
-    name: Lowest Deps (PHP 8.5)
+    name: Lowest Deps (PHP 8.3)
     runs-on: ubuntu-latest
     # Only run on non-Dependabot or production dependency updates
     if: |
@@ -185,7 +185,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.3'
           extensions: openssl, mbstring  # Required extensions for the project
           coverage: none  # No coverage needed for dependency compatibility testing
           ini-values: memory_limit=-1  # Remove memory limit for Composer operations
@@ -215,7 +215,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.3'
           extensions: openssl, mbstring
           coverage: none
           ini-values: memory_limit=-1

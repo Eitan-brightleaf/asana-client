@@ -52,7 +52,7 @@ body = """
 {%- for group, commits in release.commits | group_by(attribute="group") %}
 ### {{ group }}
 {%- for commit in commits %}
-- {{ commit.message | first_line | trim }} ({{ commit.id | truncate(length=7, end="") }})
+- {{ commit.message | split(pat="\n") | first | trim }} ({{ commit.id | truncate(length=7, end="") }})
 {%- endfor %}
 
 {%- endfor -%}
