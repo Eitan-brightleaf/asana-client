@@ -4,10 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
 use InvalidArgumentException;
 
 class UserApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -95,9 +98,11 @@ class UserApiService
         }
 
         if ($workspace) {
+            $this->validateGid($workspace, 'Workspace GID');
             $options['workspace'] = $workspace;
         }
         if ($team) {
+            $this->validateGid($team, 'Team GID');
             $options['team'] = $team;
         }
 
@@ -272,6 +277,8 @@ class UserApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($teamGid, 'Team GID');
+
         return $this->client->request('GET', "teams/$teamGid/users", ['query' => $options], $responseType);
     }
 
@@ -329,6 +336,8 @@ class UserApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request('GET', "workspaces/$workspaceGid/users", ['query' => $options], $responseType);
     }
 

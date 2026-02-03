@@ -344,6 +344,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'PUT',
             "projects/$projectGid",
@@ -393,6 +395,8 @@ class ProjectApiService
      */
     public function deleteProject(string $projectGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request('DELETE', "projects/$projectGid", [], $responseType);
     }
 
@@ -453,6 +457,8 @@ class ProjectApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/duplicate",
@@ -518,6 +524,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid/projects", ['query' => $options], $responseType);
     }
 
@@ -580,6 +588,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($teamGid, 'Team GID');
+
         return $this->client->request('GET', "teams/$teamGid/projects", ['query' => $options], $responseType);
     }
 
@@ -655,6 +665,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($teamGid, 'Team GID');
+
         return $this->client->request(
             'POST',
             "teams/$teamGid/projects",
@@ -720,6 +732,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request('GET', "workspaces/$workspaceGid/projects", ['query' => $options], $responseType);
     }
 
@@ -793,6 +807,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/projects",
@@ -857,6 +873,8 @@ class ProjectApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/addCustomFieldSetting",
@@ -910,6 +928,8 @@ class ProjectApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeCustomFieldSetting",
@@ -973,6 +993,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'GET',
             "projects/$projectGid/custom_field_settings",
@@ -1033,6 +1055,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request('GET', "projects/$projectGid/task_counts", ['query' => $options], $responseType);
     }
 
@@ -1090,6 +1114,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/addMembers",
@@ -1152,6 +1178,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeMembers",
@@ -1213,6 +1241,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/addFollowers",
@@ -1274,6 +1304,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/removeFollowers",
@@ -1344,6 +1376,8 @@ class ProjectApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/saveAsTemplate",

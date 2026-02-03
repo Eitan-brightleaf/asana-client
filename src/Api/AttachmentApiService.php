@@ -4,10 +4,14 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 use RuntimeException;
 
 class AttachmentApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -67,12 +71,15 @@ class AttachmentApiService
      *
      * @throws AsanaApiException If the API request fails due to invalid attachment GID,
      *                          insufficient permissions, network issues, or rate limiting
+     * @throws InvalidArgumentException If attachment GID is empty or not numeric
      */
     public function getAttachment(
         string $attachmentGid,
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($attachmentGid, 'Attachment GID');
+
         return $this->client->request('GET', "attachments/$attachmentGid", ['query' => $options], $responseType);
     }
 
@@ -112,9 +119,12 @@ class AttachmentApiService
      *                          - Insufficient permissions to delete the attachment
      *                          - Network connectivity issues
      *                          - Rate limiting
+     * @throws InvalidArgumentException If attachment GID is empty or not numeric
      */
     public function deleteAttachment(string $attachmentGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($attachmentGid, 'Attachment GID');
+
         return $this->client->request('DELETE', "attachments/$attachmentGid", [], $responseType);
     }
 
@@ -154,12 +164,15 @@ class AttachmentApiService
      *
      * @throws AsanaApiException If invalid parent GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
+     * @throws InvalidArgumentException If parent GID is empty or not numeric
      */
     public function getAttachmentsForObject(
         string $parentGid,
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($parentGid, 'Parent GID');
+
         $queryParams = array_merge(['parent' => $parentGid], $options);
         return $this->client->request('GET', 'attachments', ['query' => $queryParams], $responseType);
     }
@@ -201,6 +214,7 @@ class AttachmentApiService
      * @throws AsanaApiException If the file doesn't exist, is too large, invalid parent GID,
      *                          insufficient permissions, or network issues occur
      * @throws RuntimeException If the file does not exist or is not readable
+     * @throws InvalidArgumentException If parent GID is empty or not numeric
      */
     public function uploadAttachment(
         string $parentGid,
@@ -208,6 +222,8 @@ class AttachmentApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($parentGid, 'Parent GID');
+
         // Check if file exists and is readable before attempting to open
         if (!is_readable($filePath)) {
             throw new RuntimeException("File at '$filePath' does not exist or is not readable");
@@ -271,6 +287,7 @@ class AttachmentApiService
      *
      * @throws AsanaApiException If the file is too large, invalid parent GID, or network issues occur, etc.
      * @throws RuntimeException If the stream cannot be created or written to or if the stream is not writable
+     * @throws InvalidArgumentException If parent GID is empty or not numeric
      */
     public function uploadAttachmentFromContents(
         string $parentGid,
@@ -279,6 +296,8 @@ class AttachmentApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($parentGid, 'Parent GID');
+
         // Create a temporary stream with the file contents
         $stream = fopen('php://temp', 'r+');
         if ($stream === false) {
