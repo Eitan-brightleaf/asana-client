@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class CustomFieldApiService
 {
+    use ValidationTrait;
+
     /**
      * The Asana API client instance
      *
@@ -145,6 +149,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+
         return $this->client->request('GET', "custom_fields/$customFieldGid", ['query' => $options], $responseType);
     }
 
@@ -200,6 +206,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+
         return $this->client->request(
             'PUT',
             "custom_fields/$customFieldGid",
@@ -244,6 +252,8 @@ class CustomFieldApiService
      */
     public function deleteCustomField(string $customFieldGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+
         return $this->client->request('DELETE', "custom_fields/$customFieldGid", [], $responseType);
     }
 
@@ -290,6 +300,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/custom_fields",
@@ -350,6 +362,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+
         return $this->client->request(
             'POST',
             "custom_fields/$customFieldGid/enum_options",
@@ -408,6 +422,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+
         return $this->client->request(
             'POST',
             "custom_fields/$customFieldGid/enum_options/insert",
@@ -467,6 +483,9 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($customFieldGid, 'Custom field GID');
+        $this->validateGid($enumOptionGid, 'Enum option GID');
+
         return $this->client->request(
             'PUT',
             "custom_fields/$customFieldGid/enum_options/$enumOptionGid",
@@ -521,6 +540,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'GET',
             "projects/$projectGid/custom_field_settings",
@@ -575,6 +596,8 @@ class CustomFieldApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($portfolioGid, 'Portfolio GID');
+
         return $this->client->request(
             'GET',
             "portfolios/$portfolioGid/custom_field_settings",

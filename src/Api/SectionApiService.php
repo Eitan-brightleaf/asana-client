@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class SectionApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -81,6 +85,8 @@ class SectionApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($sectionGid, 'Section GID');
+
         return $this->client->request('GET', "sections/$sectionGid", ['query' => $options], $responseType);
     }
 
@@ -140,6 +146,8 @@ class SectionApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($sectionGid, 'Section GID');
+
         return $this->client->request(
             'PUT',
             "sections/$sectionGid",
@@ -191,6 +199,8 @@ class SectionApiService
      */
     public function deleteSection(string $sectionGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($sectionGid, 'Section GID');
+
         return $this->client->request('DELETE', "sections/$sectionGid", [], $responseType);
     }
 
@@ -249,6 +259,8 @@ class SectionApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request('GET', "projects/$projectGid/sections", ['query' => $options], $responseType);
     }
 
@@ -314,6 +326,8 @@ class SectionApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/sections",
@@ -372,6 +386,8 @@ class SectionApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($sectionGid, 'Section GID');
+
         return $this->client->request(
             'POST',
             "sections/$sectionGid/addTask",
@@ -430,6 +446,8 @@ class SectionApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "projects/$projectGid/sections/insert",

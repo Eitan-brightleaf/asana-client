@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class TaskApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -240,12 +244,15 @@ class TaskApiService
      *
      * @throws AsanaApiException If invalid task GID provided, insufficient permissions,
      *                          network issues, or rate limiting occurs
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function getTask(
         string $taskGid,
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid", ['query' => $options], $responseType);
     }
 
@@ -317,6 +324,7 @@ class TaskApiService
      *
      * @throws AsanaApiException If invalid task GID provided, malformed data,
      *                         insufficient permissions, or network issues occur
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function updateTask(
         string $taskGid,
@@ -324,6 +332,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'PUT',
             "tasks/$taskGid",
@@ -370,9 +380,12 @@ class TaskApiService
      *                         - Insufficient permissions to delete/trash the task
      *                         - Network connectivity issues
      *                         - Rate limiting
+     * @throws InvalidArgumentException If task GID is empty
      */
     public function deleteTask(string $taskGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('DELETE', "tasks/$taskGid", [], $responseType);
     }
 
@@ -434,6 +447,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/duplicate",
@@ -503,6 +518,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request('GET', "projects/$projectGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -566,6 +583,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($sectionGid, 'Section GID');
+
         return $this->client->request('GET', "sections/$sectionGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -630,6 +649,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -694,6 +715,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($userTaskListGid, 'User Task List GID');
+
         return $this->client->request(
             'GET',
             "user_task_lists/$userTaskListGid/tasks",
@@ -762,6 +785,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid/subtasks", ['query' => $options], $responseType);
     }
 
@@ -835,6 +860,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/subtasks",
@@ -907,6 +934,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/setParent",
@@ -975,6 +1004,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid/dependencies", ['query' => $options], $responseType);
     }
 
@@ -1029,6 +1060,8 @@ class TaskApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependencies",
@@ -1085,6 +1118,8 @@ class TaskApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependencies",
@@ -1154,6 +1189,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request('GET', "tasks/$taskGid/dependents", ['query' => $options], $responseType);
     }
 
@@ -1209,6 +1246,8 @@ class TaskApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addDependents",
@@ -1265,6 +1304,8 @@ class TaskApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeDependents",
@@ -1322,6 +1363,9 @@ class TaskApiService
         array $data = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+        $this->validateGid($projectGid, 'Project GID');
+
         $data['project'] = $projectGid;
         return $this->client->request(
             'POST',
@@ -1371,6 +1415,9 @@ class TaskApiService
         string $projectGid,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+        $this->validateGid($projectGid, 'Project GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeProject",
@@ -1421,6 +1468,9 @@ class TaskApiService
         string $tagGid,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/addTag",
@@ -1471,6 +1521,9 @@ class TaskApiService
         string $tagGid,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request(
             'POST',
             "tasks/$taskGid/removeTag",
@@ -1525,6 +1578,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         $data = ['followers' => $followers];
         return $this->client->request(
             'POST',
@@ -1580,6 +1635,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+
         $data = ['followers' => $followers];
         return $this->client->request(
             'POST',
@@ -1642,6 +1699,8 @@ class TaskApiService
         string $customId,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request('GET', "workspaces/$workspaceGid/tasks/custom_id/$customId", [], $responseType);
     }
 
@@ -1732,6 +1791,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/tasks/search",
@@ -1786,6 +1847,9 @@ class TaskApiService
         string $assigneeGid,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($taskGid, 'Task GID');
+        $this->validateGid($assigneeGid, 'Assignee GID');
+
         return $this->updateTask($taskGid, ['assignee' => $assigneeGid], [], $responseType);
     }
 
@@ -1844,6 +1908,8 @@ class TaskApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         $options['due_on.before'] = date('c'); // Include tasks with a due date before now (ISO 8601 format)
         $options['completed'] = false; // Exclude completed tasks
 

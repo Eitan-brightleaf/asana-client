@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class TagsApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -87,6 +91,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspace, 'Workspace GID');
+
         // Include workspace in options
         $options['workspace'] = $workspace;
 
@@ -209,6 +215,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request('GET', "tags/$tagGid", ['query' => $options], $responseType);
     }
 
@@ -268,6 +276,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request(
             'PUT',
             "tags/$tagGid",
@@ -312,6 +322,8 @@ class TagsApiService
      */
     public function deleteTag(string $tagGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request('DELETE', "tags/$tagGid", [], $responseType);
     }
 
@@ -374,6 +386,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($tagGid, 'Tag GID');
+
         return $this->client->request('GET', "tags/$tagGid/tasks", ['query' => $options], $responseType);
     }
 
@@ -433,6 +447,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request('GET', "workspaces/$workspaceGid/tags", ['query' => $options], $responseType);
     }
 
@@ -501,6 +517,8 @@ class TagsApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/tags",

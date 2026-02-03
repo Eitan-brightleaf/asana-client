@@ -3,6 +3,7 @@
 namespace BrightleafDigital\Tests\Http;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
+use BrightleafDigital\Exceptions\RateLimitException;
 use BrightleafDigital\Http\AsanaApiClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
@@ -11,6 +12,8 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use ReflectionClass;
 
 class AsanaApiClientTest extends TestCase
@@ -467,5 +470,287 @@ class AsanaApiClientTest extends TestCase
 
         // Verify the client was created (we can't easily inspect Guzzle config)
         $this->assertInstanceOf(GuzzleClient::class, $httpClient);
+    }
+
+    /**
+     * Test default retry constants are defined correctly.
+     */
+    public function testRetryConstants(): void
+    {
+        $this->assertSame(3, AsanaApiClient::DEFAULT_MAX_RETRIES);
+        $this->assertSame(1, AsanaApiClient::DEFAULT_INITIAL_BACKOFF);
+    }
+
+    /**
+     * Test constructor with custom logger.
+     * @throws MockException
+     */
+    public function testConstructorWithCustomLogger(): void
+    {
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $client = new AsanaApiClient('test-token', $mockLogger);
+
+        $this->assertSame($mockLogger, $client->getLogger());
+    }
+
+    /**
+     * Test constructor uses NullLogger by default.
+     */
+    public function testConstructorUsesNullLoggerByDefault(): void
+    {
+        $client = new AsanaApiClient('test-token');
+
+        $this->assertInstanceOf(NullLogger::class, $client->getLogger());
+    }
+
+    /**
+     * Test constructor with custom retry settings.
+     */
+    public function testConstructorWithCustomRetrySettings(): void
+    {
+        $client = new AsanaApiClient('test-token', null, 5, 2);
+
+        $reflection = new ReflectionClass(AsanaApiClient::class);
+
+        $maxRetriesProperty = $reflection->getProperty('maxRetries');
+        $maxRetriesProperty->setAccessible(true);
+        $this->assertSame(5, $maxRetriesProperty->getValue($client));
+
+        $initialBackoffProperty = $reflection->getProperty('initialBackoff');
+        $initialBackoffProperty->setAccessible(true);
+        $this->assertSame(2, $initialBackoffProperty->getValue($client));
+    }
+
+    /**
+     * Test setLogger changes the logger.
+     * @throws MockException
+     */
+    public function testSetLogger(): void
+    {
+        $client = new AsanaApiClient('test-token');
+        $mockLogger = $this->createMock(LoggerInterface::class);
+
+        $result = $client->setLogger($mockLogger);
+
+        $this->assertSame($client, $result); // Fluent interface
+        $this->assertSame($mockLogger, $client->getLogger());
+    }
+
+    /**
+     * Test rate limit exception is thrown after max retries.
+     * @throws MockException
+     */
+    public function testRateLimitExceptionAfterMaxRetries(): void
+    {
+        // Create client with 0 retries to immediately throw exception
+        $apiClient = new AsanaApiClient('test-token', null, 0);
+
+        $mockHttpClient = $this->createMock(GuzzleClient::class);
+
+        // Replace the internal httpClient with our mock
+        $reflection = new ReflectionClass(AsanaApiClient::class);
+        $httpClientProperty = $reflection->getProperty('httpClient');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($apiClient, $mockHttpClient);
+
+        // Create a rate limit response
+        $mockStream = $this->createMock(StreamInterface::class);
+        $mockStream->method('__toString')->willReturn(json_encode([
+            'errors' => [['message' => 'Rate limit exceeded']]
+        ]));
+
+        $mockResponse = $this->createMock(Response::class);
+        $mockResponse->method('getBody')->willReturn($mockStream);
+        $mockResponse->method('getStatusCode')->willReturn(429);
+        $mockResponse->method('getReasonPhrase')->willReturn('Too Many Requests');
+        $mockResponse->method('hasHeader')->with('Retry-After')->willReturn(true);
+        $mockResponse->method('getHeaderLine')->with('Retry-After')->willReturn('30');
+
+        $mockRequest = $this->createMock(Request::class);
+
+        $exception = new RequestException(
+            'Rate limit exceeded',
+            $mockRequest,
+            $mockResponse
+        );
+
+        $mockHttpClient->expects($this->once())
+            ->method('request')
+            ->willThrowException($exception);
+
+        $this->expectException(RateLimitException::class);
+        $this->expectExceptionMessage('Rate limit exceeded. Please retry after');
+
+        $apiClient->request('GET', 'tasks');
+    }
+
+    /**
+     * Test that rate limit exception contains retry after value.
+     * @throws MockException
+     */
+    public function testRateLimitExceptionContainsRetryAfter(): void
+    {
+        // Create client with 0 retries to immediately throw exception
+        $apiClient = new AsanaApiClient('test-token', null, 0);
+
+        $mockHttpClient = $this->createMock(GuzzleClient::class);
+
+        // Replace the internal httpClient with our mock
+        $reflection = new ReflectionClass(AsanaApiClient::class);
+        $httpClientProperty = $reflection->getProperty('httpClient');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($apiClient, $mockHttpClient);
+
+        // Create a rate limit response
+        $mockStream = $this->createMock(StreamInterface::class);
+        $mockStream->method('__toString')->willReturn('{}');
+
+        $mockResponse = $this->createMock(Response::class);
+        $mockResponse->method('getBody')->willReturn($mockStream);
+        $mockResponse->method('getStatusCode')->willReturn(429);
+        $mockResponse->method('getReasonPhrase')->willReturn('Too Many Requests');
+        $mockResponse->method('hasHeader')->with('Retry-After')->willReturn(true);
+        $mockResponse->method('getHeaderLine')->with('Retry-After')->willReturn('45');
+
+        $mockRequest = $this->createMock(Request::class);
+
+        $exception = new RequestException(
+            'Rate limit exceeded',
+            $mockRequest,
+            $mockResponse
+        );
+
+        $mockHttpClient->expects($this->once())
+            ->method('request')
+            ->willThrowException($exception);
+
+        try {
+            $apiClient->request('GET', 'tasks');
+            $this->fail('Expected RateLimitException was not thrown');
+        } catch (RateLimitException $e) {
+            $this->assertSame(45, $e->getRetryAfter());
+            $this->assertSame(429, $e->getCode());
+        }
+    }
+
+    /**
+     * Test logger receives debug calls during successful request.
+     * @throws MockException
+     */
+    public function testLoggerReceivesDebugCalls(): void
+    {
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $mockLogger->expects($this->exactly(2))
+            ->method('debug');
+
+        $apiClient = new AsanaApiClient('test-token', $mockLogger);
+
+        $mockHttpClient = $this->createMock(GuzzleClient::class);
+
+        // Replace the internal httpClient with our mock
+        $reflection = new ReflectionClass(AsanaApiClient::class);
+        $httpClientProperty = $reflection->getProperty('httpClient');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($apiClient, $mockHttpClient);
+
+        $responseBody = ['data' => ['gid' => '12345']];
+
+        $mockStream = $this->createMock(StreamInterface::class);
+        $mockStream->method('__toString')->willReturn(json_encode($responseBody));
+
+        $mockResponse = $this->createMock(Response::class);
+        $mockResponse->method('getBody')->willReturn($mockStream);
+        $mockResponse->method('getStatusCode')->willReturn(200);
+
+        $mockHttpClient->expects($this->once())
+            ->method('request')
+            ->willReturn($mockResponse);
+
+        $apiClient->request('GET', 'tasks/12345');
+    }
+
+    /**
+     * Test logger receives error call on API failure.
+     * @throws MockException
+     */
+    public function testLoggerReceivesErrorOnFailure(): void
+    {
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $mockLogger->expects($this->once())
+            ->method('debug');
+        $mockLogger->expects($this->once())
+            ->method('error');
+
+        $apiClient = new AsanaApiClient('test-token', $mockLogger);
+
+        $mockHttpClient = $this->createMock(GuzzleClient::class);
+
+        // Replace the internal httpClient with our mock
+        $reflection = new ReflectionClass(AsanaApiClient::class);
+        $httpClientProperty = $reflection->getProperty('httpClient');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($apiClient, $mockHttpClient);
+
+        $mockStream = $this->createMock(StreamInterface::class);
+        $mockStream->method('__toString')->willReturn('Server Error');
+
+        $mockResponse = $this->createMock(Response::class);
+        $mockResponse->method('getBody')->willReturn($mockStream);
+        $mockResponse->method('getStatusCode')->willReturn(500);
+        $mockResponse->method('getReasonPhrase')->willReturn('Internal Server Error');
+
+        $mockRequest = $this->createMock(Request::class);
+
+        $exception = new RequestException(
+            'Server error',
+            $mockRequest,
+            $mockResponse
+        );
+
+        $mockHttpClient->expects($this->once())
+            ->method('request')
+            ->willThrowException($exception);
+
+        $this->expectException(AsanaApiException::class);
+
+        $apiClient->request('GET', 'tasks');
+    }
+
+    /**
+     * Test RESPONSE_FULL sanitizes options in output.
+     * @throws MockException
+     */
+    public function testResponseFullSanitizesOptions(): void
+    {
+        $responseBody = ['data' => ['gid' => '12345']];
+
+        $mockStream = $this->createMock(StreamInterface::class);
+        $mockStream->method('__toString')->willReturn(json_encode($responseBody));
+
+        $mockResponse = $this->createMock(Response::class);
+        $mockResponse->method('getBody')->willReturn($mockStream);
+        $mockResponse->method('getStatusCode')->willReturn(200);
+        $mockResponse->method('getReasonPhrase')->willReturn('OK');
+        $mockResponse->method('getHeaders')->willReturn([]);
+
+        $this->mockHttpClient->expects($this->once())
+            ->method('request')
+            ->willReturn($mockResponse);
+
+        $optionsWithAuth = [
+            'headers' => ['Authorization' => 'Bearer secret-token'],
+            'query' => ['limit' => 10]
+        ];
+
+        $result = $this->apiClient->request(
+            'GET',
+            'tasks',
+            $optionsWithAuth,
+            AsanaApiClient::RESPONSE_FULL
+        );
+
+        // The options in the response should have Authorization redacted
+        $this->assertSame('[REDACTED]', $result['request']['options']['headers']['Authorization']);
+        $this->assertSame(['limit' => 10], $result['request']['options']['query']);
     }
 }

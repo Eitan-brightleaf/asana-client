@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class MembershipApiService
 {
+    use ValidationTrait;
+
     /**
      * An HTTP client instance configured to interact with the Asana API.
      *
@@ -213,6 +217,8 @@ class MembershipApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($membershipGid, 'Membership GID');
+
         return $this->client->request('GET', "memberships/$membershipGid", ['query' => $options], $responseType);
     }
 
@@ -275,6 +281,8 @@ class MembershipApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($membershipGid, 'Membership GID');
+
         return $this->client->request(
             'PUT',
             "memberships/$membershipGid",
@@ -323,6 +331,8 @@ class MembershipApiService
      */
     public function deleteMembership(string $membershipGid, int $responseType = AsanaApiClient::RESPONSE_DATA): array
     {
+        $this->validateGid($membershipGid, 'Membership GID');
+
         return $this->client->request('DELETE', "memberships/$membershipGid", [], $responseType);
     }
 }

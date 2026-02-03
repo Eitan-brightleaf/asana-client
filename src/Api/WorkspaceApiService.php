@@ -4,9 +4,13 @@ namespace BrightleafDigital\Api;
 
 use BrightleafDigital\Exceptions\AsanaApiException;
 use BrightleafDigital\Http\AsanaApiClient;
+use BrightleafDigital\Utils\ValidationTrait;
+use InvalidArgumentException;
 
 class WorkspaceApiService
 {
+    use ValidationTrait;
+
     /**
      * The Asana API client instance
      *
@@ -129,6 +133,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request('GET', "workspaces/$workspaceGid", ['query' => $options], $responseType);
     }
 
@@ -186,6 +192,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'PUT',
             "workspaces/$workspaceGid",
@@ -252,6 +260,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/addUser",
@@ -307,6 +317,8 @@ class WorkspaceApiService
         array $data,
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'POST',
             "workspaces/$workspaceGid/removeUser",
@@ -367,6 +379,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/users",
@@ -427,6 +441,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/teams",
@@ -491,6 +507,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/projects",
@@ -572,6 +590,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/tasks/search",
@@ -637,6 +657,8 @@ class WorkspaceApiService
         array $options = [],
         int $responseType = AsanaApiClient::RESPONSE_DATA
     ): array {
+        $this->validateGid($workspaceGid, 'Workspace GID');
+
         return $this->client->request(
             'GET',
             "workspaces/$workspaceGid/events",
