@@ -39,6 +39,7 @@ class Scopes
 
     /**
      * 🔹 Goals
+     * - GET /goals/{goal_gid}/custom_field_settings
      * - GET /goals/{goal_gid}
      * - GET /goals
      * - GET /goals/{goal_gid}/parentGoals
@@ -47,6 +48,7 @@ class Scopes
 
     // 🔹 Portfolios
     /**
+     * - GET /portfolios/{portfolio_gid}/custom_field_settings
      * - GET /portfolios
      * - GET /portfolios/{portfolio_gid}
      * - GET /portfolios/{portfolio_gid}/items
@@ -78,6 +80,7 @@ class Scopes
     public const PROJECTS_DELETE = 'projects:delete';
 
     /**
+     * - GET /projects/{project_gid}/custom_field_settings
      * - GET /projects
      * - GET /projects/{project_gid}
      * - GET /tasks/{task_gid}/projects
@@ -188,6 +191,7 @@ class Scopes
 
     /**
      * 🔹 Teams
+     * - GET /teams/{team_gid}/custom_field_settings
      * - GET /teams/{team_gid}
      * - GET /workspaces/{workspace_gid}/teams
      * - GET /users/{user_gid}/teams
@@ -228,6 +232,7 @@ class Scopes
      * - GET /users/{user_gid}/favorites
      * - GET /teams/{team_gid}/users
      * - GET /workspaces/{workspace_gid}/users
+     * - GET /workspaces/{workspace_gid}/users/{user_gid}
      */
     public const USERS_READ = 'users:read';
 
