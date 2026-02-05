@@ -6,6 +6,7 @@ use BrightleafDigital\Api\AttachmentApiService;
 use BrightleafDigital\Api\CustomFieldApiService;
 use BrightleafDigital\Api\EventsApiService;
 use BrightleafDigital\Api\MembershipApiService;
+use BrightleafDigital\Api\GoalsApiService;
 use BrightleafDigital\Api\PortfoliosApiService;
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\SectionApiService;
@@ -124,6 +125,11 @@ class AsanaClient
      * @var PortfoliosApiService|null
      */
     private ?PortfoliosApiService $portfolios = null;
+    /**
+     * Goals API service instance
+     * @var GoalsApiService|null
+     */
+    private ?GoalsApiService $goals = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -445,6 +451,23 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->portfolios;
+    }
+
+    /**
+     * Retrieve the Goals API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return GoalsApiService The initialized GoalsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function goals(): GoalsApiService
+    {
+        if ($this->goals === null) {
+            $this->goals = new GoalsApiService($this->getApiClient());
+            return $this->goals;
+        }
+        $this->ensureValidToken();
+        return $this->goals;
     }
 
     /**
