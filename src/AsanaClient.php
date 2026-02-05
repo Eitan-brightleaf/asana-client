@@ -6,6 +6,7 @@ use BrightleafDigital\Api\AttachmentApiService;
 use BrightleafDigital\Api\CustomFieldApiService;
 use BrightleafDigital\Api\EventsApiService;
 use BrightleafDigital\Api\MembershipApiService;
+use BrightleafDigital\Api\PortfoliosApiService;
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
@@ -118,6 +119,11 @@ class AsanaClient
      * @var TeamsApiService|null
      */
     private ?TeamsApiService $teams = null;
+    /**
+     * Portfolios API service instance
+     * @var PortfoliosApiService|null
+     */
+    private ?PortfoliosApiService $portfolios = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -422,6 +428,23 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->teams;
+    }
+
+    /**
+     * Retrieve the Portfolios API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return PortfoliosApiService The initialized PortfoliosApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function portfolios(): PortfoliosApiService
+    {
+        if ($this->portfolios === null) {
+            $this->portfolios = new PortfoliosApiService($this->getApiClient());
+            return $this->portfolios;
+        }
+        $this->ensureValidToken();
+        return $this->portfolios;
     }
 
     /**
