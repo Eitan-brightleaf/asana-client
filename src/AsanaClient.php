@@ -3,13 +3,23 @@
 namespace BrightleafDigital;
 
 use BrightleafDigital\Api\AttachmentApiService;
+use BrightleafDigital\Api\BatchApiService;
 use BrightleafDigital\Api\CustomFieldApiService;
+use BrightleafDigital\Api\EventsApiService;
 use BrightleafDigital\Api\MembershipApiService;
+use BrightleafDigital\Api\GoalsApiService;
+use BrightleafDigital\Api\PortfoliosApiService;
 use BrightleafDigital\Api\ProjectApiService;
+use BrightleafDigital\Api\ProjectTemplatesApiService;
 use BrightleafDigital\Api\SectionApiService;
+use BrightleafDigital\Api\StatusUpdatesApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
+use BrightleafDigital\Api\TeamsApiService;
+use BrightleafDigital\Api\TimeTrackingEntriesApiService;
 use BrightleafDigital\Api\UserApiService;
+use BrightleafDigital\Api\UserTaskListsApiService;
+use BrightleafDigital\Api\WebhooksApiService;
 use BrightleafDigital\Api\WorkspaceApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Exceptions\TokenInvalidException;
@@ -100,6 +110,56 @@ class AsanaClient
      * @var CustomFieldApiService|null
      */
     private ?CustomFieldApiService $customFields = null;
+    /**
+     * Webhooks API service instance
+     * @var WebhooksApiService|null
+     */
+    private ?WebhooksApiService $webhooks = null;
+    /**
+     * Events API service instance
+     * @var EventsApiService|null
+     */
+    private ?EventsApiService $events = null;
+    /**
+     * Teams API service instance
+     * @var TeamsApiService|null
+     */
+    private ?TeamsApiService $teams = null;
+    /**
+     * Portfolios API service instance
+     * @var PortfoliosApiService|null
+     */
+    private ?PortfoliosApiService $portfolios = null;
+    /**
+     * Goals API service instance
+     * @var GoalsApiService|null
+     */
+    private ?GoalsApiService $goals = null;
+    /**
+     * Time Tracking Entries API service instance
+     * @var TimeTrackingEntriesApiService|null
+     */
+    private ?TimeTrackingEntriesApiService $timeTrackingEntries = null;
+    /**
+     * Project Templates API service instance
+     * @var ProjectTemplatesApiService|null
+     */
+    private ?ProjectTemplatesApiService $projectTemplates = null;
+    /**
+     * Batch API service instance
+     * @var BatchApiService|null
+     */
+    private ?BatchApiService $batch = null;
+    /**
+     * Status Updates API service instance
+     * @var StatusUpdatesApiService|null
+     */
+    private ?StatusUpdatesApiService $statusUpdates = null;
+    /**
+     * User Task Lists API service instance
+     * @var UserTaskListsApiService|null
+     */
+    private ?UserTaskListsApiService $userTaskLists = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -353,6 +413,189 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->customFields;
+    }
+
+    /**
+     * Retrieve the Webhooks API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return WebhooksApiService The initialized WebhooksApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function webhooks(): WebhooksApiService
+    {
+        if ($this->webhooks === null) {
+            $this->webhooks = new WebhooksApiService($this->getApiClient());
+            return $this->webhooks;
+        }
+        $this->ensureValidToken();
+        return $this->webhooks;
+    }
+
+    /**
+     * Retrieve the Events API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return EventsApiService The initialized EventsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function events(): EventsApiService
+    {
+        if ($this->events === null) {
+            $this->events = new EventsApiService($this->getApiClient());
+            return $this->events;
+        }
+        $this->ensureValidToken();
+        return $this->events;
+    }
+
+    /**
+     * Retrieve the Teams API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return TeamsApiService The initialized TeamsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function teams(): TeamsApiService
+    {
+        if ($this->teams === null) {
+            $this->teams = new TeamsApiService($this->getApiClient());
+            return $this->teams;
+        }
+        $this->ensureValidToken();
+        return $this->teams;
+    }
+
+    /**
+     * Retrieve the Portfolios API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return PortfoliosApiService The initialized PortfoliosApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function portfolios(): PortfoliosApiService
+    {
+        if ($this->portfolios === null) {
+            $this->portfolios = new PortfoliosApiService($this->getApiClient());
+            return $this->portfolios;
+        }
+        $this->ensureValidToken();
+        return $this->portfolios;
+    }
+
+    /**
+     * Retrieve the Goals API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return GoalsApiService The initialized GoalsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function goals(): GoalsApiService
+    {
+        if ($this->goals === null) {
+            $this->goals = new GoalsApiService($this->getApiClient());
+            return $this->goals;
+        }
+        $this->ensureValidToken();
+        return $this->goals;
+    }
+
+    /**
+     * Retrieve the Time Tracking Entries API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return TimeTrackingEntriesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function timeTrackingEntries(): TimeTrackingEntriesApiService
+    {
+        if ($this->timeTrackingEntries === null) {
+            $this->timeTrackingEntries = new TimeTrackingEntriesApiService(
+                $this->getApiClient()
+            );
+            return $this->timeTrackingEntries;
+        }
+        $this->ensureValidToken();
+        return $this->timeTrackingEntries;
+    }
+
+    /**
+     * Retrieve the Project Templates API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return ProjectTemplatesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function projectTemplates(): ProjectTemplatesApiService
+    {
+        if ($this->projectTemplates === null) {
+            $this->projectTemplates = new ProjectTemplatesApiService(
+                $this->getApiClient()
+            );
+            return $this->projectTemplates;
+        }
+        $this->ensureValidToken();
+        return $this->projectTemplates;
+    }
+
+    /**
+     * Retrieve the Batch API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return BatchApiService The initialized BatchApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function batch(): BatchApiService
+    {
+        if ($this->batch === null) {
+            $this->batch = new BatchApiService($this->getApiClient());
+            return $this->batch;
+        }
+        $this->ensureValidToken();
+        return $this->batch;
+    }
+
+    /**
+     * Retrieve the Status Updates API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return StatusUpdatesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function statusUpdates(): StatusUpdatesApiService
+    {
+        if ($this->statusUpdates === null) {
+            $this->statusUpdates = new StatusUpdatesApiService(
+                $this->getApiClient()
+            );
+            return $this->statusUpdates;
+        }
+        $this->ensureValidToken();
+        return $this->statusUpdates;
+    }
+
+    /**
+     * Retrieve the User Task Lists API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return UserTaskListsApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function userTaskLists(): UserTaskListsApiService
+    {
+        if ($this->userTaskLists === null) {
+            $this->userTaskLists = new UserTaskListsApiService(
+                $this->getApiClient()
+            );
+            return $this->userTaskLists;
+        }
+        $this->ensureValidToken();
+        return $this->userTaskLists;
     }
 
     /**
