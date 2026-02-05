@@ -3,6 +3,7 @@
 namespace BrightleafDigital;
 
 use BrightleafDigital\Api\AttachmentApiService;
+use BrightleafDigital\Api\BatchApiService;
 use BrightleafDigital\Api\CustomFieldApiService;
 use BrightleafDigital\Api\EventsApiService;
 use BrightleafDigital\Api\MembershipApiService;
@@ -142,6 +143,11 @@ class AsanaClient
      * @var ProjectTemplatesApiService|null
      */
     private ?ProjectTemplatesApiService $projectTemplates = null;
+    /**
+     * Batch API service instance
+     * @var BatchApiService|null
+     */
+    private ?BatchApiService $batch = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -520,6 +526,24 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->projectTemplates;
+    }
+
+    /**
+     * Retrieve the Batch API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return BatchApiService The initialized BatchApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function batch(): BatchApiService
+    {
+        if ($this->batch === null) {
+            $this->batch = new BatchApiService($this->getApiClient());
+            return $this->batch;
+        }
+        $this->ensureValidToken();
+        return $this->batch;
     }
 
     /**
