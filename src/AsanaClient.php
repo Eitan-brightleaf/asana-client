@@ -9,6 +9,7 @@ use BrightleafDigital\Api\MembershipApiService;
 use BrightleafDigital\Api\GoalsApiService;
 use BrightleafDigital\Api\PortfoliosApiService;
 use BrightleafDigital\Api\ProjectApiService;
+use BrightleafDigital\Api\ProjectTemplatesApiService;
 use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
@@ -136,6 +137,11 @@ class AsanaClient
      * @var TimeTrackingEntriesApiService|null
      */
     private ?TimeTrackingEntriesApiService $timeTrackingEntries = null;
+    /**
+     * Project Templates API service instance
+     * @var ProjectTemplatesApiService|null
+     */
+    private ?ProjectTemplatesApiService $projectTemplates = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -494,6 +500,26 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->timeTrackingEntries;
+    }
+
+    /**
+     * Retrieve the Project Templates API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return ProjectTemplatesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function projectTemplates(): ProjectTemplatesApiService
+    {
+        if ($this->projectTemplates === null) {
+            $this->projectTemplates = new ProjectTemplatesApiService(
+                $this->getApiClient()
+            );
+            return $this->projectTemplates;
+        }
+        $this->ensureValidToken();
+        return $this->projectTemplates;
     }
 
     /**
