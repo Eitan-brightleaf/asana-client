@@ -18,6 +18,7 @@ use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\TeamsApiService;
 use BrightleafDigital\Api\TimeTrackingEntriesApiService;
 use BrightleafDigital\Api\UserApiService;
+use BrightleafDigital\Api\UserTaskListsApiService;
 use BrightleafDigital\Api\WebhooksApiService;
 use BrightleafDigital\Api\WorkspaceApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
@@ -154,6 +155,11 @@ class AsanaClient
      * @var StatusUpdatesApiService|null
      */
     private ?StatusUpdatesApiService $statusUpdates = null;
+    /**
+     * User Task Lists API service instance
+     * @var UserTaskListsApiService|null
+     */
+    private ?UserTaskListsApiService $userTaskLists = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -570,6 +576,26 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->statusUpdates;
+    }
+
+    /**
+     * Retrieve the User Task Lists API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return UserTaskListsApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function userTaskLists(): UserTaskListsApiService
+    {
+        if ($this->userTaskLists === null) {
+            $this->userTaskLists = new UserTaskListsApiService(
+                $this->getApiClient()
+            );
+            return $this->userTaskLists;
+        }
+        $this->ensureValidToken();
+        return $this->userTaskLists;
     }
 
     /**
