@@ -13,6 +13,7 @@ use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\TeamsApiService;
+use BrightleafDigital\Api\TimeTrackingEntriesApiService;
 use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Api\WebhooksApiService;
 use BrightleafDigital\Api\WorkspaceApiService;
@@ -130,6 +131,11 @@ class AsanaClient
      * @var GoalsApiService|null
      */
     private ?GoalsApiService $goals = null;
+    /**
+     * Time Tracking Entries API service instance
+     * @var TimeTrackingEntriesApiService|null
+     */
+    private ?TimeTrackingEntriesApiService $timeTrackingEntries = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -468,6 +474,26 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->goals;
+    }
+
+    /**
+     * Retrieve the Time Tracking Entries API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return TimeTrackingEntriesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function timeTrackingEntries(): TimeTrackingEntriesApiService
+    {
+        if ($this->timeTrackingEntries === null) {
+            $this->timeTrackingEntries = new TimeTrackingEntriesApiService(
+                $this->getApiClient()
+            );
+            return $this->timeTrackingEntries;
+        }
+        $this->ensureValidToken();
+        return $this->timeTrackingEntries;
     }
 
     /**
