@@ -4,6 +4,7 @@ namespace BrightleafDigital;
 
 use BrightleafDigital\Api\AttachmentApiService;
 use BrightleafDigital\Api\CustomFieldApiService;
+use BrightleafDigital\Api\EventsApiService;
 use BrightleafDigital\Api\MembershipApiService;
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\SectionApiService;
@@ -106,6 +107,11 @@ class AsanaClient
      * @var WebhooksApiService|null
      */
     private ?WebhooksApiService $webhooks = null;
+    /**
+     * Events API service instance
+     * @var EventsApiService|null
+     */
+    private ?EventsApiService $events = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -376,6 +382,23 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->webhooks;
+    }
+
+    /**
+     * Retrieve the Events API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return EventsApiService The initialized EventsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function events(): EventsApiService
+    {
+        if ($this->events === null) {
+            $this->events = new EventsApiService($this->getApiClient());
+            return $this->events;
+        }
+        $this->ensureValidToken();
+        return $this->events;
     }
 
     /**
