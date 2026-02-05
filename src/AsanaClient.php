@@ -10,6 +10,7 @@ use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
+use BrightleafDigital\Api\TeamsApiService;
 use BrightleafDigital\Api\UserApiService;
 use BrightleafDigital\Api\WebhooksApiService;
 use BrightleafDigital\Api\WorkspaceApiService;
@@ -112,6 +113,11 @@ class AsanaClient
      * @var EventsApiService|null
      */
     private ?EventsApiService $events = null;
+    /**
+     * Teams API service instance
+     * @var TeamsApiService|null
+     */
+    private ?TeamsApiService $teams = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -399,6 +405,23 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->events;
+    }
+
+    /**
+     * Retrieve the Teams API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return TeamsApiService The initialized TeamsApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function teams(): TeamsApiService
+    {
+        if ($this->teams === null) {
+            $this->teams = new TeamsApiService($this->getApiClient());
+            return $this->teams;
+        }
+        $this->ensureValidToken();
+        return $this->teams;
     }
 
     /**
