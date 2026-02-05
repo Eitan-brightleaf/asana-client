@@ -10,6 +10,7 @@ use BrightleafDigital\Api\SectionApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\UserApiService;
+use BrightleafDigital\Api\WebhooksApiService;
 use BrightleafDigital\Api\WorkspaceApiService;
 use BrightleafDigital\Auth\AsanaOAuthHandler;
 use BrightleafDigital\Exceptions\TokenInvalidException;
@@ -100,6 +101,11 @@ class AsanaClient
      * @var CustomFieldApiService|null
      */
     private ?CustomFieldApiService $customFields = null;
+    /**
+     * Webhooks API service instance
+     * @var WebhooksApiService|null
+     */
+    private ?WebhooksApiService $webhooks = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -353,6 +359,23 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->customFields;
+    }
+
+    /**
+     * Retrieve the Webhooks API service instance. If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return WebhooksApiService The initialized WebhooksApiService instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function webhooks(): WebhooksApiService
+    {
+        if ($this->webhooks === null) {
+            $this->webhooks = new WebhooksApiService($this->getApiClient());
+            return $this->webhooks;
+        }
+        $this->ensureValidToken();
+        return $this->webhooks;
     }
 
     /**
