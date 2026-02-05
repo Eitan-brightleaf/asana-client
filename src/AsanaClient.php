@@ -12,6 +12,7 @@ use BrightleafDigital\Api\PortfoliosApiService;
 use BrightleafDigital\Api\ProjectApiService;
 use BrightleafDigital\Api\ProjectTemplatesApiService;
 use BrightleafDigital\Api\SectionApiService;
+use BrightleafDigital\Api\StatusUpdatesApiService;
 use BrightleafDigital\Api\TagsApiService;
 use BrightleafDigital\Api\TaskApiService;
 use BrightleafDigital\Api\TeamsApiService;
@@ -148,6 +149,11 @@ class AsanaClient
      * @var BatchApiService|null
      */
     private ?BatchApiService $batch = null;
+    /**
+     * Status Updates API service instance
+     * @var StatusUpdatesApiService|null
+     */
+    private ?StatusUpdatesApiService $statusUpdates = null;
     /**
     * List of callbacks to be triggered when the access token is refreshed.
     * The array can have numeric or string keys, which are used to identify the callbacks.
@@ -544,6 +550,26 @@ class AsanaClient
         }
         $this->ensureValidToken();
         return $this->batch;
+    }
+
+    /**
+     * Retrieve the Status Updates API service instance.
+     * If it does not exist, it creates and initializes it.
+     * Ensures the token validity before returning the instance.
+     *
+     * @return StatusUpdatesApiService The initialized instance.
+     * @throws TokenInvalidException If no token or it's expired and error refreshing it.
+     */
+    public function statusUpdates(): StatusUpdatesApiService
+    {
+        if ($this->statusUpdates === null) {
+            $this->statusUpdates = new StatusUpdatesApiService(
+                $this->getApiClient()
+            );
+            return $this->statusUpdates;
+        }
+        $this->ensureValidToken();
+        return $this->statusUpdates;
     }
 
     /**
